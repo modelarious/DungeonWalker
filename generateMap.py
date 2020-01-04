@@ -116,8 +116,7 @@ class Room(object):
 
 class Board(object):
 	def __init__(self, width, height):
-		assert width >= 4, f"Width must be 4 or greater, not {width}"
-		assert height >= 4, f"Height must be 4 or greater, not {height}"
+		if width < 4 or height < 4: raise BoardTooSmall
 
 		self.width = width
 		self.height = height
