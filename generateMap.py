@@ -49,8 +49,10 @@ has 4 exits (marked by the & symbol):
 charSet = {
 	"blocked" : "`",
 	"passable" : "*",
-	"Start" : "S",
-	"Goal" : "G",
+	"start" : "S",
+	"goal" : "G",
+	"anchor" : "&",
+	"player" : "@",
 #       "Treasure" : "T",
 #       "Lava" : "L"
 }
@@ -100,6 +102,14 @@ class Room(object):
 		self.topY = topLeftY
 		self.bottomY = topLeftY + height
 
+		self.middleX = (self.leftX + self.rightX - 1) // 2
+		self.middleY = (self.topY + self.bottomY - 1) // 2
+		self.anchors = [
+			(self.leftX, self.middleY),
+			(self.rightX - 1, self.middleY),
+			(self.middleX, self.topY),
+			(self.middleX, self.bottomY -1)
+		]
 
 	#checks if there are any gaps between any edges on the boxes, 
 	#if there aren't, then there is a collision
@@ -109,6 +119,9 @@ class Room(object):
 			self.topY < otherRoom.bottomY,
 			self.bottomY > otherRoom.topY]
 		return all(conds)
+
+	def getAnchors(self):
+		return self.anchors
 
 	def __str__(self):
 		return f"leftX = {self.leftX}, rightX = {self.rightX}, topY = {self.topY}, bottomY = {self.bottomY}"
@@ -122,6 +135,7 @@ class Board(object):
 		self.height = height
 		self.board = []
 		self.rooms = []
+		self.edges = dict()
 		
 		self.initBoard()
 		self.drawBoard()
@@ -135,6 +149,9 @@ class Board(object):
 				row.append(charSet["blocked"])
 			board.append(row)
 		self.board = board
+
+	def changeTile(self, x, y, char):
+		self.board[y][x] = char
 
 	#print the board to the screen
 	def drawBoard(self):
@@ -151,43 +168,93 @@ class Board(object):
 		if room.rightX > self.width - 1 or room.leftX < 1 or room.bottomY > self.height -1 or room.topY < 1:
 			raise RoomOutsideBoard
 
-		#if the room would collide with another that has already been placed
+		#if the room would collide with another room that has already been placed
 		if any(room.collide(placedRoom) for placedRoom in self.rooms):
 			raise RoomCollision
 
+		#add the room to the board
 		for x in range(room.leftX, room.rightX):
-			for y in range(room.topY, room.bottomY):	
-				self.board[y][x] = charSet["passable"]
+			for y in range(room.topY, room.bottomY):
+				self.changeTile(x, y, charSet["passable"])	
 
+		self._addAnchors(room)
+
+		#track this room
 		self.rooms.append(room)
 		return True
 
+	def _addAnchors(self, room):
+		#connect the anchors in the edge list to make the room a strongly connected component
+		self._addRoomNodes(room)
+		
+		#add the anchors visually
+		for x, y in room.getAnchors():
+			self.changeTile(x, y, charSet["anchor"])
+
+	def _connectRoomPoints(self, p1, p2):
+		self._addEdge(p1, p2)
+
+	def _addEdge(self, p1, p2):
+		#sort based on the first coordinate, breaking ties with the second coordinate.
+		#this is so that I don't have to memoize both (p1, p2) and (p2, p1) as they will
+		#always be in the same order after the sort step
+		_p1, _p2 = sorted((p1,p2))
+		if _p1 not in self.edges:
+			self.edges[_p1] = dict()
+
+		self.edges[_p1][_p2] = True
+
+		return True
+		
+
+	def _addRoomNodes(self, room):
+		#XXX
+		from itertools import combinations
+		anchors = room.getAnchors()
+		for anchor1, anchor2 in combinations(anchors, 2):
+			anchor1x, anchor1y = anchor1
+			anchor2x, anchor2y = anchor2
+			print(manhatten_distance(*anchor1, *anchor2))
+			print(anchor1x, anchor1y, anchor2x, anchor2y)
+			self._connectRoomPoints(anchor1, anchor2)
+		print(self.edges)
+	
+	#used when you want to connect two anchors from two different graph components (ie two different rooms)
+	#will first determine if the connection is possible using depth limited bfs
+	#if the connection isn't possible, it will invalidate future connections between these sets of points
+	#if the connection is possible, it will add an edge between them and draw a path between the two anchors
+	def _connectPathNodes(self, p1, p2):
+		#Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in the minimum number of moves, then invalidate this set of points
+		path = self._depthLimitedSearch(p1, p2, depth)
+		#XXX invalidate the set of points
+		if path == []:
+			pass
+		else:
+			self._addEdge(self, p1, p2)
+
+		for x, y in path:
+			self.changeTile(x, y, charSet["anchor"])
+
+	def _depthLimitedSearch(self, p1, p2, depth):
+		_p1, _p2 = sorted((p1,p2))
+		
+def manhatten_distance(p1X, p1Y, p2X, p2Y):
+	return abs(p1X - p2X) + abs(p1Y - p2Y)
 
 
-# thrown when a room given to the board would be outside the boundaries
-class RoomOutsideBoard(Exception):
-        pass
-
-# thrown when a room given to the board collides with another room
-class RoomCollision(Exception):
-        pass
-
-# thrown when the board
-class BoardTooSmall(Exception):
-        pass	
 x = Board(12, 12)
 
 '''
 `````````````
-`***`````````
-`***`````````
-`***`````***`
-`````````***`
-`````````***`
+`*&*`````````
+`&*&`````````
+`*&*`````*&*`
+`````````&*&`
+`````````*&*`
 `````````````
-```****``````
-```****``````
-```****``````
+```*&**``````
+```&**&``````
+```*&**``````
 `````````````
 '''
 
