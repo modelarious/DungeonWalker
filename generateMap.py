@@ -46,6 +46,11 @@ has 4 exits (marked by the & symbol):
 
 4) place the start and goal in random rooms
 '''
+
+
+
+from heapq import heappush, heappop
+
 charSet = {
 	"blocked" : "`",
 	"passable" : "*",
@@ -204,8 +209,7 @@ class Board(object):
 
 		self.edges[_p1][_p2] = True
 
-		return True
-		
+		return True	
 
 	def _addRoomNodes(self, room):
 		#XXX
@@ -220,24 +224,75 @@ class Board(object):
 		print(self.edges)
 	
 	#used when you want to connect two anchors from two different graph components (ie two different rooms)
-	#will first determine if the connection is possible using depth limited bfs
+	#will first determine if the connection is possible using depth limited search
 	#if the connection isn't possible, it will invalidate future connections between these sets of points
 	#if the connection is possible, it will add an edge between them and draw a path between the two anchors
 	def _connectPathNodes(self, p1, p2):
 		#Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in the minimum number of moves, then invalidate this set of points
-		path = self._depthLimitedSearch(p1, p2, depth)
+		path = self._depthLimitedSearch(p1, p2)
+
 		#XXX invalidate the set of points
 		if path == []:
 			pass
 		else:
-			self._addEdge(self, p1, p2)
+			self._addEdge(p1, p2)
 
 		for x, y in path:
 			self.changeTile(x, y, charSet["anchor"])
 
-	def _depthLimitedSearch(self, p1, p2, depth):
-		_p1, _p2 = sorted((p1,p2))
+	'''
+defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
+manhatten_distance. Depth is limited by the cost already paid to reach a point.
+	'''
+	def _depthLimitedSearch(self, startPoint, endPoint):
 		
+		#first element in open list is the start point
+		openPoints = []
+		heappush(openPoints, (0, startPoint))
+		
+		parent, cost, done = {}, {}, []
+		parent[startPoint] = None
+		cost[startPoint] = 0
+
+		while len(openPoints) != 0:
+			prio, currPoint = heappop(openPoints)
+			done.append(currPoint)
+			if currPoint == endPoint: break
+
+			#get neighbors of current point
+			currX, currY = currPoint
+			offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
+			neighbors = [(currX + offX, currY + offY) for offX, offY in offsets]
+
+			#look at all neighbors and add them to the heap
+			for nbr in neighbors:
+				if nbr not in done:
+					print(f"Looking at {nbr},  distance = {manhatten_distance(*nbr, *endPoint)}")
+					updatedCost = cost[currPoint] + 1
+					if nbr not in cost or updatedCost < cost[nbr]:
+						cost[nbr] = updatedCost
+						priority = updatedCost + manhatten_distance(*nbr, *endPoint)
+
+
+						#XXX
+						#cost is your depth!!!, FUCK YEAH!!
+						#if priority <= MAX_PRIORITY:
+						heappush(openPoints, (priority, nbr))
+						parent[nbr] = currPoint
+
+
+		#follow the path backwards and print it
+		path = []
+		p = parent[endPoint]
+		path.append(endPoint)
+		while p != None:
+			path.append(p)
+			p = parent[p]
+		correctPath = [i for i in reversed(path)]
+		print(correctPath)
+		return correctPath
+
+
 def manhatten_distance(p1X, p1Y, p2X, p2Y):
 	return abs(p1X - p2X) + abs(p1Y - p2Y)
 
@@ -270,6 +325,9 @@ x.addRoom(r)
 
 x.addRoom(r)
 '''
+p1 = (3, 2)
+p2 = (4, 7)
+x._connectPathNodes(p1, p2)
 x.drawBoard()
 
 
