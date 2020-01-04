@@ -58,6 +58,7 @@ charSet = {
 	"goal" : "G",
 	"anchor" : "&",
 	"player" : "@",
+	"pathTemp" : "-",
 #       "Treasure" : "T",
 #       "Lava" : "L"
 }
@@ -259,6 +260,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 		cost[startPoint] = 0
 
 		while len(openPoints) != 0:
+
 			prio, currPoint = heappop(openPoints)
 			done.append(currPoint)
 			if currPoint == endPoint: break
@@ -267,11 +269,33 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 			currX, currY = currPoint
 			offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
 			neighbors = [(currX + offX, currY + offY) for offX, offY in offsets]
-			neighbors = [n for n in  neighbors if self.get_tile(n) in (charSet["anchor"], charSet["blocked"])]
 
+			neighbors_filtered = []
+			acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
+			for n in neighbors:
+				if n == endPoint:
+					neighbors_filtered.append(n)
+					break
+
+				#get neighbors of this neighbor
+				p1X, p1Y = n
+				tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in offsets]
+				
+				#if any are an unacceptable tile, skip this neighbor
+				neighborTileUnacceptable = False
+				for tile in tileAndNeighbors:
+					tileChar = self.get_tile(tile)
+					if tileChar not in acceptable_chars:
+						neighborTileUnacceptable = True
+						break
+				if neighborTileUnacceptable == True:
+					continue
+
+				#neighbor passed all tests, so allow it
+				neighbors_filtered.append(n)
 
 			#look at all neighbors and add them to the heap
-			for nbr in neighbors:
+			for nbr in neighbors_filtered:
 				if nbr not in done:
 					print(f"Looking at {nbr},  distance = {manhatten_distance(*nbr, *endPoint)}")
 					updatedCost = cost[currPoint] + 1
