@@ -50,6 +50,7 @@ has 4 exits (marked by the & symbol):
 
 
 from heapq import heappush, heappop
+from itertools import combinations
 
 charSet = {
 	"blocked" : "`",
@@ -162,7 +163,7 @@ class Board(object):
 	#print the board to the screen
 	def drawBoard(self):
 		for row in self.board:
-			print("".join(row))
+			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"], charSet["passable"]))
 		print()
 	
 	#raises exceptions for cases where:
@@ -214,8 +215,6 @@ class Board(object):
 		return True	
 
 	def _addRoomNodes(self, room):
-		#XXX
-		from itertools import combinations
 		anchors = room.getAnchors()
 		for anchor1, anchor2 in combinations(anchors, 2):
 			anchor1x, anchor1y = anchor1
@@ -240,7 +239,7 @@ class Board(object):
 			self._addEdge(p1, p2)
 
 		for x, y in path:
-			self.changeTile(x, y, charSet["player"])
+			self.changeTile(x, y, charSet["pathTemp"])
 
 	'''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
@@ -270,6 +269,8 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 			offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
 			neighbors = [(currX + offX, currY + offY) for offX, offY in offsets]
 
+
+			#code to make the path stay away from touching walls by 1 space
 			neighbors_filtered = []
 			acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
 			for n in neighbors:
@@ -363,6 +364,10 @@ x.drawBoard()
 p1 = (3, 2)
 p2 = (4, 7)
 x._connectPathNodes(p1, p2)
+
+p1 = (8, 5)
+x._connectPathNodes(p1, p2)
+
 x.drawBoard()
 
 
