@@ -182,6 +182,7 @@ class Board(object):
 			for y in range(room.topY, room.bottomY):
 				self.changeTile(x, y, charSet["passable"])	
 
+		self.drawBoard()
 		self._addAnchors(room)
 
 		#track this room
@@ -238,13 +239,16 @@ class Board(object):
 			self._addEdge(p1, p2)
 
 		for x, y in path:
-			self.changeTile(x, y, charSet["anchor"])
+			self.changeTile(x, y, charSet["player"])
 
 	'''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
 manhatten_distance. Depth is limited by the cost already paid to reach a point.
 	'''
 	def _depthLimitedSearch(self, startPoint, endPoint):
+
+		#a little bit of tolerance allowing for up to 10 extra spaces to get around unexpected objects
+		maxDepth = manhatten_distance(*startPoint, *endPoint) + 10
 		
 		#first element in open list is the start point
 		openPoints = []
@@ -263,6 +267,8 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 			currX, currY = currPoint
 			offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
 			neighbors = [(currX + offX, currY + offY) for offX, offY in offsets]
+			neighbors = [n for n in  neighbors if self.get_tile(n) in (charSet["anchor"], charSet["blocked"])]
+
 
 			#look at all neighbors and add them to the heap
 			for nbr in neighbors:
@@ -273,12 +279,10 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 						cost[nbr] = updatedCost
 						priority = updatedCost + manhatten_distance(*nbr, *endPoint)
 
-
-						#XXX
-						#cost is your depth!!!, FUCK YEAH!!
-						#if priority <= MAX_PRIORITY:
-						heappush(openPoints, (priority, nbr))
-						parent[nbr] = currPoint
+						#we don't want to search any deeper than "maxdepth"
+						if priority <= maxDepth:
+							heappush(openPoints, (priority, nbr))
+							parent[nbr] = currPoint
 
 
 		#follow the path backwards and print it
@@ -292,6 +296,9 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 		print(correctPath)
 		return correctPath
 
+	def get_tile(self, point):
+		pX, pY = point
+		return self.board[pY][pX] #XXX THIS IS PRONE TO ERROR, PLEASE MAKE SURE TO CHECK THIS!!
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):
 	return abs(p1X - p2X) + abs(p1Y - p2Y)
@@ -325,6 +332,10 @@ x.addRoom(r)
 
 x.addRoom(r)
 '''
+
+
+x.drawBoard()
+
 p1 = (3, 2)
 p2 = (4, 7)
 x._connectPathNodes(p1, p2)
