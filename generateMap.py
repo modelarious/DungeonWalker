@@ -229,6 +229,7 @@ class Board(object):
 	#if the connection isn't possible, it will invalidate future connections between these sets of points
 	#if the connection is possible, it will add an edge between them and draw a path between the two anchors
 	def _connectPathNodes(self, p1, p2):
+		print(f"Connecting {p1} and {p2}")
 		#Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in the minimum number of moves, then invalidate this set of points
 		path = self._depthLimitedSearch(p1, p2)
 
@@ -241,6 +242,54 @@ class Board(object):
 		for x, y in path:
 			self.changeTile(x, y, charSet["pathTemp"])
 
+	def _searchPath(self, tile, endPoint):
+		print("\nEnter search path")
+		offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
+		q = []
+		seen = []
+		parent = {}
+		
+		q.append(tile)
+		parent[tile] = None
+
+		while len(q) != 0:
+			point = q.pop()
+
+			print(f"looking at point {point}, seen={seen}")
+			if point in seen:
+				continue
+
+			if point == endPoint:
+				print("WHOA")
+				break
+
+			seen.append(point)
+			pX, pY = point
+			neighbors = [(pX + offX, pY + offY) for offX, offY in offsets]
+
+			print(f"neighbors of {point} are {neighbors}")
+			#only include neighbors that are part of an existing path, as we are serching down a path
+			filteredNeighbors = [n for n in neighbors if self.get_tile(n) == charSet["pathTemp"]]
+			print(f"neighbors of {point} are {filteredNeighbors}")
+			for n in filteredNeighbors:
+				if n not in seen:
+					q.append(n)
+					parent[n] = point
+
+#		return self.print_path(parent, endPoint), parent
+		print(parent)
+		#follow the path backwards and print it
+		path = []
+		p = parent[endPoint] #XXX Unsafe operation, don't assume the path was formed (maybe use .setdefault())
+		path.append(endPoint)
+		while p != None:
+			path.append(p)
+			p = parent[p]
+		correctPath = [i for i in reversed(path)]
+		print(correctPath)
+		return correctPath, parent
+			
+		
 	'''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
 manhatten_distance. Depth is limited by the cost already paid to reach a point.
@@ -271,6 +320,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 
 
 			#code to make the path stay away from touching walls by 1 space
+			#XXX also checks for existing temporary paths that would be able to join to our target that we could follow
 			neighbors_filtered = []
 			acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
 			for n in neighbors:
@@ -289,6 +339,15 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 					if tileChar not in acceptable_chars:
 						neighborTileUnacceptable = True
 						break
+					
+					if tileChar == charSet["pathTemp"]:
+						path, parents = self._searchPath(tile, endPoint)
+						if path != []:
+							parents[tile] = n
+							parents[n] = currPoint
+							parent.update(parents)
+							return self.print_path(parent, endPoint)
+					
 				if neighborTileUnacceptable == True:
 					continue
 
@@ -309,10 +368,12 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 							heappush(openPoints, (priority, nbr))
 							parent[nbr] = currPoint
 
+		return self.print_path(parent, endPoint)
 
+	def print_path(self, parent, endPoint):
 		#follow the path backwards and print it
 		path = []
-		p = parent[endPoint]
+		p = parent[endPoint] #XXX Unsafe operation, don't assume the path was formed (maybe use .setdefault())
 		path.append(endPoint)
 		while p != None:
 			path.append(p)
@@ -361,11 +422,11 @@ x.addRoom(r)
 
 x.drawBoard()
 
-p1 = (3, 2)
+p1 = (8, 5)
 p2 = (4, 7)
 x._connectPathNodes(p1, p2)
-
-p1 = (8, 5)
+x.drawBoard()
+p1 = (3, 2)
 x._connectPathNodes(p1, p2)
 
 x.drawBoard()
