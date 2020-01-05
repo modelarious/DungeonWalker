@@ -255,22 +255,18 @@ class Board(object):
 		while len(q) != 0:
 			point = q.pop()
 
-			print(f"looking at point {point}, seen={seen}")
 			if point in seen:
 				continue
 
 			if point == endPoint:
-				print("WHOA")
 				break
 
 			seen.append(point)
 			pX, pY = point
 			neighbors = [(pX + offX, pY + offY) for offX, offY in offsets]
 
-			print(f"neighbors of {point} are {neighbors}")
 			#only include neighbors that are part of an existing path, as we are serching down a path
 			filteredNeighbors = [n for n in neighbors if self.get_tile(n) == charSet["pathTemp"]]
-			print(f"neighbors of {point} are {filteredNeighbors}")
 			for n in filteredNeighbors:
 				if n not in seen:
 					q.append(n)
@@ -382,6 +378,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 		print(correctPath)
 		return correctPath
 
+	#XXX needs to reject requests that are outside of range
 	def get_tile(self, point):
 		pX, pY = point
 		return self.board[pY][pX] #XXX THIS IS PRONE TO ERROR, PLEASE MAKE SURE TO CHECK THIS!!
@@ -423,10 +420,12 @@ x.addRoom(r)
 x.drawBoard()
 
 p1 = (8, 5)
+#p1 = (3, 2)
 p2 = (4, 7)
 x._connectPathNodes(p1, p2)
 x.drawBoard()
 p1 = (3, 2)
+#p1 = (8, 5)
 x._connectPathNodes(p1, p2)
 
 x.drawBoard()
