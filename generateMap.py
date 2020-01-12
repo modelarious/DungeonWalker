@@ -48,7 +48,7 @@ has 4 exits (marked by the & symbol):
 '''
 
 
-
+from exceptions import *
 from heapq import heappush, heappop
 from itertools import combinations
 
@@ -60,31 +60,17 @@ charSet = {
 	"anchor" : "&",
 	"player" : "@",
 	"pathTemp" : "-",
-#       "Treasure" : "T",
-#       "Lava" : "L"
 }
+
+'''
+exceptions that can be thrown:
 
 # thrown when given room dimensions are too large
 class RoomTooLarge(Exception):
-	pass
 
 # thrown when given room dimensions are too small
 class RoomTooSmall(Exception):
-	pass
-
-# thrown when a room given to the board would be outside the boundaries
-class RoomOutsideBoard(Exception):
-	pass
-
-# thrown when a room given to the board collides with another room
-class RoomCollision(Exception):
-	pass
-
-# thrown when the board 
-class BoardTooSmall(Exception):
-	pass
-
-
+'''
 class Room(object):
 	MAX_ROOM_HEIGHT = 10
 	MAX_ROOM_WIDTH = 10
@@ -133,7 +119,16 @@ class Room(object):
 	def __str__(self):
 		return f"leftX = {self.leftX}, rightX = {self.rightX}, topY = {self.topY}, bottomY = {self.bottomY}"
 
+'''
+# thrown when a room given to the board would be outside the boundaries
+class RoomOutsideBoard(Exception):
 
+# thrown when a room given to the board collides with another room
+class RoomCollision(Exception):
+
+# thrown when the board dimensions are too small
+class BoardTooSmall(Exception):
+'''
 class Board(object):
 	def __init__(self, width, height):
 		if width < 4 or height < 4: raise BoardTooSmall
@@ -267,7 +262,7 @@ class Board(object):
 					q.append(n)
 					parent[n] = point
 
-		return self.print_path(parent, endPoint), parent
+		return self.get_path(parent, endPoint), parent
 		
 	'''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
@@ -325,7 +320,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 							parents[tile] = n
 							parents[n] = currPoint
 							parent.update(parents)
-							return self.print_path(parent, endPoint)
+							return self.get_path(parent, endPoint)
 					
 				if neighborTileUnacceptable == True:
 					continue
@@ -346,9 +341,9 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 							heappush(openPoints, (priority, nbr))
 							parent[nbr] = currPoint
 
-		return self.print_path(parent, endPoint)
+		return self.get_path(parent, endPoint)
 
-	def print_path(self, parent, endPoint):
+	def get_path(self, parent, endPoint):
 		#follow the path backwards and print it
 		path = []
 		p = parent[endPoint] #XXX Unsafe operation, don't assume the path was formed (maybe use .setdefault())
@@ -368,9 +363,10 @@ def manhatten_distance(p1X, p1Y, p2X, p2Y):
 	return abs(p1X - p2X) + abs(p1Y - p2Y)
 
 
-x = Board(12, 12)
+if __name__ == '__main__':
+	x = Board(12, 12)
 
-'''
+	'''
 `````````````
 `*&*`````````
 `&*&`````````
@@ -382,12 +378,12 @@ x = Board(12, 12)
 ```&**&``````
 ```*&**``````
 `````````````
-'''
+	'''
 
-x.addRoom(Room(3, 3, 1, 1))
-x.addRoom(Room(3, 3, 8, 4))
-x.addRoom(Room(3, 4, 3, 7))
-'''
+	x.addRoom(Room(3, 3, 1, 1))
+	x.addRoom(Room(3, 3, 8, 4))
+	x.addRoom(Room(3, 4, 3, 7))
+	'''
 roomHeight, roomWidth = (4, 5)
 topLeftX, topLeftY = (3,1)
 
@@ -395,20 +391,20 @@ r = Room(roomHeight, roomWidth, topLeftX, topLeftY)
 x.addRoom(r)
 
 x.addRoom(r)
-'''
+	'''
 
 
-x.drawBoard()
+	x.drawBoard()
 
-p1 = (8, 5)
-#p1 = (3, 2)
-p2 = (4, 7)
-x._connectPathNodes(p1, p2)
-x.drawBoard()
-p1 = (3, 2)
-#p1 = (8, 5)
-x._connectPathNodes(p1, p2)
+	p1 = (8, 5)
+	#p1 = (3, 2)
+	p2 = (4, 7)
+	x._connectPathNodes(p1, p2)
+	x.drawBoard()
+	p1 = (3, 2)
+	#p1 = (8, 5)
+	x._connectPathNodes(p1, p2)
 
-x.drawBoard()
+	x.drawBoard()
 
 
