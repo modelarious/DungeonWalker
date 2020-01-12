@@ -219,17 +219,13 @@ class Board(object):
 		for anchor1, anchor2 in combinations(anchors, 2):
 			anchor1x, anchor1y = anchor1
 			anchor2x, anchor2y = anchor2
-			print(manhatten_distance(*anchor1, *anchor2))
-			print(anchor1x, anchor1y, anchor2x, anchor2y)
 			self._connectRoomPoints(anchor1, anchor2)
-		print(self.edges)
 	
 	#used when you want to connect two anchors from two different graph components (ie two different rooms)
 	#will first determine if the connection is possible using depth limited search
 	#if the connection isn't possible, it will invalidate future connections between these sets of points
 	#if the connection is possible, it will add an edge between them and draw a path between the two anchors
 	def _connectPathNodes(self, p1, p2):
-		print(f"Connecting {p1} and {p2}")
 		#Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in the minimum number of moves, then invalidate this set of points
 		path = self._depthLimitedSearch(p1, p2)
 
@@ -243,7 +239,6 @@ class Board(object):
 			self.changeTile(x, y, charSet["pathTemp"])
 
 	def _searchPath(self, tile, endPoint):
-		print("\nEnter search path")
 		offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
 		q = []
 		seen = []
@@ -272,19 +267,7 @@ class Board(object):
 					q.append(n)
 					parent[n] = point
 
-#		return self.print_path(parent, endPoint), parent
-		print(parent)
-		#follow the path backwards and print it
-		path = []
-		p = parent[endPoint] #XXX Unsafe operation, don't assume the path was formed (maybe use .setdefault())
-		path.append(endPoint)
-		while p != None:
-			path.append(p)
-			p = parent[p]
-		correctPath = [i for i in reversed(path)]
-		print(correctPath)
-		return correctPath, parent
-			
+		return self.print_path(parent, endPoint), parent
 		
 	'''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
@@ -353,7 +336,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 			#look at all neighbors and add them to the heap
 			for nbr in neighbors_filtered:
 				if nbr not in done:
-					print(f"Looking at {nbr},  distance = {manhatten_distance(*nbr, *endPoint)}")
 					updatedCost = cost[currPoint] + 1
 					if nbr not in cost or updatedCost < cost[nbr]:
 						cost[nbr] = updatedCost
@@ -375,7 +357,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 			path.append(p)
 			p = parent[p]
 		correctPath = [i for i in reversed(path)]
-		print(correctPath)
 		return correctPath
 
 	#XXX needs to reject requests that are outside of range
