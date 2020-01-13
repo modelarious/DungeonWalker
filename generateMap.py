@@ -158,17 +158,32 @@ class Board(object):
 	#print the board to the screen
 	def drawBoard(self):
 		for row in self.board:
-			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"], charSet["passable"]))
+			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]))#.replace(charSet["anchor"], charSet["passable"]))
 		print()
 	
+	def _roomIsOutsideBounds(self, room):
+		if room.rightX > self.width - 1:
+			return f"room.rightX ({room.rightX}) > self.width - 1 ({self.width -1})"
+		if room.leftX < 1:
+			return f"room.leftX ({room.leftX}) < 1"
+		if room.bottomY > self.height - 1:
+			return f"room.bottomY ({room.bottomY}) > self.height - 1 ({self.height -1})"
+		if room.topY < 1:
+			return f"room.topY ({room.topY}) < 1"
+		return ""
+
 	#raises exceptions for cases where:
 	#	- the room would leave the bounds of the board
 	#	- the room would collide with another that already exists
 	def addRoom(self, room):
 
-		#if the rectangle would leave the bounds of the board
-		if room.rightX > self.width - 1 or room.leftX < 1 or room.bottomY > self.height -1 or room.topY < 1:
-			raise RoomOutsideBoard
+		#raise an exception if the rectangle would leave the bounds of the board
+		outOfBounds = self._roomIsOutsideBounds(room)
+		if outOfBounds:
+			raise RoomOutsideBoard(outOfBounds)
+		
+		#if room.rightX > self.width - 1 or room.leftX < 1 or room.bottomY > self.height -1 or room.topY < 1:
+		#	raise RoomOutsideBoard
 
 		#if the room would collide with another room that has already been placed
 		if any(room.collide(placedRoom) for placedRoom in self.rooms):

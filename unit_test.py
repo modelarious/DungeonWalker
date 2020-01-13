@@ -1,13 +1,24 @@
 import unittest
 
-from generateMap import Room
+from generateMap import Room, Board #XXX
 from exceptions import *
 from parameterized import parameterized
 
-#max Room Size and min Room Size
+#max, min and median Room Size
 maxRS = 10
 minRS = 2
 medianRS = 5
+
+evenValidRoomSize = 6
+oddValidRoomSize = 7
+
+'''
+[(0, 2), (5, 2), (2, 0), (2, 5)]
+[(0, 3), (5, 3), (2, 0), (2, 6)]
+.[(0, 2), (6, 2), (3, 0), (3, 5)]
+.[(0, 3), (6, 3), (3, 0), (3, 6)]
+'''
+
 class TestRoomCreation(unittest.TestCase):
 
 	@parameterized.expand([
@@ -36,6 +47,16 @@ class TestRoomCreation(unittest.TestCase):
 		self.assertRaises(exception, Room, *roomParams)
 
 
+	@parameterized.expand([
+		["EvenWidthAndHeight", (evenValidRoomSize, evenValidRoomSize, 1, 1), [(1, 3), (6, 3), (3, 1), (3, 6)]],
+		["EvenWidthOddHeight", (oddValidRoomSize, evenValidRoomSize, 1, 1), [(1, 4), (6, 4), (3, 1), (3, 7)]],
+		["OddWidthEvenHeight", (evenValidRoomSize, oddValidRoomSize, 1, 1), [(1, 3), (7, 3), (4, 1), (4, 6)]],
+		["OddWidthOddHeight", (oddValidRoomSize, oddValidRoomSize, 1, 1), [(1, 4), (7, 4), (4, 1), (4, 7)]]
+	])
+	def test_anchors_in_correct_locations(self, name, roomParams, expectedAnchors):
+		r = Room(*roomParams)
+		self.assertEqual(r.getAnchors(), expectedAnchors)
+		
 if __name__ == '__main__':
     unittest.main()
 
