@@ -1,6 +1,5 @@
 import unittest
 
-from generateMap import Board
 from room import Room
 from exceptions import *
 from settings import *
@@ -66,7 +65,8 @@ class TestRoomCreation(unittest.TestCase):
 		["Room 2 top left corner in Room 1", Room(5, 5, 1, 1), Room(5, 5, 2, 2)],
 		["Room 2 top left corner barely in Room 1", Room(5, 5, 1, 1), Room(5, 5, 5, 5)],
 		["Room 2 top right corner in Room 1", Room(5, 5, 2, 1), Room(5, 5, 1, 2)],
-		["Room 2 top right corner barely in Room 1", Room(5, 5, 5, 1), Room(5, 5, 1, 5)]
+		["Room 2 top right corner barely in Room 1", Room(5, 5, 5, 1), Room(5, 5, 1, 5)],
+		["Room 2 taller than Room 1, no corners inside of each (form a cross)", Room(3, 7, 3, 3), Room(7, 3, 5, 1)]
 	])
 	def test_rooms_collide(self, name, room1, room2):
 	#	b = Board(12, 12)
@@ -76,6 +76,10 @@ class TestRoomCreation(unittest.TestCase):
 		self.assertTrue(room1.collide(room2))
 		self.assertTrue(room2.collide(room1))
 
+	def test_string_representation(self):
+		shift = 3
+		r = Room(medianRS, medianRS, shift, shift)
+		self.assertEqual(f"leftX = {shift}, rightX = {medianRS+shift}, topY = {shift}, bottomY = {medianRS+shift}", r.__str__())
 if __name__ == '__main__':
     unittest.main()
 
