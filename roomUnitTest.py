@@ -1,13 +1,14 @@
 import unittest
 
-from generateMap import Room, Board #XXX
+from room import Room
 from exceptions import *
+from settings import *
 from parameterized import parameterized
 
 #max, min and median Room Size
-maxRS = 10
-minRS = 2
-medianRS = 5
+maxRS = MAX_ROOM_HEIGHT
+minRS = MIN_ROOM_HEIGHT
+medianRS = (maxRS + minRS) // 2
 
 evenValidRoomSize = 6
 oddValidRoomSize = 7
