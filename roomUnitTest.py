@@ -1,5 +1,6 @@
 import unittest
 
+from generateMap import Board
 from room import Room
 from exceptions import *
 from settings import *
@@ -52,12 +53,29 @@ class TestRoomCreation(unittest.TestCase):
 		["EvenWidthAndHeight", (evenValidRoomSize, evenValidRoomSize, 1, 1), [(1, 3), (6, 3), (3, 1), (3, 6)]],
 		["EvenWidthOddHeight", (oddValidRoomSize, evenValidRoomSize, 1, 1), [(1, 4), (6, 4), (3, 1), (3, 7)]],
 		["OddWidthEvenHeight", (evenValidRoomSize, oddValidRoomSize, 1, 1), [(1, 3), (7, 3), (4, 1), (4, 6)]],
-		["OddWidthOddHeight", (oddValidRoomSize, oddValidRoomSize, 1, 1), [(1, 4), (7, 4), (4, 1), (4, 7)]]
+		["OddWidthOddHeight", (oddValidRoomSize, oddValidRoomSize, 1, 1), [(1, 4), (7, 4), (4, 1), (4, 7)]],
+		["min sized room", (minRS, minRS, 1, 1), [(1, 2), (3, 2), (2, 1), (2, 3)]]
 	])
 	def test_anchors_in_correct_locations(self, name, roomParams, expectedAnchors):
 		r = Room(*roomParams)
 		self.assertEqual(r.getAnchors(), expectedAnchors)
-		
+
+	@parameterized.expand([
+		["Room 2 equals Room 1", Room(5, 5, 1, 1), Room(5, 5, 1, 1)],
+		["Room 2 inside Room 1", Room(maxRS, maxRS, 1, 1), Room(minRS, minRS, medianRS, medianRS)],
+		["Room 2 top left corner in Room 1", Room(5, 5, 1, 1), Room(5, 5, 2, 2)],
+		["Room 2 top left corner barely in Room 1", Room(5, 5, 1, 1), Room(5, 5, 5, 5)],
+		["Room 2 top right corner in Room 1", Room(5, 5, 2, 1), Room(5, 5, 1, 2)],
+		["Room 2 top right corner barely in Room 1", Room(5, 5, 5, 1), Room(5, 5, 1, 5)]
+	])
+	def test_rooms_collide(self, name, room1, room2):
+	#	b = Board(12, 12)
+	#	b.addRoom(room1)
+	#	b.addRoom(room2)
+	#	b.drawBoard()
+		self.assertTrue(room1.collide(room2))
+		self.assertTrue(room2.collide(room1))
+
 if __name__ == '__main__':
     unittest.main()
 

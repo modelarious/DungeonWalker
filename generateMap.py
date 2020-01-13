@@ -118,12 +118,10 @@ class Board(object):
 		if outOfBounds:
 			raise RoomOutsideBoard(outOfBounds)
 		
-		#if room.rightX > self.width - 1 or room.leftX < 1 or room.bottomY > self.height -1 or room.topY < 1:
-		#	raise RoomOutsideBoard
-
 		#if the room would collide with another room that has already been placed
-		if any(room.collide(placedRoom) for placedRoom in self.rooms):
-			raise RoomCollision
+		#if any(room.collide(placedRoom) for placedRoom in self.rooms):
+		#	raise RoomCollision
+		#XXX
 
 		#add the room to the board
 		for x in range(room.leftX, room.rightX):
