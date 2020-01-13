@@ -49,18 +49,10 @@ has 4 exits (marked by the & symbol):
 
 
 from exceptions import *
+from settings import *
 from heapq import heappush, heappop
 from itertools import combinations
 
-charSet = {
-	"blocked" : "`",
-	"passable" : "*",
-	"start" : "S",
-	"goal" : "G",
-	"anchor" : "&",
-	"player" : "@",
-	"pathTemp" : "-",
-}
 
 '''
 exceptions that can be thrown:
@@ -72,21 +64,41 @@ class RoomTooLarge(Exception):
 class RoomTooSmall(Exception):
 '''
 class Room(object):
-	MAX_ROOM_HEIGHT = 10
-	MAX_ROOM_WIDTH = 10
-	MIN_ROOM_WIDTH = 2
-	MIN_ROOM_HEIGHT = 2
+	#returns an empty string if the room bounds are within a valid range, otherwise returns a string describing the problem
+	def roomWithinMinRange(self, height, width):
+		if height < MIN_ROOM_HEIGHT:
+			return self._getExceptionFormat(height, "height", MIN_ROOM_HEIGHT, "MIN_ROOM_HEIGHT", "<")
+		if width < MIN_ROOM_WIDTH: 
+			return self._getExceptionFormat(width, "width", MIN_ROOM_WIDTH, "MIN_ROOM_WIDTH", "<")
+		return ""
+
+	#returns an empty string if the room bounds are within a valid range, otherwise returns a string describing the problem
+	def roomWithinMaxRange(self, height, width):
+		if height > MAX_ROOM_HEIGHT: 
+			return self._getExceptionFormat(height, "height", MAX_ROOM_HEIGHT, "MAX_ROOM_HEIGHT", ">") #f"height ({height}) > MAX_ROOM_HEIGHT ({MAX_ROOM_HEIGHT})"
+		if width > MAX_ROOM_WIDTH:
+			return self._getExceptionFormat(width, "width", MAX_ROOM_WIDTH, "MAX_ROOM_WIDTH", ">") #f"width ({width}) > MAX_ROOM_WIDTH ({MAX_ROOM_WIDTH})"
+		return ""
+
+	def _getExceptionFormat(self, val1, val1Name, val2, val2Name, comparison):
+		return f"{val1Name} ({val1}) {comparison} {val2Name} ({val2})"
 
 	def __init__(self, height, width, topLeftX, topLeftY):
 
 		#check if the room is too large
-		if height > Room.MAX_ROOM_HEIGHT: raise RoomTooLarge
-		if width > Room.MAX_ROOM_WIDTH: raise RoomTooLarge
+#		if height > MAX_ROOM_HEIGHT: raise RoomTooLarge
+#		if width > MAX_ROOM_WIDTH: raise RoomTooLarge
 
 		#check if the room is too small
-		if height < Room.MIN_ROOM_HEIGHT: raise RoomTooSmall
-		if width < Room.MIN_ROOM_WIDTH: raise RoomTooSmall
+#		if height < MIN_ROOM_HEIGHT: raise RoomTooSmall
+#		if width < MIN_ROOM_WIDTH: raise RoomTooSmall
 
+		notWithinMin = self.roomWithinMinRange(height, width)
+		if notWithinMin: raise RoomTooSmall(notWithinMin)
+
+		notWithinMax = self.roomWithinMaxRange(height, width)
+		if notWithinMax: raise RoomTooLarge(notWithinMin)
+		
 		self.height = height
 		self.width = width
 
