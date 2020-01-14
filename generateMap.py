@@ -67,7 +67,7 @@ class BoardTooSmall(Exception):
 '''
 class Board(object):
 	def __init__(self, width, height):
-		if width < 4 or height < 4: raise BoardTooSmall
+		if width < MIN_BOARD_WIDTH or height < MIN_BOARD_HEIGHT: raise BoardTooSmall
 
 		self.width = width
 		self.height = height
@@ -76,7 +76,6 @@ class Board(object):
 		self.edges = dict()
 		
 		self.initBoard()
-		self.drawBoard()
 
 	#set the board to a blank initial state
 	def initBoard(self):
@@ -94,7 +93,7 @@ class Board(object):
 	#print the board to the screen
 	def drawBoard(self):
 		for row in self.board:
-			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]))#.replace(charSet["anchor"], charSet["passable"]))
+			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"], charSet["passable"]))
 		print()
 	
 	def _roomIsOutsideBounds(self, room):
@@ -119,16 +118,14 @@ class Board(object):
 			raise RoomOutsideBoard(outOfBounds)
 		
 		#if the room would collide with another room that has already been placed
-		#if any(room.collide(placedRoom) for placedRoom in self.rooms):
-		#	raise RoomCollision
-		#XXX
+		if any(room.collide(placedRoom) for placedRoom in self.rooms):
+			raise RoomCollision
 
 		#add the room to the board
 		for x in range(room.leftX, room.rightX):
 			for y in range(room.topY, room.bottomY):
 				self.changeTile(x, y, charSet["passable"])	
 
-		self.drawBoard()
 		self._addAnchors(room)
 
 		#track this room
