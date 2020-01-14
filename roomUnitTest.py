@@ -1,5 +1,6 @@
 import unittest
 
+#from generateMap import Board
 from room import Room
 from exceptions import *
 from settings import *
@@ -75,6 +76,19 @@ class TestRoomCreation(unittest.TestCase):
 	#	b.drawBoard()
 		self.assertTrue(room1.collide(room2))
 		self.assertTrue(room2.collide(room1))
+
+	@parameterized.expand([
+		["Room 2 borders Room 1 on the side", Room(3, 3, 1, 1), Room(3, 3, 4, 1)],
+		["Room 2 borders Room 1 on the bottom", Room(3, 3, 1, 1), Room(3, 3, 1, 4)],
+		["Rooms are nowhere close", Room(3, 3, 1, 1), Room(3, 3, 15, 15)]
+	])
+	def test_rooms_dont_collide(self, name, room1, room2):
+	#	b = Board(30, 30)
+	#	b.addRoom(room1)
+	#	b.addRoom(room2)
+	#	b.drawBoard()
+		self.assertFalse(room1.collide(room2))
+		self.assertFalse(room2.collide(room1))
 
 	def test_string_representation(self):
 		shift = 3
