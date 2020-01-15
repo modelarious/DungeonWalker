@@ -21,11 +21,11 @@ smallest possible map:
 ````
 
 some rules:
-	- can't place a room such that one of its walls is on the edge of the map (1 space buffer around entire map)
-	- can't place two rooms such that their walls touch
-	
-2) generate a graph where each room exit is a node (there are 4 room exits, 
-	each on the center of a room's wall)
+    - can't place a room such that one of its walls is on the edge of the map (1 space buffer around entire map)
+    - can't place two rooms such that their walls touch
+
+2) generate a graph where each room exit is a node (there are 4 room exits,
+    each on the center of a room's wall)
 ex:
 `````
 `***`
@@ -39,10 +39,10 @@ has 4 exits (marked by the & symbol):
 `&*&`
 `*&*`
 `````
- 
+
 3) connect the rooms using either
-	- prim's algorithm
-	- iteratively randomly connecting rooms until a dfs can reach every room
+    - prim's algorithm
+    - iteratively randomly connecting rooms until a dfs can reach every room
 
 4) place the start and goal in random rooms
 '''
@@ -71,9 +71,6 @@ class Board(object):
 
         self.width = width
         self.height = height
-        self._board = []
-        self._rooms = []
-        self._edges = dict()
 
         self.init_board()
 
@@ -85,7 +82,10 @@ class Board(object):
             for x in range(self.width):
                 row.append(charSet["blocked"])
             board.append(row)
+
         self._board = board
+        self._rooms = []
+        self._edges = dict()
 
     def _change_tile(self, x, y, char):
         self._board[y][x] = char
@@ -208,7 +208,7 @@ class Board(object):
     '''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
 manhatten_distance. Depth is limited by the cost already paid to reach a point.
-	'''
+    '''
 
     def _depth_limited_search(self, startPoint, endPoint):
 
@@ -320,7 +320,7 @@ if __name__ == '__main__':
 ```&**&``````
 ```*&**``````
 `````````````
-	'''
+    '''
 
     x.add_room(Room(3, 3, 1, 1))
     x.add_room(Room(3, 3, 8, 4))
@@ -333,7 +333,7 @@ r = Room(roomHeight, roomWidth, topLeftX, topLeftY)
 x.add_room(r)
 
 x.add_room(r)
-	'''
+    '''
 
     x.draw_board()
 
