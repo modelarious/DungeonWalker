@@ -71,33 +71,33 @@ class Board(object):
 
         self.width = width
         self.height = height
-        self.board = []
-        self.rooms = []
-        self.edges = dict()
+        self._board = []
+        self._rooms = []
+        self._edges = dict()
 
-        self.initBoard()
+        self.init_board()
 
     # set the board to a blank initial state
-    def initBoard(self):
+    def init_board(self):
         board = []
         for y in range(self.height):
             row = []
             for x in range(self.width):
                 row.append(charSet["blocked"])
             board.append(row)
-        self.board = board
+        self._board = board
 
-    def changeTile(self, x, y, char):
-        self.board[y][x] = char
+    def _change_tile(self, x, y, char):
+        self._board[y][x] = char
 
     # print the board to the screen
-    def drawBoard(self):
-        for row in self.board:
+    def draw_board(self):
+        for row in self._board:
             print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"],
                                                                                          charSet["passable"]))
         print()
 
-    def _roomIsOutsideBounds(self, room):
+    def _room_is_outside_bounds(self, room):
         if room.rightX > self.width - 1:
             return f"room.rightX ({room.rightX}) > self.width - 1 ({self.width - 1})"
         if room.leftX < 1:
@@ -111,76 +111,70 @@ class Board(object):
     # raises exceptions for cases where:
     #	- the room would leave the bounds of the board
     #	- the room would collide with another that already exists
-    def addRoom(self, room):
+    def add_room(self, room):
 
         # raise an exception if the rectangle would leave the bounds of the board
-        outOfBounds = self._roomIsOutsideBounds(room)
+        outOfBounds = self._room_is_outside_bounds(room)
         if outOfBounds:
             raise RoomOutsideBoard(outOfBounds)
 
         # if the room would collide with another room that has already been placed
-        if any(room.collide(placedRoom) for placedRoom in self.rooms):
+        if any(room.collide(placedRoom) for placedRoom in self._rooms):
             raise RoomCollision
 
         # add the room to the board
         for x in range(room.leftX, room.rightX):
             for y in range(room.topY, room.bottomY):
-                self.changeTile(x, y, charSet["passable"])
+                self._change_tile(x, y, charSet["passable"])
 
-        self._addAnchors(room)
+        self._add_anchors(room)
 
         # track this room
-        self.rooms.append(room)
+        self._rooms.append(room)
         return True
 
-    def _addAnchors(self, room):
+    def _add_anchors(self, room):
         # connect the anchors in the edge list to make the room a strongly connected component
-        self._addRoomNodes(room)
-
-        # add the anchors visually
-        for x, y in room.getAnchors():
-            self.changeTile(x, y, charSet["anchor"])
-
-    def _connectRoomPoints(self, p1, p2):
-        self._addEdge(p1, p2)
-
-    def _addEdge(self, p1, p2):
-        # sort based on the first coordinate, breaking ties with the second coordinate.
-        # this is so that I don't have to memoize both (p1, p2) and (p2, p1) as they will
-        # always be in the same order after the sort step
-        _p1, _p2 = sorted((p1, p2))
-        if _p1 not in self.edges:
-            self.edges[_p1] = dict()
-
-        self.edges[_p1][_p2] = True
-
-        return True
-
-    def _addRoomNodes(self, room):
         anchors = room.getAnchors()
         for anchor1, anchor2 in combinations(anchors, 2):
             anchor1x, anchor1y = anchor1
             anchor2x, anchor2y = anchor2
-            self._connectRoomPoints(anchor1, anchor2)
+            self._add_edge(anchor1, anchor2)
+
+        # add the anchors visually
+        for x, y in room.getAnchors():
+            self._change_tile(x, y, charSet["anchor"])
+
+    def _add_edge(self, p1, p2):
+        # sort based on the first coordinate, breaking ties with the second coordinate.
+        # this is so that I don't have to memoize both (p1, p2) and (p2, p1) as they will
+        # always be in the same order after the sort step
+        _p1, _p2 = sorted((p1, p2))
+        if _p1 not in self._edges:
+            self._edges[_p1] = dict()
+
+        self._edges[_p1][_p2] = True
+
+        return True
 
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search
     # if the connection isn't possible, it will invalidate future connections between these sets of points
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
-    def _connectPathNodes(self, p1, p2):
+    def _connect_path_nodes(self, p1, p2):
         # Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in the minimum number of moves, then invalidate this set of points
-        path = self._depthLimitedSearch(p1, p2)
+        path = self._depth_limited_search(p1, p2)
 
         # XXX invalidate the set of points
         if path == []:
             pass
         else:
-            self._addEdge(p1, p2)
+            self._add_edge(p1, p2)
 
         for x, y in path:
-            self.changeTile(x, y, charSet["pathTemp"])
+            self._change_tile(x, y, charSet["pathTemp"])
 
-    def _searchPath(self, tile, endPoint):
+    def __search_path(self, tile, endPoint):
         offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
         q = []
         seen = []
@@ -203,20 +197,20 @@ class Board(object):
             neighbors = [(pX + offX, pY + offY) for offX, offY in offsets]
 
             # only include neighbors that are part of an existing path, as we are serching down a path
-            filteredNeighbors = [n for n in neighbors if self.get_tile(n) == charSet["pathTemp"]]
+            filteredNeighbors = [n for n in neighbors if self._get_tile(n) == charSet["pathTemp"]]
             for n in filteredNeighbors:
                 if n not in seen:
                     q.append(n)
                     parent[n] = point
 
-        return self.get_path(parent, endPoint), parent
+        return self._get_path(parent, endPoint), parent
 
     '''
 defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
 manhatten_distance. Depth is limited by the cost already paid to reach a point.
 	'''
 
-    def _depthLimitedSearch(self, startPoint, endPoint):
+    def _depth_limited_search(self, startPoint, endPoint):
 
         # a little bit of tolerance allowing for up to 10 extra spaces to get around unexpected objects
         maxDepth = manhatten_distance(*startPoint, *endPoint) + 10
@@ -256,18 +250,18 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 # if any are an unacceptable tile, skip this neighbor
                 neighborTileUnacceptable = False
                 for tile in tileAndNeighbors:
-                    tileChar = self.get_tile(tile)
+                    tileChar = self._get_tile(tile)
                     if tileChar not in acceptable_chars:
                         neighborTileUnacceptable = True
                         break
 
                     if tileChar == charSet["pathTemp"]:
-                        path, parents = self._searchPath(tile, endPoint)
+                        path, parents = self.__search_path(tile, endPoint)
                         if path != []:
                             parents[tile] = n
                             parents[n] = currPoint
                             parent.update(parents)
-                            return self.get_path(parent, endPoint)
+                            return self._get_path(parent, endPoint)
 
                 if neighborTileUnacceptable == True:
                     continue
@@ -288,9 +282,9 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                             heappush(openPoints, (priority, nbr))
                             parent[nbr] = currPoint
 
-        return self.get_path(parent, endPoint)
+        return self._get_path(parent, endPoint)
 
-    def get_path(self, parent, endPoint):
+    def _get_path(self, parent, endPoint):
         # follow the path backwards and print it
         path = []
         p = parent[endPoint]  # XXX Unsafe operation, don't assume the path was formed (maybe use .setdefault())
@@ -302,9 +296,9 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         return correctPath
 
     # XXX needs to reject requests that are outside of range
-    def get_tile(self, point):
+    def _get_tile(self, point):
         pX, pY = point
-        return self.board[pY][pX]  # XXX THIS IS PRONE TO ERROR, PLEASE MAKE SURE TO CHECK THIS!!
+        return self._board[pY][pX]  # XXX THIS IS PRONE TO ERROR, PLEASE MAKE SURE TO CHECK THIS!!
 
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):
@@ -328,28 +322,28 @@ if __name__ == '__main__':
 `````````````
 	'''
 
-    x.addRoom(Room(3, 3, 1, 1))
-    x.addRoom(Room(3, 3, 8, 4))
-    x.addRoom(Room(3, 4, 3, 7))
+    x.add_room(Room(3, 3, 1, 1))
+    x.add_room(Room(3, 3, 8, 4))
+    x.add_room(Room(3, 4, 3, 7))
     '''
 roomHeight, roomWidth = (4, 5)
 topLeftX, topLeftY = (3,1)
 
 r = Room(roomHeight, roomWidth, topLeftX, topLeftY)
-x.addRoom(r)
+x.add_room(r)
 
-x.addRoom(r)
+x.add_room(r)
 	'''
 
-    x.drawBoard()
+    x.draw_board()
 
     p1 = (8, 5)
     # p1 = (3, 2)
     p2 = (4, 7)
-    x._connectPathNodes(p1, p2)
-    x.drawBoard()
+    x._connect_path_nodes(p1, p2)
+    x.draw_board()
     p1 = (3, 2)
     # p1 = (8, 5)
-    x._connectPathNodes(p1, p2)
+    x._connect_path_nodes(p1, p2)
 
-    x.drawBoard()
+    x.draw_board()

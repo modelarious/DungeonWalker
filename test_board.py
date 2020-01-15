@@ -27,6 +27,7 @@ class TestRoomCreation(unittest.TestCase):
 	def test_board_(self, name, boardParams):
 		pass
 	
-
+B = Board
+B.
 if __name__ == '__main__':
 	unittest.main()
