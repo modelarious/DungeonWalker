@@ -14,6 +14,10 @@ class RoomOutsideBoard(Exception):
 class RoomCollision(Exception):
         pass
 
-# thrown when the board
+# thrown when the board is given paramaters that are too small
 class BoardTooSmall(Exception):
         pass
+
+#thrown when a point is outside the board
+class PointOutsideBoard(Exception):
+	pass

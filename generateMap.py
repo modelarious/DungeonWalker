@@ -87,8 +87,19 @@ class Board(object):
         self._rooms = []
         self._edges = dict()
 
+    def _get_tile(self, point):
+        pX, pY = point
+        try:
+            return self._board[pY][pX]
+        except IndexError:
+            raise PointOutsideBoard(f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
+
     def _change_tile(self, x, y, char):
-        self._board[y][x] = char
+        try:
+            self._board[y][x] = char
+        except IndexError:
+            raise PointOutsideBoard(f"change_tile: board width and height ({self.width}, {self.height}), given point: ({x, y})")
+
 
     # print the board to the screen
     def draw_board(self):
@@ -294,11 +305,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
             p = parent[p]
         correctPath = [i for i in reversed(path)]
         return correctPath
-
-    # XXX needs to reject requests that are outside of range
-    def _get_tile(self, point):
-        pX, pY = point
-        return self._board[pY][pX]  # XXX THIS IS PRONE TO ERROR, PLEASE MAKE SURE TO CHECK THIS!!
 
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):

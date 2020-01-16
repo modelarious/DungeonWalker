@@ -55,22 +55,12 @@ class TestRoomCreation(unittest.TestCase):
 		b = Board(*generalTestBoardParams)
 
 		# get the far edge of the board, and multiply the width by 4
-		point = generalTestBoardParams
-		point[0] *= 4
-		x, y = point
+		x, y = generalTestBoardParams
+		x *= 4
 		charToChangeTo = charSet["start"]  # initial board is filled with 'blocked'
 
-		# grab initial state of the char
-		initialState = b._get_tile(point)
-
-		# attempt to change state of position on board
-		b._change_tile(x, y, charSet['start'])
-
-		# check the change did not take
-		changedState = b._get_tile(point)
-
-		self.assertNotEqual(initialState, changedState)
-		self.assertEqual(changedState, charToChangeTo)
+		# equiv to "b._change_tile(x, y, charToChangeTo)"
+		self.assertRaises(PointOutsideBoard, b._change_tile, x, y, charToChangeTo)
 
 
 if __name__ == '__main__':
