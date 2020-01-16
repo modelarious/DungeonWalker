@@ -13,7 +13,6 @@ generalTestBoardParams = (modestBoardSize, modestBoardSize - 3)
 
 
 class TestRoomCreation(unittest.TestCase):
-
 	@parameterized.expand([
 		["small width", (minBoardSize, modestBoardSize)],
 		["small height", (modestBoardSize, minBoardSize)],
