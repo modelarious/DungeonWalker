@@ -5,4 +5,4 @@ jobs:
       - image: circleci/python:3.8.1
     steps:
       - checkout
-      - run: ls; bash runTests.sh
+      - run: pip install -r requirements.txt; bash runTests.sh
