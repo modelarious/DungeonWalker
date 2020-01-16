@@ -5,4 +5,4 @@ jobs:
       - image: circleci/python:3.8.1
     steps:
       - checkout
-      - run: runTests.sh
+      - run: ls; bash runTests.sh
