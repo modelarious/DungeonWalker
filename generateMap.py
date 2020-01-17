@@ -98,11 +98,12 @@ class Board(object):
         except IndexError:
             raise PointOutsideBoard(f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
 
-    def _change_tile(self, x, y, char):
+    def _change_tile(self, point, char):
+        pX, pY = point
         try:
-            self._board[y][x] = char
+            self._board[pY][pX] = char
         except IndexError:
-            raise PointOutsideBoard(f"change_tile: board width and height ({self.width}, {self.height}), given point: ({x, y})")
+            raise PointOutsideBoard(f"change_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
 
     # print the board to the screen
     def draw_board(self):
@@ -139,7 +140,8 @@ class Board(object):
         # add the room to the board
         for x in range(room.leftX, room.rightX):
             for y in range(room.topY, room.bottomY):
-                self._change_tile(x, y, charSet["passable"])
+                point = (x, y)
+                self._change_tile(point, charSet["passable"])
 
         self._add_anchors(room)
 
@@ -156,8 +158,8 @@ class Board(object):
             self._add_edge(anchor1, anchor2)
 
         # add the anchors visually
-        for x, y in room.getAnchors():
-            self._change_tile(x, y, charSet["anchor"])
+        for anchor in room.getAnchors():
+            self._change_tile(anchor, charSet["anchor"])
 
     def _add_edge(self, p1, p2):
         # sort based on the first coordinate, breaking ties with the second coordinate.
@@ -180,13 +182,13 @@ class Board(object):
         path = self._depth_limited_search(p1, p2)
 
         # XXX invalidate the set of points
-        if path == []:
+        if not path:
             pass
         else:
             self._add_edge(p1, p2)
 
-        for x, y in path:
-            self._change_tile(x, y, charSet["pathTemp"])
+        for node in path:
+            self._change_tile(node, charSet["pathTemp"])
 
     def __search_path(self, tile, endPoint):
         offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))

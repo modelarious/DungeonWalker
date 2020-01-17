@@ -70,14 +70,13 @@ class TestRoomCreation(unittest.TestCase):
 	def test_board_change_tile(self):
 		b = Board(*generalTestBoardParams)
 		point = (0, 0)
-		x, y = point
 		charToChangeTo = charSet["start"]  # initial board is filled with 'blocked'
 
 		# grab initial state of the char
 		initialState = b._get_tile(point)
 
 		# change state of position on board
-		b._change_tile(x, y, charToChangeTo)
+		b._change_tile(point, charToChangeTo)
 
 		# check the change took
 		changedState = b._get_tile(point)
@@ -90,16 +89,23 @@ class TestRoomCreation(unittest.TestCase):
 		b = Board(*generalTestBoardParams)
 		charToChangeTo = charSet["start"]  # initial board is filled with 'blocked'
 
-		# extract the point from params
-		x, y = point
-
 		if exception is None:
 			# change state of position on board
-			b._change_tile(x, y, charToChangeTo)
+			b._change_tile(point, charToChangeTo)
 		else:
-			# equiv to "b._change_tile(x, y, charToChangeTo)"
-			self.assertRaises(PointOutsideBoard, b._change_tile, x, y, charToChangeTo)
+			# equiv to "b._change_tile(point, charToChangeTo)"
+			self.assertRaises(exception, b._change_tile, point, charToChangeTo)
 
+	@parameterized.expand(pointTests)
+	def test_board_get_tile_range(self, name, point, exception):
+		b = Board(*generalTestBoardParams)
+		charToChangeTo = charSet["start"]  # initial board is filled with 'blocked'
+		if exception is None:
+			# fetch state of position on board
+			b._get_tile(point)
+		else:
+			# equiv to "b._get_tile(point)"
+			self.assertRaises(exception, b._get_tile, point)
 
 if __name__ == '__main__':
 	unittest.main()
