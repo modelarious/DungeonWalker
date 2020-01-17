@@ -72,6 +72,10 @@ class Board(object):
         self.width = width
         self.height = height
 
+        self._board = []
+        self._rooms = []
+        self._edges = dict()
+
         self.init_board()
 
     # set the board to a blank initial state
@@ -100,7 +104,6 @@ class Board(object):
         except IndexError:
             raise PointOutsideBoard(f"change_tile: board width and height ({self.width}, {self.height}), given point: ({x, y})")
 
-
     # print the board to the screen
     def draw_board(self):
         for row in self._board:
@@ -120,8 +123,8 @@ class Board(object):
         return ""
 
     # raises exceptions for cases where:
-    #	- the room would leave the bounds of the board
-    #	- the room would collide with another that already exists
+    # - the room would leave the bounds of the board
+    # - the room would collide with another that already exists
     def add_room(self, room):
 
         # raise an exception if the rectangle would leave the bounds of the board

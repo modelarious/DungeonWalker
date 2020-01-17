@@ -11,6 +11,41 @@ modestBoardSize = minBoardSize * 4
 
 generalTestBoardParams = (modestBoardSize, modestBoardSize - 3)
 
+# used to test if points are reported as inside or outside the board
+# will be an array of entries of form
+# [ String:name, 2-entry-tuple:point, PointOutsideBoard or None:exception ]
+pointTests = []
+
+# middle of board, should be in range
+tempX, tempY = generalTestBoardParams
+tempX, tempY = tempX // 2, tempY // 2
+pointTests.append(["middle of board", (tempX, tempY), None])
+
+# just inside board, should be in range
+tempX, tempY = generalTestBoardParams
+tempX, tempY = tempX -2, tempY -2
+pointTests.append(["just inside of board", (tempX, tempY), None])
+
+# on corner, should be in range
+tempX, tempY = generalTestBoardParams
+tempX, tempY = tempX -1, tempY -1
+pointTests.append(["on corner of board", (tempX, tempY), None])
+
+# just outside board, should NOT be in range
+tempX, tempY = generalTestBoardParams
+tempX, tempY = tempX-1, tempY
+pointTests.append(["just outside of board Y", (tempX, tempY), PointOutsideBoard])
+
+# just outside board, should NOT be in range
+tempX, tempY = generalTestBoardParams
+tempX, tempY = tempX, tempY -1
+pointTests.append(["just outside of board X", (tempX, tempY), PointOutsideBoard])
+
+# very outside board, should NOT be in range
+tempX, tempY = generalTestBoardParams
+tempX, tempY = tempX * 4, tempY * 4
+pointTests.append(["very outside of board X", (tempX, tempY), PointOutsideBoard])
+
 
 class TestRoomCreation(unittest.TestCase):
 	@parameterized.expand([
@@ -42,7 +77,7 @@ class TestRoomCreation(unittest.TestCase):
 		initialState = b._get_tile(point)
 
 		# change state of position on board
-		b._change_tile(x, y, charSet['start'])
+		b._change_tile(x, y, charToChangeTo)
 
 		# check the change took
 		changedState = b._get_tile(point)
@@ -50,16 +85,20 @@ class TestRoomCreation(unittest.TestCase):
 		self.assertNotEqual(initialState, changedState)
 		self.assertEqual(changedState, charToChangeTo)
 
-	def test_board_change_tile_outside_range(self):
+	@parameterized.expand(pointTests)
+	def test_board_change_tile_range(self, name, point, exception):
 		b = Board(*generalTestBoardParams)
-
-		# get the far edge of the board, and multiply the width by 4
-		x, y = generalTestBoardParams
-		x *= 4
 		charToChangeTo = charSet["start"]  # initial board is filled with 'blocked'
 
-		# equiv to "b._change_tile(x, y, charToChangeTo)"
-		self.assertRaises(PointOutsideBoard, b._change_tile, x, y, charToChangeTo)
+		# extract the point from params
+		x, y = point
+
+		if exception is None:
+			# change state of position on board
+			b._change_tile(x, y, charToChangeTo)
+		else:
+			# equiv to "b._change_tile(x, y, charToChangeTo)"
+			self.assertRaises(PointOutsideBoard, b._change_tile, x, y, charToChangeTo)
 
 
 if __name__ == '__main__':
