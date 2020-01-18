@@ -75,6 +75,7 @@ class Board(object):
         self._board = []
         self._rooms = []
         self._edges = dict()
+        self._invalidNeighbors = dict()
 
         self.init_board()
 
@@ -90,20 +91,23 @@ class Board(object):
         self._board = board
         self._rooms = []
         self._edges = dict()
+        self._invalidNeighbors = dict()
 
     def _get_tile(self, point):
         pX, pY = point
         try:
             return self._board[pY][pX]
         except IndexError:
-            raise PointOutsideBoard(f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
+            raise PointOutsideBoard(
+                f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
 
     def _change_tile(self, point, char):
         pX, pY = point
         try:
             self._board[pY][pX] = char
         except IndexError:
-            raise PointOutsideBoard(f"change_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
+            raise PointOutsideBoard(
+                f"change_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
 
     # print the board to the screen
     def draw_board(self):
@@ -161,36 +165,25 @@ class Board(object):
         for anchor in room.getAnchors():
             self._change_tile(anchor, charSet["anchor"])
 
-    def _add_edge(self, p1, p2):
-        # sort based on the first coordinate, breaking ties with the second coordinate.
-        # this is so that I don't have to memoize both (p1, p2) and (p2, p1) as they will
-        # always be in the same order after the sort step
-        _p1, _p2 = sorted((p1, p2))
-        if _p1 not in self._edges:
-            self._edges[_p1] = dict()
-
-        self._edges[_p1][_p2] = True
-
-        return True
-
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search
     # if the connection isn't possible, it will invalidate future connections between these sets of points
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
-    def _connect_path_nodes(self, p1, p2):
-        # Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in the minimum number of moves, then invalidate this set of points
+    def connect_path_nodes(self, p1, p2):
+        # Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in
+        # the minimum number of moves, then invalidate this set of points
         path = self._depth_limited_search(p1, p2)
 
-        # XXX invalidate the set of points
+        # XXX invalidate the set of points for autoconnect feature
         if not path:
-            pass
+            return False
         else:
             self._add_edge(p1, p2)
+            for node in path:
+                self._change_tile(node, charSet["pathTemp"])
+            return True
 
-        for node in path:
-            self._change_tile(node, charSet["pathTemp"])
-
-    def __search_path(self, tile, endPoint):
+    def _search_path(self, tile, endPoint):
         offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
         q = []
         seen = []
@@ -251,7 +244,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
             neighbors = [(currX + offX, currY + offY) for offX, offY in offsets]
 
             # code to make the path stay away from touching walls by 1 space
-            # XXX also checks for existing temporary paths that would be able to join to our target that we could follow
+            # also checks for existing temporary paths that would be able to join to our target that we could follow
             neighbors_filtered = []
             acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
             for n in neighbors:
@@ -272,14 +265,14 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                         break
 
                     if tileChar == charSet["pathTemp"]:
-                        path, parents = self.__search_path(tile, endPoint)
-                        if path != []:
+                        path, parents = self._search_path(tile, endPoint)
+                        if path:
                             parents[tile] = n
                             parents[n] = currPoint
                             parent.update(parents)
                             return self._get_path(parent, endPoint)
 
-                if neighborTileUnacceptable == True:
+                if neighborTileUnacceptable:
                     continue
 
                 # neighbor passed all tests, so allow it
@@ -301,15 +294,68 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         return self._get_path(parent, endPoint)
 
     def _get_path(self, parent, endPoint):
+        if endPoint not in parent:
+            return []
+
         # follow the path backwards and print it
         path = []
-        p = parent[endPoint]  # XXX Unsafe operation, don't assume the path was formed (maybe use .setdefault())
+        p = parent[endPoint]
         path.append(endPoint)
-        while p != None:
+        while p is not None:
             path.append(p)
             p = parent[p]
         correctPath = [i for i in reversed(path)]
         return correctPath
+
+
+
+
+    def __cross_connect(self, p1, p2, d):
+        # partner function with __check_with_keyerror, we store True at d[p1][p2]
+        if p1 not in d:
+            d[p1] = dict()
+        if p2 not in d:
+            d[p2] = dict()
+
+        d[p1][p2] = True
+        d[p2][p1] = True
+
+    def __check_with_keyerror(self, p1, p2, d):
+        # partner function with __cross_connect, we store True at d[p1][p2]
+        # returns true if d[p1][p2] exists, false if no
+        try:
+            return d[p1][p2]
+        except KeyError:
+            return False
+
+    # going to be used for autoconnect feature, so not tested yet
+    def _add_edge(self, p1, p2):
+        self.__cross_connect(p1, p2, self._edges)
+
+    def _have_edge(self, p1, p2):
+        return self.__check_with_keyerror(p1, p2, self._edges)
+
+    def _invalidate(self, p1, p2):
+        self.__cross_connect(p1, p2, self._invalidNeighbors)
+
+    def _points_are_invalid(self, p1, p2):
+        return self.__check_with_keyerror(p1, p2, self._invalidNeighbors)
+
+    # going to be used for autoconnect feature, so not tested yet
+    def _get_neighbors(self, point):
+        try:
+            return self._edges[point]
+        except KeyError:
+            return False
+
+    # 3 rooms, each are their own strongly connected component
+    # for a given anchor, it has 2 neighbors in this case: the closest anchor (that is not
+    # invalid) from the other two rooms.  When you try to connect, you use _depth_limited_search() to see
+    # if there's a path within reason that connects the two points.  If not, you invalidate those as neighbors.
+    # You should be inspecting these pairs of anchors ordered by which two are the closest.
+    # Each iteration you recalculate the connected components and re
+
+    # NO TO THE ABOVE, Use Kruskal's algo.  So first, calculate the distance between each pair of anchors.  Don't use a pair
 
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):
@@ -317,7 +363,7 @@ def manhatten_distance(p1X, p1Y, p2X, p2Y):
 
 
 if __name__ == '__main__':
-    x = Board(12, 12)
+    b = Board(12, 12)
 
     '''
 `````````````
@@ -333,9 +379,9 @@ if __name__ == '__main__':
 `````````````
     '''
 
-    x.add_room(Room(3, 3, 1, 1))
-    x.add_room(Room(3, 3, 8, 4))
-    x.add_room(Room(3, 4, 3, 7))
+    b.add_room(Room(3, 3, 1, 1))
+    b.add_room(Room(3, 3, 8, 4))
+    b.add_room(Room(3, 4, 3, 7))
     '''
 roomHeight, roomWidth = (4, 5)
 topLeftX, topLeftY = (3,1)
@@ -346,15 +392,16 @@ x.add_room(r)
 x.add_room(r)
     '''
 
-    x.draw_board()
+    b.draw_board()
 
     p1 = (8, 5)
     # p1 = (3, 2)
     p2 = (4, 7)
-    x._connect_path_nodes(p1, p2)
-    x.draw_board()
+    b.connect_path_nodes(p1, p2)
+    b.draw_board()
     p1 = (3, 2)
     # p1 = (8, 5)
-    x._connect_path_nodes(p1, p2)
+    b.connect_path_nodes(p1, p2)
 
-    x.draw_board()
+    b.draw_board()
+    print(b._edges)
