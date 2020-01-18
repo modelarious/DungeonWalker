@@ -93,6 +93,7 @@ class Board(object):
         self._edges = dict()
         self._invalidNeighbors = dict()
 
+    # XXX I haven't acounted for negative values of x and y in the get tile or change tile
     def _get_tile(self, point):
         pX, pY = point
         try:
@@ -101,6 +102,7 @@ class Board(object):
             raise PointOutsideBoard(
                 f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
 
+    # XXX I haven't acounted for negative values of x and y in the get tile or change tile
     def _change_tile(self, point, char):
         pX, pY = point
         try:

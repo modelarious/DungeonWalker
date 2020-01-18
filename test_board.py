@@ -11,6 +11,7 @@ minBoardSize = MIN_BOARD_HEIGHT
 modestBoardSize = minBoardSize * 4
 
 generalTestBoardParams = (modestBoardSize, modestBoardSize - 3)
+generalTestBoardX, generalTestBoardY = generalTestBoardParams
 
 # used to test if points are reported as inside or outside the board
 # will be an array of entries of form
@@ -187,6 +188,30 @@ class TestRoomCreation(unittest.TestCase):
 		for init, adj in zip(initialParams, afterInitParams):
 			self.assertEqual(init, adj)
 
+	# TODO trying to A* from the very right side of the board, or the very bottom might cause a crash as it might end up exploring out of bounds
+	# TODO I haven't acounted for negative values of x and y in the get tile or change tile
+	@parameterized.expand([
+		["X is too small", 0, 1, RoomOutsideBoard],
+		["Y is too small", 1, 0, RoomOutsideBoard],
+		["X and Y are too small", 0, 0, RoomOutsideBoard],
+		["X and Y are just within bounds on the top left", 1, 1, None],
+		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, None],
+		["X is just within bounds on the top right", generalTestBoardX - 6, 1, None],
+		["X and Y are just within bounds on the bottom right", generalTestBoardX-6, generalTestBoardY-6, None ],
+		["Y is just outside bounds on the bottom left", 1, generalTestBoardY - 5, RoomOutsideBoard],
+		["X is just outside bounds on the top right", generalTestBoardX - 5, 1, RoomOutsideBoard],
+		["X and Y are just outside bounds on the bottom right", generalTestBoardX - 5, generalTestBoardY - 5, RoomOutsideBoard]
+	])
+	def test_room_is_outside_bounds(self, name, x, y, exception):
+		b = Board(*generalTestBoardParams)
+		room = Room(5, 5, x, y)
+
+		if exception:
+			self.assertRaises(exception, b.add_room, room)
+		else:
+			b.add_room(room)
+			self.assertTrue(room in b._rooms)
+		b.draw_board()
 
 if __name__ == '__main__':
 	unittest.main()

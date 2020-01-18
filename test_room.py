@@ -71,9 +71,9 @@ class TestRoomCreation(unittest.TestCase):
 	])
 	def test_rooms_collide(self, name, room1, room2):
 	#	b = Board(12, 12)
-	#	b.addRoom(room1)
-	#	b.addRoom(room2)
-	#	b.drawBoard()
+	#	b.add_room(room1)
+	#	b.add_room(room2)
+	#	b.draw_oard()
 		self.assertTrue(room1.collide(room2))
 		self.assertTrue(room2.collide(room1))
 
@@ -84,9 +84,9 @@ class TestRoomCreation(unittest.TestCase):
 	])
 	def test_rooms_dont_collide(self, name, room1, room2):
 	#	b = Board(30, 30)
-	#	b.addRoom(room1)
-	#	b.addRoom(room2)
-	#	b.drawBoard()
+	#	b.add_room(room1)
+	#	b.add_room(room2)
+	#	b.draw_board()
 		self.assertFalse(room1.collide(room2))
 		self.assertFalse(room2.collide(room1))
 
