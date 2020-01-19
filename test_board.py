@@ -245,6 +245,15 @@ class TestRoomCreation(unittest.TestCase):
 		b.add_room(room)
 		self.assertTrue(room in b._rooms)
 
+	# shallow test because room.collide() is already tested very well
+	def test_room_collision(self):
+		b = Board(*generalTestBoardParams)
+		room = Room(*generalRoomSize, 1, 1)
+		b.add_room(room)
+
+		# adding the room a second time raises exception
+		self.assertRaises(RoomCollision, b.add_room, room)
+
 
 	@parameterized.expand([
 		["X and Y are just within bounds on the top left", 1, 1, boardState1],

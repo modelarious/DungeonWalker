@@ -141,24 +141,22 @@ class Board(object):
         if any(room.collide(placedRoom) for placedRoom in self._rooms):
             raise RoomCollision
 
-        # add the room to the board
+        # add the room to the board visually
         for x in range(room.leftX, room.rightX):
             for y in range(room.topY, room.bottomY):
                 point = (x, y)
                 self._change_tile(point, charSet["passable"])
 
-        self._add_anchors(room)
-
-        # track this room
-        self._rooms.append(room)
-        return True
-
-    def _add_anchors(self, room):
         # add the anchors visually
         for anchor in room.getAnchors():
             self._change_tile(anchor, charSet["anchor"])
 
+        # track this room in autoconnect
         self._autoconnect.add_anchors(room)
+
+        # track this room
+        self._rooms.append(room)
+        return True
 
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search
