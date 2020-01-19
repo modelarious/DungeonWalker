@@ -198,14 +198,14 @@ class TestRoomCreation(unittest.TestCase):
 	def test_init_board_resets_all_params(self):
 		def extract_params(board):
 			return copy.deepcopy(board._board), copy.deepcopy(board._rooms), \
-					copy.deepcopy(board._edges), copy.deepcopy(board._invalidNeighbors)
+					copy.deepcopy(board._autoconnect._edges), copy.deepcopy(board._autoconnect._invalidNeighbors)
 
 		def perturb(board):
 			# make changes to internal data structures
 			board._change_tile((0, 0), "|")
 			board.add_room(Room(4, 4, 4, 4))
-			board._add_edge((0, 0), (2, 2))
-			board._invalidate((0, 0), (2, 2))
+			board._autoconnect.add_edge((0, 0), (2, 2))
+			board._autoconnect.invalidate((0, 0), (2, 2))
 
 		b = Board(*generalTestBoardParams)
 		initialParams = extract_params(b)

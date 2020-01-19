@@ -50,8 +50,8 @@ has 4 exits (marked by the & symbol):
 from exceptions import *
 from settings import *
 from room import Room
+from autoconnect import Autoconnect
 from heapq import heappush, heappop
-from itertools import combinations
 
 '''
 # thrown when a room given to the board would be outside the boundaries
@@ -74,8 +74,7 @@ class Board(object):
 
         self._board = []
         self._rooms = []
-        self._edges = dict()
-        self._invalidNeighbors = dict()
+        self._autoconnect = Autoconnect()
 
         self.init_board()
 
@@ -90,8 +89,7 @@ class Board(object):
 
         self._board = board
         self._rooms = []
-        self._edges = dict()
-        self._invalidNeighbors = dict()
+        self._autoconnect = Autoconnect()
 
     # XXX I haven't acounted for negative values of x and y in the get tile or change tile
     def _get_tile(self, point):
@@ -156,16 +154,11 @@ class Board(object):
         return True
 
     def _add_anchors(self, room):
-        # connect the anchors in the edge list to make the room a strongly connected component
-        anchors = room.getAnchors()
-        for anchor1, anchor2 in combinations(anchors, 2):
-            anchor1x, anchor1y = anchor1
-            anchor2x, anchor2y = anchor2
-            self._add_edge(anchor1, anchor2)
-
         # add the anchors visually
         for anchor in room.getAnchors():
             self._change_tile(anchor, charSet["anchor"])
+
+        self._autoconnect.add_anchors(room)
 
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search
@@ -180,7 +173,7 @@ class Board(object):
         if not path:
             return False
         else:
-            self._add_edge(p1, p2)
+            self._autoconnect.add_edge(p1, p2)
             for node in path:
                 self._change_tile(node, charSet["pathTemp"])
             return True
@@ -309,47 +302,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         correctPath = [i for i in reversed(path)]
         return correctPath
 
-
-
-
-    def __cross_connect(self, p1, p2, d):
-        # partner function with __check_with_keyerror, we store True at d[p1][p2]
-        if p1 not in d:
-            d[p1] = dict()
-        if p2 not in d:
-            d[p2] = dict()
-
-        d[p1][p2] = True
-        d[p2][p1] = True
-
-    def __check_with_keyerror(self, p1, p2, d):
-        # partner function with __cross_connect, we store True at d[p1][p2]
-        # returns true if d[p1][p2] exists, false if no
-        try:
-            return d[p1][p2]
-        except KeyError:
-            return False
-
-    # going to be used for autoconnect feature, so not tested yet
-    def _add_edge(self, p1, p2):
-        self.__cross_connect(p1, p2, self._edges)
-
-    def _have_edge(self, p1, p2):
-        return self.__check_with_keyerror(p1, p2, self._edges)
-
-    def _invalidate(self, p1, p2):
-        self.__cross_connect(p1, p2, self._invalidNeighbors)
-
-    def _points_are_invalid(self, p1, p2):
-        return self.__check_with_keyerror(p1, p2, self._invalidNeighbors)
-
-    # going to be used for autoconnect feature, so not tested yet
-    def _get_neighbors(self, point):
-        try:
-            return self._edges[point]
-        except KeyError:
-            return False
-
     # 3 rooms, each are their own strongly connected component
     # for a given anchor, it has 2 neighbors in this case: the closest anchor (that is not
     # invalid) from the other two rooms.  When you try to connect, you use _depth_limited_search() to see
@@ -406,4 +358,4 @@ x.add_room(r)
     b.connect_path_nodes(p1, p2)
 
     b.draw_board()
-    print(b._edges)
+    print(b._autoconnect._edges)
