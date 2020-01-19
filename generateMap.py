@@ -52,6 +52,7 @@ from settings import *
 from room import Room
 from autoconnect import Autoconnect
 from heapq import heappush, heappop
+from itertools import product
 
 '''
 # thrown when a room given to the board would be outside the boundaries
@@ -163,12 +164,17 @@ class Board(object):
     # if the connection isn't possible, it will invalidate future connections between these sets of points
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
     def connect_path_nodes(self, p1, p2):
-        # Actually connect the rooms using depth limited bfs... if you find that these rooms can't be connected in
-        # the minimum number of moves, then invalidate this set of points
+        # no need to recompute this if we've already done it
+        if self._autoconnect.have_edge(p1, p2):
+            return True
+
+        # Discover a path that connects the rooms using depth limited bfs... if you
+        # find that these rooms can't be connected in the minimum number of moves (+ a little tolerance),
+        # then invalidate this set of points
         path = self._depth_limited_search(p1, p2)
 
-        # XXX invalidate the set of points for autoconnect feature
         if not path:
+            self._autoconnect.invalidate(p1, p2)
             return False
         else:
             self._autoconnect.add_edge(p1, p2)
@@ -247,7 +253,9 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 
                 # get neighbors of this neighbor
                 p1X, p1Y = n
+                #nestedNeighborOffsets = [ x for x in product([-1, 0, 1], repeat=2) if x != (0, 0)] # XXX TODO want to check in a full 9 spaces around the point
                 tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in offsets]
+                print(tileAndNeighbors)
 
                 # if any are an unacceptable tile, skip this neighbor
                 neighborTileUnacceptable = False

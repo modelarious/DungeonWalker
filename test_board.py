@@ -254,19 +254,34 @@ class TestRoomCreation(unittest.TestCase):
 		# adding the room a second time raises exception
 		self.assertRaises(RoomCollision, b.add_room, room)
 
-
 	@parameterized.expand([
 		["X and Y are just within bounds on the top left", 1, 1, boardState1],
 		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, boardState2],
 		["X is just within bounds on the top right", generalTestBoardX - 6, 1, boardState3],
 		["X and Y are just within bounds on the bottom right", generalTestBoardX - 6, generalTestBoardY - 6, boardState4],
-
 	])
 	def test_board_state_after_room_add(self, name, x, y, expectedBoardState):
 		b = Board(*generalTestBoardParams)
 		room = Room(*generalRoomSize, x, y)
 		b.add_room(room)
 		self.assertEqual(expectedBoardState, b._board)
+
+
+	@parameterized.expand([
+		["X and Y are just within bounds on the top left", Room(*generalRoomSize, 1, 1), Room(*generalRoomSize, 10, 10)]
+		#["X and Y are just within bounds on the top left", Room(*generalRoomSize, 1, 1), Room(*generalRoomSize, 10, 11)]
+	])
+	def test_board_state_after_room_add(self, name, room1, room2):
+		b = Board(*generalTestBoardParams)
+		b.add_room(room1)
+		b.add_room(room2)
+		b.draw_board()
+		#b._edges()
+		b.connect_path_nodes((5, 3), (14, 12))
+		b.draw_board()
+
+
+
 
 if __name__ == '__main__':
 	unittest.main()

@@ -5,6 +5,8 @@ class Autoconnect(object):
     def __init__(self):
         self._edges = dict()
         self._invalidNeighbors = dict()
+        self._anchors = [] #XXX TODO need this feature to be able to iterate through all anchors
+
 
     def __cross_connect(self, p1, p2, d):
         # partner function with __check_with_keyerror, we store True at d[p1][p2]
@@ -47,6 +49,7 @@ class Autoconnect(object):
     def add_anchors(self, room):
         # connect the anchors in the edge list to make the room a strongly connected component
         anchors = room.getAnchors()
+        self._anchors.extend(anchors)
         for anchor1, anchor2 in combinations(anchors, 2):
             anchor1x, anchor1y = anchor1
             anchor2x, anchor2y = anchor2
