@@ -12,6 +12,44 @@ modestBoardSize = minBoardSize * 4
 
 generalTestBoardParams = (modestBoardSize, modestBoardSize - 3)
 generalTestBoardX, generalTestBoardY = generalTestBoardParams
+generalRoomSize = (5,5)
+
+# array of entries of form [String:name, Int:x, Int:y, RoomOutsideBoard or None:exception]
+RoomPlacements = [
+		["X is too small", 0, 1, RoomOutsideBoard],
+		["Y is too small", 1, 0, RoomOutsideBoard],
+		["X and Y are too small", 0, 0, RoomOutsideBoard],
+		["X and Y are just within bounds on the top left", 1, 1, None],
+		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, None],
+		["X is just within bounds on the top right", generalTestBoardX - 6, 1, None],
+		["X and Y are just within bounds on the bottom right", generalTestBoardX-6, generalTestBoardY-6, None],
+		["Y is just outside bounds on the bottom left", 1, generalTestBoardY - 5, RoomOutsideBoard],
+		["X is just outside bounds on the top right", generalTestBoardX - 5, 1, RoomOutsideBoard],
+		["X and Y are just outside bounds on the bottom right", generalTestBoardX - 5, generalTestBoardY - 5, RoomOutsideBoard]
+]
+
+boardState1 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '&', '*', '*', '*', '&', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+boardState2 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '&', '*', '*', '*', '&', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+boardState3 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '&', '*', '*', '*', '&', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+boardState4 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '&', '*', '*', '*', '&', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+
+'''
+#fragile way of generating
+["X and Y are just within bounds on the bottom right", generalTestBoardX-6, generalTestBoardY-6, boardState1],
+["Y is just outside bounds on the bottom left", 1, generalTestBoardY - 5, boardState2],
+["X is just outside bounds on the top right", generalTestBoardX - 5, 1, boardState3],
+["X and Y are just outside bounds on the bottom right", generalTestBoardX - 5, generalTestBoardY - 5, boardState4]
+
+
+roomPlacementsNoExceptions = [r for r in RoomPlacements if r[-1] is None]
+bs = [boardState1, boardState2, boardState3, boardState4]
+
+for testcase, boardState in list(zip(roomPlacementsNoExceptions, bs)):
+	tc = testcase + [boardState]
+'''
+
+
+
 
 # used to test if points are reported as inside or outside the board
 # will be an array of entries of form
@@ -190,28 +228,36 @@ class TestRoomCreation(unittest.TestCase):
 
 	# TODO trying to A* from the very right side of the board, or the very bottom might cause a crash as it might end up exploring out of bounds
 	# TODO I haven't acounted for negative values of x and y in the get tile or change tile
-	@parameterized.expand([
-		["X is too small", 0, 1, RoomOutsideBoard],
-		["Y is too small", 1, 0, RoomOutsideBoard],
-		["X and Y are too small", 0, 0, RoomOutsideBoard],
-		["X and Y are just within bounds on the top left", 1, 1, None],
-		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, None],
-		["X is just within bounds on the top right", generalTestBoardX - 6, 1, None],
-		["X and Y are just within bounds on the bottom right", generalTestBoardX-6, generalTestBoardY-6, None ],
-		["Y is just outside bounds on the bottom left", 1, generalTestBoardY - 5, RoomOutsideBoard],
-		["X is just outside bounds on the top right", generalTestBoardX - 5, 1, RoomOutsideBoard],
-		["X and Y are just outside bounds on the bottom right", generalTestBoardX - 5, generalTestBoardY - 5, RoomOutsideBoard]
-	])
+	@parameterized.expand(RoomPlacements)
 	def test_room_is_outside_bounds(self, name, x, y, exception):
 		b = Board(*generalTestBoardParams)
-		room = Room(5, 5, x, y)
+		room = Room(*generalRoomSize, x, y)
 
 		if exception:
 			self.assertRaises(exception, b.add_room, room)
 		else:
 			b.add_room(room)
-			self.assertTrue(room in b._rooms)
-		b.draw_board()
+
+	@parameterized.expand([r for r in RoomPlacements if r[-1] is None])
+	def test_room_is_added(self, name, x, y, _):
+		b = Board(*generalTestBoardParams)
+		room = Room(*generalRoomSize, x, y)
+		b.add_room(room)
+		self.assertTrue(room in b._rooms)
+
+
+	@parameterized.expand([
+		["X and Y are just within bounds on the top left", 1, 1, boardState1],
+		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, boardState2],
+		["X is just within bounds on the top right", generalTestBoardX - 6, 1, boardState3],
+		["X and Y are just within bounds on the bottom right", generalTestBoardX - 6, generalTestBoardY - 6, boardState4],
+
+	])
+	def test_board_state_after_room_add(self, name, x, y, expectedBoardState):
+		b = Board(*generalTestBoardParams)
+		room = Room(*generalRoomSize, x, y)
+		b.add_room(room)
+		self.assertEqual(expectedBoardState, b._board)
 
 if __name__ == '__main__':
 	unittest.main()
