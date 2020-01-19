@@ -272,11 +272,12 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                     break
 
                 # get neighbors of this neighbor
-                #p1X, p1Y = n
+                p1X, p1Y = n
+                offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
                 #nestedNeighborOffsets = [ x for x in product([-1, 0, 1], repeat=2) if x != (0, 0)] # XXX TODO want to check in a full 9 spaces around the point
-                #tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in nestedNeighborOffsets]
+                tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in offsets]
 
-                tileAndNeighbors = [n] + self.get_neighbors(n)
+                #tileAndNeighbors = [n] + self.get_neighbors(n)
 
                 # if any are an unacceptable tile, skip this neighbor
                 neighborTileUnacceptable = False
@@ -301,6 +302,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 # neighbor passed all tests, so allow it
                 neighbors_filtered.append(n)
 
+            neighbors_filtered = neighbors
             # look at all neighbors and add them to the heap
             for nbr in neighbors_filtered:
                 if nbr not in done and self.point_in_board(nbr):
@@ -387,3 +389,4 @@ x.add_room(r)
 
     b.draw_board()
     print(b._autoconnect._edges)
+
