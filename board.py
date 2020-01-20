@@ -90,18 +90,22 @@ class Board(object):
         self._rooms = []
         self._autoconnect = Autoconnect()
 
-    # XXX I haven't acounted for negative values of x and y in the get tile or change tile
     def _get_tile(self, point):
         pX, pY = point
+        if pX < 0 or pY < 0:
+            raise PointOutsideBoard(
+                f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
         try:
             return self._board[pY][pX]
         except IndexError:
             raise PointOutsideBoard(
                 f"get_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
 
-    # XXX I haven't acounted for negative values of x and y in the get tile or change tile
     def _change_tile(self, point, char):
         pX, pY = point
+        if pX < 0 or pY < 0:
+            raise PointOutsideBoard(
+                f"change_tile: board width and height ({self.width}, {self.height}), given point: ({pX, pY})")
         try:
             self._board[pY][pX] = char
         except IndexError:
@@ -213,6 +217,8 @@ class Board(object):
 
     def _point_in_board(self, pt):
         (pX, pY) = pt
+        if pX < 0 or pY < 0:
+            return False
         try:
             self._board[pY][pX]
             return True

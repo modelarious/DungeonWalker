@@ -66,6 +66,11 @@ for testcase, boardState in list(zip(roomPlacementsNoExceptions, bs)):
 # [ String:name, 2-entry-tuple:point, PointOutsideBoard or None:exception ]
 pointTests = []
 
+# negative indices
+pointTests.append(["X is negative", (-1, 1), PointOutsideBoard])
+pointTests.append(["Y is negative", (1, -1), PointOutsideBoard])
+
+
 # middle of board, should be in range
 tempX, tempY = generalTestBoardParams
 tempX, tempY = tempX // 2, tempY // 2
@@ -359,6 +364,16 @@ class TestRoomCreation(unittest.TestCase):
 	def test_draw_succeeds(self):
 		b = Board(*generalTestBoardParams)
 		b.draw_board()
-		
+
+
+	def test_connect_path_nodes_fails_when_going_negative(self):
+		b = Board(*generalTestBoardParams)
+		room1 = Room(*generalRoomSize, 1, 1)
+		room2 = Room(*generalRoomSize, 14, 1)
+		b.add_room(room1)
+		b.add_room(room2)
+
+		self.assertFalse(b.connect_path_nodes((1, 3), (18, 3)))
+
 if __name__ == '__main__':
 	unittest.main()
