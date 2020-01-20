@@ -49,10 +49,8 @@ has 4 exits (marked by the & symbol):
 
 from exceptions import *
 from settings import *
-from room import Room
 from autoconnect import Autoconnect
 from heapq import heappush, heappop
-from itertools import product
 
 '''
 # thrown when a room given to the board would be outside the boundaries
@@ -194,8 +192,8 @@ class Board(object):
         while len(q) != 0:
             point = q.pop()
 
-            if point in seen:
-                continue
+            #if point in seen:
+            #   continue
 
             if point == endPoint:
                 break
@@ -213,7 +211,7 @@ class Board(object):
 
         return self._get_path(parent, endPoint), parent
 
-    def point_in_board(self, pt):
+    def _point_in_board(self, pt):
         (pX, pY) = pt
         try:
             self._board[pY][pX]
@@ -221,18 +219,18 @@ class Board(object):
         except IndexError:
             return False
 
-    def acceptable_char(self, pt):
-        acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
-        if self._get_tile(pt) in acceptable_chars:
+    def _acceptable_char(self, pt):
+        _acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
+        if self._get_tile(pt) in _acceptable_chars:
             return True
         return False
 
-    def get_neighbors(self, currPoint):
-        if self.point_in_board(currPoint):
+    def _get_neighbors(self, currPoint):
+        if self._point_in_board(currPoint):
             currX, currY = currPoint
             offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
             candidates = [(currX + offX, currY + offY) for offX, offY in offsets]
-            candidates = list(filter(self.point_in_board, candidates))
+            candidates = list(filter(self._point_in_board, candidates))
             return candidates
 
         return []
@@ -254,7 +252,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         parent[startPoint] = None
         cost[startPoint] = 0
 
-        if not self.point_in_board(startPoint) or not self.point_in_board(endPoint):
+        if not self._point_in_board(startPoint) or not self._point_in_board(endPoint):
             return False
 
         while len(openPoints) != 0:
@@ -267,7 +265,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 break
 
             # get neighbors of current point
-            neighbors = self.get_neighbors(currPoint)
+            neighbors = self._get_neighbors(currPoint)
 
             # code to make the path stay away from touching walls by 1 space
             # also checks for existing temporary paths that would be able to join to our target that we could follow
@@ -281,12 +279,12 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 #p1X, p1Y = n
                 #nestedNeighborOffsets = [ x for x in product([-1, 0, 1], repeat=2) if x != (0, 0)] # XXX TODO want to check in a full 9 spaces around the point
                 #tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in nestedNeighborOffsets]
-                tileAndNeighbors = [n] + self.get_neighbors(n)
+                tileAndNeighbors = [n] + self._get_neighbors(n)
 
                 # if any are an unacceptable tile, skip this neighbor
                 neighborTileUnacceptable = False
                 for tile in tileAndNeighbors:
-                    if not self.acceptable_char(tile):
+                    if not self._acceptable_char(tile):
                         neighborTileUnacceptable = True
                         break
 
@@ -314,7 +312,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
     def add_neighbors_to_heap(self, neighbors_filtered, openPoints, done, parent, cost, currPoint, endPoint, maxDepth):
         # look at all neighbors and add them to the heap
         for nbr in neighbors_filtered:
-            if nbr not in done and self.point_in_board(nbr):
+            if nbr not in done and self._point_in_board(nbr):
                 updatedCost = cost[currPoint] + 1
                 if nbr not in cost or updatedCost < cost[nbr]:
                     cost[nbr] = updatedCost
@@ -351,51 +349,4 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):
     return abs(p1X - p2X) + abs(p1Y - p2Y)
-
-
-if __name__ == '__main__':
-    b = Board(12, 12)
-
-    '''
-`````````````
-`*&*`````````
-`&*&`````````
-`*&*`````*&*`
-`````````&*&`
-`````````*&*`
-`````````````
-```*&**``````
-```&**&``````
-```*&**``````
-`````````````
-    '''
-
-    b.add_room(Room(3, 3, 1, 1))
-    b.add_room(Room(3, 3, 8, 4))
-    b.add_room(Room(3, 4, 3, 7))
-    '''
-roomHeight, roomWidth = (4, 5)
-topLeftX, topLeftY = (3,1)
-
-r = Room(roomHeight, roomWidth, topLeftX, topLeftY)
-x.add_room(r)
-
-x.add_room(r)
-    '''
-
-    b.draw_board()
-
-    p1 = (8, 5)
-    # p1 = (3, 2)
-    p2 = (4, 7)
-    b.connect_path_nodes(p1, p2)
-    b.draw_board()
-    p1 = (3, 2)
-    # p1 = (8, 5)
-    b.connect_path_nodes(p1, p2)
-
-    b.draw_board()
-    print("edges:", b._autoconnect._edges)
-    print("board:", b._board)
-    print("anchors:", b._autoconnect._anchors)
 

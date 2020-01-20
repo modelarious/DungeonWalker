@@ -1,6 +1,6 @@
 import unittest
 
-#from generateMap import Board
+#from board import Board
 from room import Room
 from exceptions import *
 from settings import *

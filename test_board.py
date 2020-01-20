@@ -1,6 +1,6 @@
 import unittest
 
-from generateMap import Board
+from board import Board
 from room import Room
 from exceptions import *
 from settings import *
@@ -344,9 +344,21 @@ class TestRoomCreation(unittest.TestCase):
 		self.assertEqual(expectedBoard, b._board)
 		self.assertEqual(expectedAnchors, b._autoconnect._anchors)
 
+	def test_get_neighbors_returns_empty_list(self):
+		b = Board(*generalTestBoardParams)
+		self.assertEqual([], b._get_neighbors((300, 300)))
 
+	@parameterized.expand([
+		[(300, 300), (1, 1)],
+		[(1, 1), (300, 300)],
+	])
+	def test_depth_limited_search_returns_False(self, startPoint, endPoint):
+		b = Board(*generalTestBoardParams)
+		self.assertFalse(b._depth_limited_search(startPoint, endPoint))
 
-
-
+	def test_draw_succeeds(self):
+		b = Board(*generalTestBoardParams)
+		b.draw_board()
+		
 if __name__ == '__main__':
 	unittest.main()
