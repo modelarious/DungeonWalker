@@ -313,19 +313,37 @@ class TestRoomCreation(unittest.TestCase):
 		self.assertEqual(b._board, expectedBoard)
 
 
-	def test_connect_path_nodes_failure_state(self):
+	@parameterized.expand([
+		[(12, 15), (3, 5)],
+		[(3, 5), (12, 15)],
+	])
+	def test_connect_path_nodes_failure_state(self, point1, point2):
 		b = Board(*generalTestBoardParams)
 		room1 = Room(*generalRoomSize, 1, 1)
 		room2 = Room(*generalRoomSize, 10, 11)
 		b.add_room(room1)
 		b.add_room(room2)
 
-		point1 = (12, 15)
-		point2 = (3, 5)
-
-		b.draw_board()
-
 		self.assertFalse(b.connect_path_nodes(point1, point2))
+
+	def test_complex_case(self):
+
+		expectedEdges = {(1, 2): {(3, 2): True, (2, 1): True, (2, 3): True}, (3, 2): {(1, 2): True, (2, 1): True, (2, 3): True, (4, 7): True}, (2, 1): {(1, 2): True, (3, 2): True, (2, 3): True}, (2, 3): {(1, 2): True, (3, 2): True, (2, 1): True}, (8, 5): {(10, 5): True, (9, 4): True, (9, 6): True, (4, 7): True}, (10, 5): {(8, 5): True, (9, 4): True, (9, 6): True}, (9, 4): {(8, 5): True, (10, 5): True, (9, 6): True}, (9, 6): {(8, 5): True, (10, 5): True, (9, 4): True}, (3, 8): {(6, 8): True, (4, 7): True, (4, 9): True}, (6, 8): {(3, 8): True, (4, 7): True, (4, 9): True}, (4, 7): {(3, 8): True, (6, 8): True, (4, 9): True, (8, 5): True, (3, 2): True}, (4, 9): {(3, 8): True, (6, 8): True, (4, 7): True}}
+		expectedBoard = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '&', '*', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '&', '*', '-', '-', '-', '`', '`', '`', '`', '`', '`'], ['`', '*', '&', '*', '`', '-', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '*', '&', '*', '`'], ['`', '`', '`', '`', '-', '-', '-', '-', '-', '*', '&', '`'], ['`', '`', '`', '`', '-', '`', '`', '`', '*', '&', '*', '`'], ['`', '`', '`', '*', '-', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '&', '*', '*', '&', '`', '`', '`', '`', '`'], ['`', '`', '`', '*', '&', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+		expectedAnchors = [(1, 2), (3, 2), (2, 1), (2, 3), (8, 5), (10, 5), (9, 4), (9, 6), (3, 8), (6, 8), (4, 7), (4, 9)]
+
+		b = Board(12, 12)
+		b.add_room(Room(3, 3, 1, 1))
+		b.add_room(Room(3, 3, 8, 4))
+		b.add_room(Room(3, 4, 3, 7))
+
+		b.connect_path_nodes((8, 5), (4, 7))
+		b.connect_path_nodes((3, 2), (4, 7))
+
+		self.assertEqual(expectedEdges, b._autoconnect._edges)
+		self.assertEqual(expectedBoard, b._board)
+		self.assertEqual(expectedAnchors, b._autoconnect._anchors)
+
 
 
 

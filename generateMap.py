@@ -165,8 +165,8 @@ class Board(object):
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
-        if self._autoconnect.have_edge(p1, p2):
-            return True
+        #if self._autoconnect.have_edge(p1, p2):
+        #   return True
 
         # Discover a path that connects the rooms using depth limited bfs... if you
         # find that these rooms can't be connected in the minimum number of moves (+ a little tolerance),
@@ -221,12 +221,19 @@ class Board(object):
         except IndexError:
             return False
 
+    def acceptable_char(self, pt):
+        acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
+        if self._get_tile(pt) in acceptable_chars:
+            return True
+        return False
+
     def get_neighbors(self, currPoint):
         if self.point_in_board(currPoint):
             currX, currY = currPoint
             offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
             candidates = [(currX + offX, currY + offY) for offX, offY in offsets]
-            return list(filter(self.point_in_board, candidates))
+            candidates = list(filter(self.point_in_board, candidates))
+            return candidates
 
         return []
 
@@ -265,7 +272,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
             # code to make the path stay away from touching walls by 1 space
             # also checks for existing temporary paths that would be able to join to our target that we could follow
             neighbors_filtered = []
-            acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
             for n in neighbors:
                 if n == endPoint:
                     neighbors_filtered.append(n)
@@ -275,17 +281,16 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 #p1X, p1Y = n
                 #nestedNeighborOffsets = [ x for x in product([-1, 0, 1], repeat=2) if x != (0, 0)] # XXX TODO want to check in a full 9 spaces around the point
                 #tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in nestedNeighborOffsets]
-
                 tileAndNeighbors = [n] + self.get_neighbors(n)
 
                 # if any are an unacceptable tile, skip this neighbor
                 neighborTileUnacceptable = False
                 for tile in tileAndNeighbors:
-                    tileChar = self._get_tile(tile)
-                    if tileChar not in acceptable_chars:
+                    if not self.acceptable_char(tile):
                         neighborTileUnacceptable = True
                         break
 
+                    tileChar = self._get_tile(tile)
                     #connect up path if possible
                     if tileChar == charSet["pathTemp"]:
                         path, parents = self._search_path(tile, endPoint)
@@ -301,20 +306,24 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 # neighbor passed all tests, so allow it
                 neighbors_filtered.append(n)
 
-            # look at all neighbors and add them to the heap
-            for nbr in neighbors_filtered:
-                if nbr not in done and self.point_in_board(nbr):
-                    updatedCost = cost[currPoint] + 1
-                    if nbr not in cost or updatedCost < cost[nbr]:
-                        cost[nbr] = updatedCost
-                        priority = updatedCost + manhatten_distance(*nbr, *endPoint)
-
-                        # we don't want to search any deeper than "maxdepth"
-                        if priority <= maxDepth:
-                            heappush(openPoints, (priority, nbr))
-                            parent[nbr] = currPoint
-
+            self.add_neighbors_to_heap(neighbors_filtered, openPoints, done, parent,
+                                       cost, currPoint, endPoint, maxDepth)
         return self._get_path(parent, endPoint)
+
+    # add all the neighbors that made it through onto the priority queue for the next round of A*
+    def add_neighbors_to_heap(self, neighbors_filtered, openPoints, done, parent, cost, currPoint, endPoint, maxDepth):
+        # look at all neighbors and add them to the heap
+        for nbr in neighbors_filtered:
+            if nbr not in done and self.point_in_board(nbr):
+                updatedCost = cost[currPoint] + 1
+                if nbr not in cost or updatedCost < cost[nbr]:
+                    cost[nbr] = updatedCost
+                    priority = updatedCost + manhatten_distance(*nbr, *endPoint)
+
+                    # we don't want to search any deeper than "maxdepth"
+                    if priority <= maxDepth:
+                        heappush(openPoints, (priority, nbr))
+                        parent[nbr] = currPoint
 
     def _get_path(self, parent, endPoint):
         if endPoint not in parent:
@@ -386,4 +395,7 @@ x.add_room(r)
     b.connect_path_nodes(p1, p2)
 
     b.draw_board()
-    print(b._autoconnect._edges)
+    print("edges:", b._autoconnect._edges)
+    print("board:", b._board)
+    print("anchors:", b._autoconnect._anchors)
+
