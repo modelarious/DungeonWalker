@@ -1,11 +1,12 @@
 
 from itertools import combinations
+from queue import Queue, PriorityQueue
 
 class Autoconnect(object):
     def __init__(self):
         self._edges = dict()
         self._invalidNeighbors = dict()
-        self._anchors = [] #XXX TODO need this feature to be able to iterate through all anchors
+        self._anchors = []
 
 
     def __cross_connect(self, p1, p2, d):
@@ -26,10 +27,11 @@ class Autoconnect(object):
         except KeyError:
             return False
 
-    # going to be used for autoconnect feature, so not tested yet
+    # add an edge between two nodes
     def add_edge(self, p1, p2):
         self.__cross_connect(p1, p2, self._edges)
 
+    # test if an edge exists between two nodes
     def have_edge(self, p1, p2):
         return self.__check_with_keyerror(p1, p2, self._edges)
 
@@ -39,13 +41,13 @@ class Autoconnect(object):
     def points_are_invalid(self, p1, p2):
         return self.__check_with_keyerror(p1, p2, self._invalidNeighbors)
 
-    # going to be used for autoconnect feature, so not tested yet
+    # get all points that have an edge with this point
+    # if there are none, return []
     def get_neighbors(self, point):
-        try:
-            return self._edges[point]
-        except KeyError:
-            return False
+        return self._edges.setdefault(point, [])
 
+    # connects all the anchors in a room to each other and tracks them.
+    # formally, the anchors are nodes and we put edges between every node pair in the room
     def add_anchors(self, room):
         # connect the anchors in the edge list to make the room a strongly connected component
         anchors = room.getAnchors()
@@ -54,3 +56,39 @@ class Autoconnect(object):
             anchor1x, anchor1y = anchor1
             anchor2x, anchor2y = anchor2
             self.add_edge(anchor1, anchor2)
+
+    # return every node reachable by a given node by edges on the graph
+    def get_reachable_nodes(self, givenNode):
+
+        seen = dict()
+        q = Queue()
+        q.put(givenNode)
+
+        while not q.empty():
+            node = q.get()
+            seen[node] = True
+            for nbr in self.get_neighbors(node):
+                if not seen.setdefault(nbr, False):
+                    q.put(nbr)
+
+        del seen[givenNode]
+        return list(seen.keys())
+
+
+    #
+    def get_connected_components(self, nodeSet=[]):
+
+        # can't set default in function definition as "self" is not defined
+        if nodeSet == []: nodeSet = self._anchors
+
+        seen = dict()
+        for n in nodeSet:
+            if not seen.setdefault(n, False):
+                pass
+
+
+    def find_farthest_room(self, givenRoom):
+        pass
+
+
+

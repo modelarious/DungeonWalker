@@ -108,7 +108,7 @@ parentsAndPaths = [
 ]
 
 
-class TestRoomCreation(unittest.TestCase):
+class TestBoardCreation(unittest.TestCase):
 	@parameterized.expand([
 		["small width", (minBoardSize, modestBoardSize)],
 		["small height", (modestBoardSize, minBoardSize)],
@@ -365,7 +365,6 @@ class TestRoomCreation(unittest.TestCase):
 		b = Board(*generalTestBoardParams)
 		b.draw_board()
 
-
 	def test_connect_path_nodes_fails_when_going_negative(self):
 		b = Board(*generalTestBoardParams)
 		room1 = Room(*generalRoomSize, 1, 1)
@@ -374,6 +373,10 @@ class TestRoomCreation(unittest.TestCase):
 		b.add_room(room2)
 
 		self.assertFalse(b.connect_path_nodes((1, 3), (18, 3)))
+
+
+	def test_connect_path_two_adjacent_rooms(self):
+
 
 if __name__ == '__main__':
 	unittest.main()
