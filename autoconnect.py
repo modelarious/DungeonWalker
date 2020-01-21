@@ -1,6 +1,6 @@
 
 from itertools import combinations
-from queue import Queue, PriorityQueue
+from queue import Queue
 
 class Autoconnect(object):
     def __init__(self):
@@ -62,25 +62,53 @@ class Autoconnect(object):
         for a in anchors:
             self._anchor_to_room_map[a] = room
 
-    # return every node reachable by a given node by edges on the graph
+    # return every node reachable from a given node by following edges on the graph
+    # also return how many nodes it takes to get to each one
     def get_reachable_nodes(self, givenNode):
 
         layers = dict()
-        seen = dict()
+        seen = []
         q = Queue()
-        q.put(givenNode)
+
+        # (depth, node)
+        q.put((0, givenNode))
 
         while not q.empty():
-            node = q.get()
-            seen[node] = True
-            for nbr in self.get_neighbors(node):
-                if not seen.setdefault(nbr, False):
-                    q.put(nbr)
+            depth, node = q.get()
+            seen.append(node)
 
-        return list(seen.keys()), []
+            nbr_layer = []
+            nbr_layer_number = depth + 1
+
+            for nbr in self.get_neighbors(node):
+                if nbr not in seen:
+                    q.put((nbr_layer_number, nbr))
+                    seen.append(nbr)
+
+                    nbr_layer.append(nbr)
+
+            if nbr_layer:
+                if nbr_layer_number not in layers:
+                    layers[nbr_layer_number] = []
+                layers[nbr_layer_number].extend(nbr_layer)
+
+        return seen, layers
 
     def find_farthest_room(self, givenRoom):
-        pass
+        farthest_point = None
+        farthest_point_value = 0
+        for a in givenRoom.getAnchors():
+            _, layers = self.get_reachable_nodes(a)
+            maxDepth = max(layers.keys())
+            for node in layers[maxDepth]:
+                dist = manhatten_distance(*node, *a)
+                if dist > farthest_point_value:
+                    farthest_point = node
+                    farthest_point_value = dist
+
+        # guaranteed there will be a best pair, as the best pair will at least be two anchors in the same room
+        return self._anchor_to_room_map[farthest_point]
 
 
-
+def manhatten_distance(p1X, p1Y, p2X, p2Y):
+    return abs(p1X - p2X) + abs(p1Y - p2Y)

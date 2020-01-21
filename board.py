@@ -49,7 +49,7 @@ has 4 exits (marked by the & symbol):
 
 from exceptions import *
 from settings import *
-from autoconnect import Autoconnect
+from autoconnect import *
 from heapq import heappush, heappop
 
 '''
@@ -344,9 +344,10 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         return correctPath
 
     def _finalize_board(self):
-        if len(self._rooms == 0): return False
+        if len(self._rooms) == 0: return False
         StartRoom = self._rooms[0]
         GoalRoom = self._autoconnect.find_farthest_room(StartRoom)
+        print(GoalRoom)
 
 
 
@@ -360,7 +361,4 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
 
     # NO TO THE ABOVE, Use Kruskal's algo.  So first, calculate the distance between each pair of anchors.  Don't use a pair that's invalidated
 
-
-def manhatten_distance(p1X, p1Y, p2X, p2Y):
-    return abs(p1X - p2X) + abs(p1Y - p2Y)
 

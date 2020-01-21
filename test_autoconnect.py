@@ -72,27 +72,35 @@ class TestAutoConnect(unittest.TestCase):
     def test_get_neighbors_three_room_all_connect(self):
         a = Autoconnect()
         r1 = Room(4, 5, 1, 1) # 4 by 5 room at (1, 1)
-        r2 = Room(4, 5, 6, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
+        r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
         r3 = Room(4, 5, 10, 7)  # 4 by 5 room at (10, 7)
         a.add_anchors(r1)
         a.add_anchors(r2)
         a.add_anchors(r3)
 
-        '''
+
+
+
+
+        a.add_edge((11, 2), (12, 7))
+        a.add_edge((5, 2), (7, 2))
+        reachable, layers = a.get_reachable_nodes((11, 2))
+        #self.assertEqual(reachable, [(10, 2), (6, 2), (8, 1), (8, 4), (12, 7), (5, 2), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)])
+        print(layers)
+
         board = Board(20, 20)
         for r in [r1, r2, r3]:
             board.add_room(r)
-        self.assertTrue(board.connect_path_nodes((10,2), (12, 7)))
-        self.assertTrue(board.connect_path_nodes((5,2), (6,2)))
+        self.assertTrue(board.connect_path_nodes((11, 2), (12, 7)))
+        self.assertTrue(board.connect_path_nodes((5, 2), (7, 2)))
         board.draw_board()
-        '''
+        board._finalize_board()
 
+        for depth, pts in layers.items():
+            for pt in pts:
+                board._change_tile(pt, str(depth))
 
-        a.add_edge((10, 2), (12, 7))
-        a.add_edge((5, 2), (6, 2))
-        reachable, layers = a.get_reachable_nodes((10, 2))
-        self.assertEqual(reachable, [(10, 2), (6, 2), (8, 1), (8, 4), (12, 7), (5, 2), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)])
-
+        board.draw_board()
 
 # a.add_edge((10,2), ())
 if __name__ == '__main__':
