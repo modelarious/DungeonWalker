@@ -7,6 +7,7 @@ class Autoconnect(object):
         self._edges = dict()
         self._invalidNeighbors = dict()
         self._anchors = []
+        self._anchor_to_room_map = dict()
 
 
     def __cross_connect(self, p1, p2, d):
@@ -57,9 +58,14 @@ class Autoconnect(object):
             anchor2x, anchor2y = anchor2
             self.add_edge(anchor1, anchor2)
 
+        # make it O(1) to figure out which room a point is in
+        for a in anchors:
+            self._anchor_to_room_map[a] = room
+
     # return every node reachable by a given node by edges on the graph
     def get_reachable_nodes(self, givenNode):
 
+        layers = dict()
         seen = dict()
         q = Queue()
         q.put(givenNode)
@@ -71,21 +77,7 @@ class Autoconnect(object):
                 if not seen.setdefault(nbr, False):
                     q.put(nbr)
 
-        del seen[givenNode]
-        return list(seen.keys())
-
-
-    #
-    def get_connected_components(self, nodeSet=[]):
-
-        # can't set default in function definition as "self" is not defined
-        if nodeSet == []: nodeSet = self._anchors
-
-        seen = dict()
-        for n in nodeSet:
-            if not seen.setdefault(n, False):
-                pass
-
+        return list(seen.keys()), []
 
     def find_farthest_room(self, givenRoom):
         pass

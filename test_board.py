@@ -374,8 +374,13 @@ class TestBoardCreation(unittest.TestCase):
 
 		self.assertFalse(b.connect_path_nodes((1, 3), (18, 3)))
 
-
+	# show that two rooms with anchors touching can be connected
 	def test_connect_path_two_adjacent_rooms(self):
+		r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
+		r2 = Room(4, 5, 6, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
+		board = Board(20, 20)
+		for r in [r1, r2]: board.add_room(r)
+		self.assertTrue(board.connect_path_nodes((5, 2), (6, 2)))
 
 
 if __name__ == '__main__':

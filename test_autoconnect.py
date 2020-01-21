@@ -61,7 +61,7 @@ class TestAutoConnect(unittest.TestCase):
         board.draw_board()
         '''
 
-        a.add_edge((10,2), (12, 7))
+        a.add_edge((10, 2), (12, 7))
         self.assertEqual(a.get_neighbors(point), expectedNeighbors)
 
         #print(a.get_reachable_nodes((10,2)))
@@ -83,14 +83,15 @@ class TestAutoConnect(unittest.TestCase):
         for r in [r1, r2, r3]:
             board.add_room(r)
         self.assertTrue(board.connect_path_nodes((10,2), (12, 7)))
-        self.assertTrue(board..connect_path_nodes((5,2), (6,2)))
+        self.assertTrue(board.connect_path_nodes((5,2), (6,2)))
         board.draw_board()
         '''
 
+
         a.add_edge((10, 2), (12, 7))
         a.add_edge((5, 2), (6, 2))
-        reachable = a.get_reachable_nodes((10, 2))
-        self.assertEqual(reachable, [(6, 2), (8, 1), (8, 4), (12, 7), (5, 2), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)])
+        reachable, layers = a.get_reachable_nodes((10, 2))
+        self.assertEqual(reachable, [(10, 2), (6, 2), (8, 1), (8, 4), (12, 7), (5, 2), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)])
 
 
 # a.add_edge((10,2), ())
