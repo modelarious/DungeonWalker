@@ -1,6 +1,6 @@
 
 from itertools import combinations
-from queue import Queue
+from queue import Queue, PriorityQueue
 
 class Autoconnect(object):
     def __init__(self):
@@ -35,7 +35,7 @@ class Autoconnect(object):
     def have_edge(self, p1, p2):
         return self.__check_with_keyerror(p1, p2, self._edges)
 
-    def invalidate(self, p1, p2):
+    def _invalidate(self, p1, p2):
         self.__cross_connect(p1, p2, self._invalidNeighbors)
 
     def points_are_invalid(self, p1, p2):
@@ -111,6 +111,56 @@ class Autoconnect(object):
 
         # guaranteed there will be a best pair, as the best pair will at least be two anchors in the same room
         return self._anchor_to_room_map[farthest_point], farthest_point, corresponding_givenRoom_anchor
+
+    # give it the two points that were just successfully connected,
+    # don't consider any more connections between these rooms
+    def _invalidate_rooms(self, p1, p2):
+        r1, r2 = self._anchor_to_room_map[p1], self._anchor_to_room_map[p2]
+        for a1 in r1.getAnchors():
+            for a2 in r2.getAnchors():
+                self._invalidate(a1, a2)
+
+    def _compute_all_unused_possible_edges(self):
+        q = PriorityQueue()
+        for a1 in self._anchors:
+            for a2 in self._anchors:
+                if self.have_edge(a1, a2):
+                    continue
+                # something like ( 5 , ((1, 1), (6, 1)) )
+                distance_edge_tuple = (
+                    manhatten_distance(*a1, *a2),
+                    (a1, a2)
+                )
+                q.put(distance_edge_tuple)
+        return q
+
+    def connect_graph(self, board):
+        # returns a priority queue where we consider smallest edges first
+        consideredEdges = self._compute_all_unused_possible_edges()
+        while not consideredEdges.empty():
+            dist, edge = consideredEdges.get()
+
+            # if we don't want to connect these two points for any reason
+            if self.points_are_invalid(*edge):
+                continue
+
+            # if the graph is already connected, can stop
+            reachable, _ = self.get_reachable_nodes(edge[0])
+            if set(reachable) == set(self._anchors):
+                return True
+
+            # don't connect two rooms if they already have a path to each other
+            if edge[1] in reachable:
+                continue
+
+            # if we can connect the two nodes, then do it and
+            # don't consider anymore connections between these two rooms
+            if board.connect_path_nodes(*edge):
+                self._invalidate_rooms(*edge)
+
+        return False
+
+
 
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):

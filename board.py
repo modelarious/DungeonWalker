@@ -163,57 +163,24 @@ class Board(object):
 
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search
-    # if the connection isn't possible, it will invalidate future connections between these sets of points
+    # if the connection isn't possible, it returns false
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
-        #if self._autoconnect.have_edge(p1, p2):
-        #   return True
+        if self._autoconnect.have_edge(p1, p2):
+            return True
 
         # Discover a path that connects the rooms using depth limited bfs... if you
         # find that these rooms can't be connected in the minimum number of moves (+ a little tolerance),
-        # then invalidate this set of points
+        # then return false
         path = self._depth_limited_search(p1, p2)
-
         if not path:
-            self._autoconnect.invalidate(p1, p2)
             return False
         else:
             self._autoconnect.add_edge(p1, p2)
             for node in path:
                 self._change_tile(node, charSet["pathTemp"])
             return True
-
-    def _search_path(self, tile, endPoint):
-        offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
-        q = []
-        seen = []
-        parent = {}
-
-        q.append(tile)
-        parent[tile] = None
-
-        while len(q) != 0:
-            point = q.pop()
-
-            #if point in seen:
-            #   continue
-
-            if point == endPoint:
-                break
-
-            seen.append(point)
-            pX, pY = point
-            neighbors = [(pX + offX, pY + offY) for offX, offY in offsets]
-
-            # only include neighbors that are part of an existing path, as we are serching down a path
-            filteredNeighbors = [n for n in neighbors if self._get_tile(n) == charSet["pathTemp"]]
-            for n in filteredNeighbors:
-                if n not in seen:
-                    q.append(n)
-                    parent[n] = point
-
-        return self._get_path(parent, endPoint), parent
 
     def _point_in_board(self, pt):
         (pX, pY) = pt
@@ -274,7 +241,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
             neighbors = self._get_neighbors(currPoint)
 
             # code to make the path stay away from touching walls by 1 space
-            # also checks for existing temporary paths that would be able to join to our target that we could follow
             neighbors_filtered = []
             for n in neighbors:
                 if n == endPoint:
@@ -293,16 +259,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                     if not self._acceptable_char(tile):
                         neighborTileUnacceptable = True
                         break
-
-                    tileChar = self._get_tile(tile)
-                    #connect up path if possible
-                    if tileChar == charSet["pathTemp"]:
-                        path, parents = self._search_path(tile, endPoint)
-                        if path:
-                            parents[tile] = n
-                            parents[n] = currPoint
-                            parent.update(parents)
-                            return self._get_path(parent, endPoint)
 
                 if neighborTileUnacceptable:
                     continue
@@ -338,6 +294,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         p = parent[endPoint]
         path.append(endPoint)
         while p is not None:
+            #print("Looking at ", p)
             path.append(p)
             p = parent[p]
         correctPath = [i for i in reversed(path)]
@@ -350,6 +307,14 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         GoalRoom, farthestPoint, pointInStartRoom = self._autoconnect.find_farthest_room(StartRoom)
         self._change_tile(farthestPoint, charSet["goal"])
         self._change_tile(pointInStartRoom, charSet["start"])
+        return True
+
+    def connect_board_automatically(self):
+        if self._autoconnect.connect_graph(self):
+            return self._finalize_board()
+        return False
+
+
 
 
 
