@@ -96,6 +96,7 @@ class Autoconnect(object):
     # find farthest room from given room based on number of anchors you must pass through
     # NOT based on geographical location
     def find_farthest_room(self, givenRoom):
+        corresponding_givenRoom_anchor = None
         farthest_point = None
         farthest_point_value = 0
         for a in givenRoom.getAnchors():
@@ -106,9 +107,10 @@ class Autoconnect(object):
                 if dist > farthest_point_value:
                     farthest_point = node
                     farthest_point_value = dist
+                    corresponding_givenRoom_anchor = a
 
         # guaranteed there will be a best pair, as the best pair will at least be two anchors in the same room
-        return self._anchor_to_room_map[farthest_point]
+        return self._anchor_to_room_map[farthest_point], farthest_point, corresponding_givenRoom_anchor
 
 
 def manhatten_distance(p1X, p1Y, p2X, p2Y):

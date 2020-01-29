@@ -124,7 +124,7 @@ class TestAutoConnect(unittest.TestCase):
 ````````````````````
 ````````````````````
     '''
-    def test_find_farthest_room(self):
+    def test_find_farthest_room_returns_correct_rooms(self):
         a = Autoconnect()
         r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
         r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
@@ -138,17 +138,77 @@ class TestAutoConnect(unittest.TestCase):
         a.add_edge((11, 2), (12, 7))
         a.add_edge((5, 2), (7, 2))
 
-        self.assertEqual(a.find_farthest_room(r1), r3)
-        self.assertEqual(a.find_farthest_room(r2), r3)
-        self.assertEqual(a.find_farthest_room(r3), r1)
+        for startRoom, endRoom in [[r1, r3], [r2, r3], [r3, r1]]:
+            r, _, _ = a.find_farthest_room(startRoom)
+            self.assertEqual(endRoom, r)
 
         # connect room 4
         a.add_edge((13, 15), (3, 4))
 
-        self.assertEqual(a.find_farthest_room(r1), r3)
-        self.assertEqual(a.find_farthest_room(r2), r4)
-        self.assertEqual(a.find_farthest_room(r3), r4)
-        self.assertEqual(a.find_farthest_room(r4), r3)
+        for startRoom, endRoom in [[r1, r3], [r2, r4], [r3, r4], [r4, r3]]:
+            r, _, _ = a.find_farthest_room(startRoom)
+            self.assertEqual(endRoom, r)
+
+    '''
+``r1`````r2`````````
+`**1**`**3**````````
+`0***1*2***3**``````
+`*****`*****`*``````
+`**1**`**3**`*``````
+```*````````**``````
+```*````````*```````
+```*``````**4**`````
+```*``````5***5`````
+```*``````*****`````
+```*``````**5**`````
+```*```````r3```````
+```*````````````````
+```*``````````r4````
+```*`````````**3**``
+```**********2***3``
+`````````````*****``
+`````````````**3**``
+````````````````````
+````````````````````
+    '''
+    def test_find_farthest_room_returns_correct_positions(self):
+        a = Autoconnect()
+        r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
+        r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
+        r3 = Room(4, 5, 10, 7)  # 4 by 5 room at (10, 7)
+        r4 = Room(4, 5, 13, 14)  # 4 by 5 room at (13, 14)
+        a.add_anchors(r1)
+        a.add_anchors(r2)
+        a.add_anchors(r3)
+        a.add_anchors(r4)
+
+        a.add_edge((11, 2), (12, 7))
+        a.add_edge((5, 2), (7, 2))
+
+        exp = [
+            [r1, (14, 8), (1, 2)],
+            [r2, (14, 8), (7, 2)],
+            [r3, (1, 2), (14, 8)]
+        ]
+        for startRoom, expected_farthest_point, expected_start_room_point in exp:
+            _, farthest_point, start_room_point = a.find_farthest_room(startRoom)
+            self.assertEqual(farthest_point, expected_farthest_point)
+            self.assertEqual(start_room_point, expected_start_room_point)
+
+        # connect room 4
+        a.add_edge((13, 15), (3, 4))
+
+        exp = [
+            [r1, (14, 8), (1, 2)],
+            [r2, (17, 15), (7, 2)],
+            [r3, (17, 15), (10, 8)],
+            [r4, (10, 8), (17, 15)]
+        ]
+        for startRoom, expected_farthest_point, expected_start_room_point in exp:
+
+            _, farthest_point, start_room_point = a.find_farthest_room(startRoom)
+            self.assertEqual(farthest_point, expected_farthest_point)
+            self.assertEqual(start_room_point, expected_start_room_point)
 
 # a.add_edge((10,2), ())
 if __name__ == '__main__':
