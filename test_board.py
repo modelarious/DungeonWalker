@@ -108,7 +108,7 @@ parentsAndPaths = [
 ]
 
 
-class TestRoomCreation(unittest.TestCase):
+class TestBoardCreation(unittest.TestCase):
 	@parameterized.expand([
 		["small width", (minBoardSize, modestBoardSize)],
 		["small height", (modestBoardSize, minBoardSize)],
@@ -365,7 +365,6 @@ class TestRoomCreation(unittest.TestCase):
 		b = Board(*generalTestBoardParams)
 		b.draw_board()
 
-
 	def test_connect_path_nodes_fails_when_going_negative(self):
 		b = Board(*generalTestBoardParams)
 		room1 = Room(*generalRoomSize, 1, 1)
@@ -374,6 +373,81 @@ class TestRoomCreation(unittest.TestCase):
 		b.add_room(room2)
 
 		self.assertFalse(b.connect_path_nodes((1, 3), (18, 3)))
+
+	# show that two rooms with anchors touching can be connected
+	def test_connect_path_two_adjacent_rooms(self):
+		r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
+		r2 = Room(4, 5, 6, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
+		board = Board(20, 20)
+
+		for r in [r1, r2]:
+			board.add_room(r)
+
+		self.assertTrue(board.connect_path_nodes((5, 2), (6, 2)))
+
+	'''
+````````````````````
+`*****`*****````````
+`*************``````
+`*****`*****`*``````
+`*r1**`*r2**`*``````
+````````````**``````
+````````````*```````
+``````````*****`````
+``````````*****`````
+``````````*****`````
+``````````*r3**`````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+	'''
+	def test_finalize_board(self):
+		r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
+		r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (7, 1) (separated from r1 by 1 space)
+		r3 = Room(4, 5, 10, 7)  # 4 by 5 room at (10, 7)
+		board = Board(20, 20)
+
+		for r in [r1, r2, r3]:
+			board.add_room(r)
+
+		#connect up r1 to r2 and r2 to r3
+		self.assertTrue(board.connect_path_nodes((11, 2), (12, 7)))
+		self.assertTrue(board.connect_path_nodes((5, 2), (7, 2)))
+
+		board._finalize_board()
+		expectedBoardState = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', 'S', '*', '*', '*', '-', '-', '-', '*', '*', '*', '-', '-', '-', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '*', '*', '*', '`', '*', '*', '*', '*', '*', '`', '-', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '*', '*', '&', '*', '*', '`', '-', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '-', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '-', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '&', '*', '*', '*', 'G', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+		self.assertEqual(board._board, expectedBoardState)
+
+		'''
+		r4 = Room(4, 5, 13, 14)
+		board.add_room(r4)
+		board.draw_board()
+
+		print(r4.getAnchors())
+		print(r1.getAnchors())
+
+		board.connect_path_nodes((13, 15), (3, 4))
+		board.draw_board()
+
+		reachable, layers = board._autoconnect.get_reachable_nodes((1, 2))
+		for depth, pts in layers.items():
+			for pt in pts:
+				board._change_tile(pt, str(depth))
+
+		board.draw_board()
+		'''
+
+	def test_finalize_board_fails_with_no_rooms(self):
+		b = Board(20, 20)
+		self.assertFalse(b._finalize_board())
+
+
 
 if __name__ == '__main__':
 	unittest.main()

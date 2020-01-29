@@ -49,7 +49,7 @@ has 4 exits (marked by the & symbol):
 
 from exceptions import *
 from settings import *
-from autoconnect import Autoconnect
+from autoconnect import *
 from heapq import heappush, heappop
 
 '''
@@ -310,12 +310,12 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 # neighbor passed all tests, so allow it
                 neighbors_filtered.append(n)
 
-            self.add_neighbors_to_heap(neighbors_filtered, openPoints, done, parent,
+            self._add_neighbors_to_heap(neighbors_filtered, openPoints, done, parent,
                                        cost, currPoint, endPoint, maxDepth)
         return self._get_path(parent, endPoint)
 
-    # add all the neighbors that made it through onto the priority queue for the next round of A*
-    def add_neighbors_to_heap(self, neighbors_filtered, openPoints, done, parent, cost, currPoint, endPoint, maxDepth):
+    # add all the neighbors that made it through filtering onto the priority queue for the next round of A*
+    def _add_neighbors_to_heap(self, neighbors_filtered, openPoints, done, parent, cost, currPoint, endPoint, maxDepth):
         # look at all neighbors and add them to the heap
         for nbr in neighbors_filtered:
             if nbr not in done and self._point_in_board(nbr):
@@ -343,6 +343,18 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         correctPath = [i for i in reversed(path)]
         return correctPath
 
+    def _finalize_board(self):
+        if len(self._rooms) == 0:
+            return False
+        StartRoom = self._rooms[0]
+        GoalRoom, farthestPoint, pointInStartRoom = self._autoconnect.find_farthest_room(StartRoom)
+        self._change_tile(farthestPoint, charSet["goal"])
+        self._change_tile(pointInStartRoom, charSet["start"])
+
+
+
+
+
     # 3 rooms, each are their own strongly connected component
     # for a given anchor, it has 2 neighbors in this case: the closest anchor (that is not
     # invalid) from the other two rooms.  When you try to connect, you use _depth_limited_search() to see
@@ -350,9 +362,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
     # You should be inspecting these pairs of anchors ordered by which two are the closest.
     # Each iteration you recalculate the connected components and re
 
-    # NO TO THE ABOVE, Use Kruskal's algo.  So first, calculate the distance between each pair of anchors.  Don't use a pair
+    # NO TO THE ABOVE, Use Kruskal's algo.  So first, calculate the distance between each pair of anchors.  Don't use a pair that's invalidated
 
-
-def manhatten_distance(p1X, p1Y, p2X, p2Y):
-    return abs(p1X - p2X) + abs(p1Y - p2Y)
 
