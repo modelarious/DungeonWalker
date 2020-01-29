@@ -78,15 +78,11 @@ class TestAutoConnect(unittest.TestCase):
         a.add_anchors(r2)
         a.add_anchors(r3)
 
-
-
-
-
         a.add_edge((11, 2), (12, 7))
         a.add_edge((5, 2), (7, 2))
         reachable, layers = a.get_reachable_nodes((11, 2))
         #self.assertEqual(reachable, [(10, 2), (6, 2), (8, 1), (8, 4), (12, 7), (5, 2), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)])
-        print(layers)
+        print(reachable, layers)
 
         board = Board(20, 20)
         for r in [r1, r2, r3]:
@@ -101,6 +97,11 @@ class TestAutoConnect(unittest.TestCase):
                 board._change_tile(pt, str(depth))
 
         board.draw_board()
+        expectedReachable = [(11, 2), (7, 2), (9, 1), (9, 4), (12, 7), (7, 2), (5, 2), (9, 1), (9, 4), (12, 7), (10, 8), (14, 8), (12, 10), (5, 2), (1, 2), (3, 1), (3, 4), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)]
+        expectedLayers = {0: [(11, 2)], 1: [(7, 2), (9, 1), (9, 4), (12, 7)], 2: [(5, 2), (10, 8), (14, 8), (12, 10)], 3: [(1, 2), (3, 1), (3, 4)]}
+
+        self.assertEqual(expectedReachable, reachable)
+        self.assertEqual(expectedLayers, layers)
 
 # a.add_edge((10,2), ())
 if __name__ == '__main__':

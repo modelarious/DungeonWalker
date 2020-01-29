@@ -9,7 +9,6 @@ class Autoconnect(object):
         self._anchors = []
         self._anchor_to_room_map = dict()
 
-
     def __cross_connect(self, p1, p2, d):
         # partner function with __check_with_keyerror, we store True at d[p1][p2]
         if p1 not in d:
@@ -66,7 +65,7 @@ class Autoconnect(object):
     # also return how many nodes it takes to get to each one
     def get_reachable_nodes(self, givenNode):
 
-        layers = dict()
+        layers = dict({0: [givenNode]})
         seen = []
         q = Queue()
 
