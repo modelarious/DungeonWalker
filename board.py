@@ -344,7 +344,8 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         return correctPath
 
     def _finalize_board(self):
-        if len(self._rooms) == 0: return False
+        if len(self._rooms) == 0:
+            return False
         StartRoom = self._rooms[0]
         GoalRoom = self._autoconnect.find_farthest_room(StartRoom)
         print(GoalRoom)

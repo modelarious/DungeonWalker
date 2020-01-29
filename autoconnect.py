@@ -93,6 +93,8 @@ class Autoconnect(object):
 
         return seen, layers
 
+    # find farthest room from given room based on number of anchors you must pass through
+    # NOT based on geographical location
     def find_farthest_room(self, givenRoom):
         farthest_point = None
         farthest_point_value = 0

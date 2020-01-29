@@ -71,7 +71,7 @@ class TestAutoConnect(unittest.TestCase):
     #connect up rooms 1 2 and 3, check that they're all reachable from any node
     def test_get_neighbors_three_room_all_connect(self):
         a = Autoconnect()
-        r1 = Room(4, 5, 1, 1) # 4 by 5 room at (1, 1)
+        r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
         r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
         r3 = Room(4, 5, 10, 7)  # 4 by 5 room at (10, 7)
         a.add_anchors(r1)
@@ -81,9 +81,7 @@ class TestAutoConnect(unittest.TestCase):
         a.add_edge((11, 2), (12, 7))
         a.add_edge((5, 2), (7, 2))
         reachable, layers = a.get_reachable_nodes((11, 2))
-        #self.assertEqual(reachable, [(10, 2), (6, 2), (8, 1), (8, 4), (12, 7), (5, 2), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)])
-        print(reachable, layers)
-
+        '''
         board = Board(20, 20)
         for r in [r1, r2, r3]:
             board.add_room(r)
@@ -97,12 +95,61 @@ class TestAutoConnect(unittest.TestCase):
                 board._change_tile(pt, str(depth))
 
         board.draw_board()
+        '''
         expectedReachable = [(11, 2), (7, 2), (9, 1), (9, 4), (12, 7), (7, 2), (5, 2), (9, 1), (9, 4), (12, 7), (10, 8), (14, 8), (12, 10), (5, 2), (1, 2), (3, 1), (3, 4), (10, 8), (14, 8), (12, 10), (1, 2), (3, 1), (3, 4)]
         expectedLayers = {0: [(11, 2)], 1: [(7, 2), (9, 1), (9, 4), (12, 7)], 2: [(5, 2), (10, 8), (14, 8), (12, 10)], 3: [(1, 2), (3, 1), (3, 4)]}
 
         self.assertEqual(expectedReachable, reachable)
         self.assertEqual(expectedLayers, layers)
 
+    '''
+``r1`````r2`````````
+`**1**`**3**````````
+`0***1*2***3**``````
+`*****`*****`*``````
+`**1**`**3**`*``````
+```*````````**``````
+```*````````*```````
+```*``````**4**`````
+```*``````5***5`````
+```*``````*****`````
+```*``````**5**`````
+```*```````r3```````
+```*````````````````
+```*``````````r4````
+```*`````````**3**``
+```**********2***3``
+`````````````*****``
+`````````````**3**``
+````````````````````
+````````````````````
+    '''
+    def test_find_farthest_room(self):
+        a = Autoconnect()
+        r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
+        r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (6, 1) (directly touching sides)
+        r3 = Room(4, 5, 10, 7)  # 4 by 5 room at (10, 7)
+        r4 = Room(4, 5, 13, 14)  # 4 by 5 room at (13, 14)
+        a.add_anchors(r1)
+        a.add_anchors(r2)
+        a.add_anchors(r3)
+        a.add_anchors(r4)
+
+        a.add_edge((11, 2), (12, 7))
+        a.add_edge((5, 2), (7, 2))
+
+        self.assertEqual(a.find_farthest_room(r1), r3)
+        self.assertEqual(a.find_farthest_room(r2), r3)
+        self.assertEqual(a.find_farthest_room(r3), r1)
+
+        # connect room 4
+        a.add_edge((13, 15), (3, 4))
+
+        self.assertEqual(a.find_farthest_room(r1), r3)
+        self.assertEqual(a.find_farthest_room(r2), r4)
+        self.assertEqual(a.find_farthest_room(r3), r4)
+        self.assertEqual(a.find_farthest_room(r4), r3)
+
 # a.add_edge((10,2), ())
 if __name__ == '__main__':
-	unittest.main()
+    unittest.main()
