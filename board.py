@@ -310,12 +310,12 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 # neighbor passed all tests, so allow it
                 neighbors_filtered.append(n)
 
-            self.add_neighbors_to_heap(neighbors_filtered, openPoints, done, parent,
+            self._add_neighbors_to_heap(neighbors_filtered, openPoints, done, parent,
                                        cost, currPoint, endPoint, maxDepth)
         return self._get_path(parent, endPoint)
 
     # add all the neighbors that made it through filtering onto the priority queue for the next round of A*
-    def add_neighbors_to_heap(self, neighbors_filtered, openPoints, done, parent, cost, currPoint, endPoint, maxDepth):
+    def _add_neighbors_to_heap(self, neighbors_filtered, openPoints, done, parent, cost, currPoint, endPoint, maxDepth):
         # look at all neighbors and add them to the heap
         for nbr in neighbors_filtered:
             if nbr not in done and self._point_in_board(nbr):
@@ -347,8 +347,10 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         if len(self._rooms) == 0:
             return False
         StartRoom = self._rooms[0]
-        GoalRoom = self._autoconnect.find_farthest_room(StartRoom)
-        print(GoalRoom)
+        GoalRoom, farthestPoint, pointInStartRoom = self._autoconnect.find_farthest_room(StartRoom)
+        self._change_tile(farthestPoint, charSet["goal"])
+        self._change_tile(pointInStartRoom, charSet["start"])
+
 
 
 
