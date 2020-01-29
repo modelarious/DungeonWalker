@@ -443,6 +443,10 @@ class TestBoardCreation(unittest.TestCase):
 		board.draw_board()
 		'''
 
+	def test_finalize_board_fails_with_no_rooms(self):
+		b = Board(20, 20)
+		self.assertFalse(b._finalize_board())
+
 
 
 if __name__ == '__main__':
