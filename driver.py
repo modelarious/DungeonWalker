@@ -41,6 +41,7 @@ x.add_room(r)
     # p1 = (8, 5)
     b.connect_path_nodes(p1, p2)
 
+    b._finalize_board()
     b.draw_board()
     print("edges:", b._autoconnect._edges)
     print("board:", b._board)
