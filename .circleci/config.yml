@@ -1,13 +1,17 @@
 version: 2.1
+
 jobs:
-  build:
+  test:
     docker:
       - image: circleci/python:3.8.1
+    working_directory: ~/DungeonWalker
     steps:
-      - checkout
-      - run: 
-         - name: Install Dependencies
-         - command: pip install --user -r requirements.txt
+      - checkout:
+          path: ~/DungeonWalker
       - run:
-         - name: Run Tests 
-         - command: bash runTests.sh
+          name: Install Dependencies
+          command: pip install --user -r requirements.txt
+      - run:
+          name: Run Tests
+          command: bash runTests.sh
+
