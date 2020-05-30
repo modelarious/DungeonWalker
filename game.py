@@ -15,9 +15,10 @@ class Game(object):
         self.boardController.draw_board()
 
     def game_loop(self):
-        while True:
-            self.boardController.play_player_moves()
-            self.boardController.play_enemy_moves()
+        pass
+        #while True:
+        #    self.boardController.play_player_moves()
+        #    self.boardController.play_enemy_moves()
 
 
 

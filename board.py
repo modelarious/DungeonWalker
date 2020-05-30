@@ -51,6 +51,7 @@ from exceptions import *
 from settings import *
 from autoconnect import *
 from heapq import heappush, heappop
+import copy
 
 '''
 # thrown when a room given to the board would be outside the boundaries
@@ -313,6 +314,15 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         if self._autoconnect.connect_graph(self):
             return self._finalize_board()
         return False
+
+    def get_copy(self):
+        return copy.deepcopy(self)
+
+    def play_move(self, currentPosition, proposedPosition):
+        tileToMove = self._get_tile(currentPosition)
+        self._change_tile(proposedPosition,tileToMove)
+        self._change_tile(currentPosition, charSet["passable"])
+
 
 
 

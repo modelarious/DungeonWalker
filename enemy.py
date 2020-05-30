@@ -9,4 +9,6 @@ class Enemy(object):
     def decide_on_move(self):
         return "w"
 
+    def
+
 
