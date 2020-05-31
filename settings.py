@@ -1,11 +1,11 @@
 charSet = {
-        "blocked" : "`",
-        "passable" : "*",
-        "start" : "S",
-        "goal" : "G",
-        "anchor" : "&",
-        "player" : "@",
-        "pathTemp" : "-",
+        "blocked": "`",
+        "passable": "*",
+        "start": "S",
+        "goal": "G",
+        "anchor": "&",
+        "player": "@",
+        "pathTemp": "-",
 }
 
 MAX_ROOM_HEIGHT = 10
