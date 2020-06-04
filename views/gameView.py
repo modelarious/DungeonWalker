@@ -3,17 +3,25 @@ from pygame.locals import *
 from abc import ABC, abstractmethod
 from itertools import repeat
 
+
+
 # defines an interface that all views must provide
 class ViewBaseClass(ABC):
 	@abstractmethod
 	def updateView(self, game_screen, model_response):
 		pass
+		
+class ControllerBaseClass(ABC):
+	@abstractmethod
+	def updateView(self, game_screen):
+		pass
 
 # contract to ensure this interface is enforced between the view and the model
-class GridData(object):
+class BoardModel(object):
 	def __init__(self, max_x, max_y, grid_size):
 		self.max_x = max_x
 		self.max_y = max_y
+		self.game_dimensions = (max_x, max_y)
 		self.grid_size = grid_size
 	
 	def _y_grid_iter(self):
@@ -66,32 +74,28 @@ class GridData(object):
 		return zip(self._max_y_iter(), self._min_y_iter())
 		
 # draws the grid to the screen using the 
-class BoardView(ViewBaseClass):	
-	def updateView(self, game_screen, game_dimensions: GridData):
-		BLACK = (255, 255, 255)
+class BoardView(ViewBaseClass):
+
+	def __init__(self, colors):
+		self.colors = colors
+		
+	def updateView(self, game_screen, game_dimensions: BoardModel):
 		for start_point, end_point in game_dimensions.horizontal_range():
-			pygame.draw.line(game_screen, BLACK, start_point, end_point)
+			pygame.draw.line(game_screen, self.colors.BLACK, start_point, end_point)
 		for start_point, end_point in game_dimensions.vertical_range():
-			pygame.draw.line(game_screen, BLACK, start_point, end_point)
+			pygame.draw.line(game_screen, self.colors.BLACK, start_point, end_point)
 
-class BoardModel(object):
-	def __init__(self):
-		self.max_x = 1024
-		self.max_y = 768
-		self.game_dimensions = (self.max_x, self.max_y)
-
-class ControllerBaseClass(ABC):
-	@abstractmethod
-	def updateView(self, game_screen, model_response):
-		pass
 
 class BoardController(ControllerBaseClass):
 	def __init__(self, boardModel, boardView):
 		self.boardModel = boardModel
 		self.boardView = boardView
 	
-	def updateView(self, game_screen, game_dimensions):
-		self.boardView.updateView(game_screen, game_dimensions)
+	def updateView(self, game_screen):
+		self.boardView.updateView(game_screen, self.boardModel)
+	
+	def getGameDimensions(self):
+		return self.boardModel.game_dimensions
 
 # all other views are going to accept the pygame instance.
 # this controller controls all the other controllers (which have their own little MVC loop).
@@ -103,28 +107,37 @@ class GameController(object):
 	
 	def __init__(self, boardController):
 		pygame.init()
-		
 		self.boardController = boardController
-		
-
-		self.game_screen = pygame.display.set_mode(boardController.boardModel.game_dimensions)
-		
-		model_response = GridData(*boardController.boardModel.game_dimensions, 32)
-		boardController.updateView(self.game_screen, model_response)
+		self.game_screen = pygame.display.set_mode(boardController.getGameDimensions())
+		self.main_loop()
+	
+	def main_loop(self):
 		
 		
-		
-		# draw the window onto the screen
-		pygame.display.update()
 		# run the game loop
 		while True:
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					pygame.quit()
 					sys.exit()
+				# draw the grid
+				self.boardController.updateView(self.game_screen)
+		
+				# draw the window onto the screen
+				pygame.display.update()
 
-bv = BoardView()
-bm = BoardModel()
+class Colors():
+	def __init__(self):
+		self.BLACK = (255, 255, 255)
+
+max_x = 1024
+max_y = 768
+grid_size = 32
+bm = BoardModel(max_x, max_y, grid_size)
+
+c = Colors()
+bv = BoardView(c)
+
 bc = BoardController(bm, bv)
 gc = GameController(bc)
 
