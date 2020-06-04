@@ -8,15 +8,15 @@ from itertools import repeat
 # defines an interface that all views must provide
 class ViewBaseClass(ABC):
 	@abstractmethod
-	def updateView(self, game_screen, model_response):
+	def updateView(self, game_screen, model):
 		pass
-		
+
+
 class ControllerBaseClass(ABC):
 	@abstractmethod
 	def updateView(self, game_screen):
 		pass
 
-# contract to ensure this interface is enforced between the view and the model
 class BoardModel(object):
 	def __init__(self, max_x, max_y, grid_size):
 		self.max_x = max_x
@@ -30,7 +30,7 @@ class BoardModel(object):
 	def _x_grid_iter(self):
 		return range(self.max_x, 0, -self.grid_size)
 		
-# this works but I thought it would make for a more confusing solution
+# this works but I thought it would make for a more confusing solution for myself later
 # 	def _iter(self, x=None, y=None):
 # 		if x == None:
 # 			x = self._x_grid_iter()
@@ -61,7 +61,7 @@ class BoardModel(object):
 	# each tuple contains two points: the starting and ending point for a horizontal
 	# line.  Iterating through this object will product a series of horizontal lines
 	# spread out evenly based on grid_size
-	def horizontal_range(self):
+	def horizontal_lines(self):
 # 		return zip(self._iter(x=self.max_x), self._iter(x=0))
 		return zip(self._max_x_iter(), self._min_x_iter())
 	
@@ -69,21 +69,22 @@ class BoardModel(object):
 	# each tuple contains two points: the starting and ending point for a vertical
 	# line.  Iterating through this object will product a series of vertical lines
 	# spread out evenly based on grid_size
-	def vertical_range(self):
+	def vertical_lines(self):
 # 		return zip(self._iter(y=self.max_y), self._iter(y=0))
 		return zip(self._max_y_iter(), self._min_y_iter())
 		
-# draws the grid to the screen using the 
+# draws the grid to the screen using the board model
 class BoardView(ViewBaseClass):
-
 	def __init__(self, colors):
 		self.colors = colors
+	
+	def _drawLines(self, game_screen, lineGenerator):
+		for start_point, end_point in lineGenerator():
+			pygame.draw.line(game_screen, self.colors.BLACK, start_point, end_point)
 		
-	def updateView(self, game_screen, game_dimensions: BoardModel):
-		for start_point, end_point in game_dimensions.horizontal_range():
-			pygame.draw.line(game_screen, self.colors.BLACK, start_point, end_point)
-		for start_point, end_point in game_dimensions.vertical_range():
-			pygame.draw.line(game_screen, self.colors.BLACK, start_point, end_point)
+	def updateView(self, game_screen, boardModel: BoardModel):
+		self._drawLines(game_screen, boardModel.horizontal_lines)
+		self._drawLines(game_screen, boardModel.vertical_lines)
 
 
 class BoardController(ControllerBaseClass):
@@ -92,6 +93,8 @@ class BoardController(ControllerBaseClass):
 		self.boardView = boardView
 	
 	def updateView(self, game_screen):
+		# here I made the view inspect the model directly, though some sources say that I should be
+		# getting the data out in the controller and then passing it to the view
 		self.boardView.updateView(game_screen, self.boardModel)
 	
 	def getGameDimensions(self):
@@ -103,16 +106,16 @@ class BoardController(ControllerBaseClass):
 # the queue needs to be ordered properly so we draw things in the right order.
 # 
 # this controller will pass the pygame instance and model response into them
+
+# XXX need a controller orchestrator that will know which order to draw things in
 class GameController(object):
 	
 	def __init__(self, boardController):
 		pygame.init()
 		self.boardController = boardController
 		self.game_screen = pygame.display.set_mode(boardController.getGameDimensions())
-		self.main_loop()
 	
 	def main_loop(self):
-		
 		
 		# run the game loop
 		while True:
@@ -141,7 +144,7 @@ bv = BoardView(c)
 bc = BoardController(bm, bv)
 gc = GameController(bc)
 
-
+gc.main_loop()
 
 
 	
