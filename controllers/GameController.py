@@ -1,6 +1,17 @@
 import pygame, sys
 from pygame.locals import *
 
+# while True:
+#     player.draw(screen)
+#     event = Event()
+#     pygame.display.update()
+# The order should be:
+
+# Handle events to update game state
+# Clean background screen.fill()
+# Draw
+# update display
+# Use Clock to keep a fps rate.
 
 # all other views are going to accept the pygame instance.
 # this controller controls all the other controllers (which have their own little MVC loop).
