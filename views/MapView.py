@@ -1,5 +1,6 @@
 from views.ViewBaseClass import ViewBaseClass
 import pygame
+from settings import charSet
 
 # draws the grid to the screen using the board model
 class MapView(ViewBaseClass):
@@ -7,4 +8,7 @@ class MapView(ViewBaseClass):
 		pass
 		
 	def updateView(self, game_screen, mapModel):
-		pass
+		for row in mapModel._board:
+			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"],
+																						 charSet["passable"]))
+		print()

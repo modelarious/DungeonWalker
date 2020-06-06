@@ -1,8 +1,8 @@
 import unittest
 
-from board import Board
-from room import Room
-from autoconnect import Autoconnect
+from models.MapModel import MapModel as Board
+from models.RoomModel import RoomModel as Room
+from helpers.Autoconnect import Autoconnect
 from exceptions import *
 from settings import *
 from parameterized import parameterized

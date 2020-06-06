@@ -1,7 +1,6 @@
 import unittest
 
-#from board import Board
-from room import Room
+from models.RoomModel import RoomModel as Room
 from exceptions import *
 from settings import *
 from parameterized import parameterized

@@ -20,12 +20,8 @@ class MapModel():
     def _empty_board(self):
         board = []
         for y in range(self.height):
-            row = []
-            #row = charSet["blocked"]*self.width
-            
-            for x in range(self.width):
-                row.append(charSet["blocked"])
-            board.append(row)
+            blankRow = [charSet["blocked"]]*self.width
+            board.append(blankRow)
         return board
 
     # # set the board to a blank initial state

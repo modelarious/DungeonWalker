@@ -15,7 +15,7 @@ class RandomMapGenerator(MapGeneratorBaseClass):
     #optional "randomnessSeed" integer for deterministic behavior
     def generateMap(self):
         seed(1)
-        for i in range(6):
+        for _ in range(6):
             try:
                 frn = self.fourRandomNumbers()
                 self.mapModel.add_room(RoomModel(*frn))
@@ -23,5 +23,4 @@ class RandomMapGenerator(MapGeneratorBaseClass):
                 pass
 
         self.mapModel.connect_board_automatically()
-        self.mapModel.draw_board()
         return self.mapModel
