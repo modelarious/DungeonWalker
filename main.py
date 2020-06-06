@@ -22,4 +22,3 @@ mapController = MapControllerFactory(
 gameController = GameController(gridController, mapController)
 
 gameController.main_loop()
-
