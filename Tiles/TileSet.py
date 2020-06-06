@@ -1,11 +1,10 @@
-#from Tiles import *
-from AnchorTile import AnchorTile
-from BlockedTile import BlockedTile
-from GoalTile import GoalTile
-from PassableTile import PassableTile
-from PlayerTile import PlayerTile
-from StartTile import StartTile
-from TempPathTile import TempPathTile
+from Tiles.AnchorTile import AnchorTile
+from Tiles.BlockedTile import BlockedTile
+from Tiles.GoalTile import GoalTile
+from Tiles.PassableTile import PassableTile
+from Tiles.PlayerTile import PlayerTile
+from Tiles.StartTile import StartTile
+from Tiles.TempPathTile import TempPathTile
 
 charSet = {
         "anchor": AnchorTile(),
@@ -16,5 +15,3 @@ charSet = {
         "pathTemp": TempPathTile(),
         "start": StartTile(),
 }
-
-print(charSet)

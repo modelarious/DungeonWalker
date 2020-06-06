@@ -1,12 +1,4 @@
-charSet = {
-        "blocked": "`",
-        "passable": "*",
-        "start": "S",
-        "goal": "G",
-        "anchor": "&",
-        "player": "@",
-        "pathTemp": "-",
-}
+from Tiles.TileSet import charSet
 
 MAX_ROOM_HEIGHT = 10
 MAX_ROOM_WIDTH = 10

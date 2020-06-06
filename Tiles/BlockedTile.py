@@ -1,4 +1,4 @@
-from TileInterface import TileInterface
+from Tiles.TileInterface import TileInterface
 class BlockedTile(TileInterface):
     def get_char(self):
         return "`"
