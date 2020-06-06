@@ -4,7 +4,6 @@ from heapq import heappush, heappop
 from helpers.ManhattenDistance import manhatten_distance
 import copy
 
-
 class MapModel():
     def __init__(self, width, height, autoconnect):
         if width < MIN_BOARD_WIDTH or height < MIN_BOARD_HEIGHT: raise BoardTooSmall
@@ -15,7 +14,6 @@ class MapModel():
         self._board = self._empty_board()
         self._rooms = []
         self._autoconnect = autoconnect
-
 
     def _empty_board(self):
         board = []
@@ -268,6 +266,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         tileToMove = self._get_tile(currentPosition)
         self._change_tile(proposedPosition,tileToMove)
         self._change_tile(currentPosition, charSet["passable"])
+
 
 
 
