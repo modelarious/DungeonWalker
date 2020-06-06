@@ -8,15 +8,17 @@ class MapModel():
         self.width = width
         self.height = height
 
-        self._board = self._blank_board()
+        self._board = self._empty_board()
         self._rooms = []
         self._autoconnect = autoconnect
 
 
-    def _blank_board(self):
+    def _empty_board(self):
         board = []
         for y in range(self.height):
             row = []
+            #row = charSet["blocked"]*self.width
+            
             for x in range(self.width):
                 row.append(charSet["blocked"])
             board.append(row)

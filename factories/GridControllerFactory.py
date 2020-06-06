@@ -9,7 +9,7 @@ class GridControllerFactory():
 		self.grid_size = grid_size
 		self.colors = colors
 	
-	def getGridController(self):
+	def getController(self):
 		bm = GridModel(self.max_x, self.max_y, self.grid_size)
 		bv = GridView(self.colors)
 		return GridController(bm, bv)
