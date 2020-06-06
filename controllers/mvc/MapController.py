@@ -1,8 +1,8 @@
-from controllers.ControllerBaseClass import ControllerBaseClass
+from controllers.mvc.ControllerBaseClass import ControllerBaseClass
 
 class MapController(ControllerBaseClass):
-	def __init__(self, mapModel, mapView):
-		self.mapModel = mapModel
+	def __init__(self, mapGenerator, mapView):
+		self.mapModel = mapGenerator.generateMap()
 		self.mapView = mapView
 	
 	def updateView(self, game_screen):

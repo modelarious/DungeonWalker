@@ -1,6 +1,6 @@
 from models.GridModel import GridModel
 from views.GridView import GridView
-from controllers.GridController import GridController
+from controllers.mvc.GridController import GridController
 
 class GridControllerFactory():
 	def __init__(self, max_x, max_y, grid_size, colors):

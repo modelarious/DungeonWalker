@@ -1,4 +1,4 @@
-from controllers.ControllerBaseClass import ControllerBaseClass
+from controllers.mvc.ControllerBaseClass import ControllerBaseClass
 
 class GridController(ControllerBaseClass):
 	def __init__(self, gridModel, gridView):

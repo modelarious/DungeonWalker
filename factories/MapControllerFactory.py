@@ -1,7 +1,8 @@
 from models.MapModel import MapModel
 from views.MapView import MapView
-from controllers.MapController import MapController
+from controllers.mvc.MapController import MapController
 from helpers.Autoconnect import Autoconnect
+from MapGenerators.RandomMapGenerator import RandomMapGenerator
 
 class MapControllerFactory():
 	def __init__(self, max_x_grid_spaces, max_y_grid_spaces):
@@ -12,5 +13,6 @@ class MapControllerFactory():
 		autoconnect = Autoconnect()
 		mapModel = MapModel(self.max_x_grid_spaces, self.max_y_grid_spaces, autoconnect)
 		mapView = MapView()
-		return MapController(mapModel, mapView)
+		mapGenerator = RandomMapGenerator(mapModel)
+		return MapController(mapGenerator, mapView)
 
