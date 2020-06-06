@@ -1,6 +1,6 @@
 from itertools import repeat
 
-class BoardModel(object):
+class GridModel(object):
 	def __init__(self, max_x, max_y, grid_size):
 		self.max_x = max_x
 		self.max_y = max_y
