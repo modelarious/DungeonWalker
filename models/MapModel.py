@@ -60,6 +60,7 @@ class MapModel():
     # print the board to the screen
     def draw_board(self):
         for row in self._board:
+            row = list(map(lambda a : a.get_char(), row))
             print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"],
                                                                                          charSet["passable"]))
         print()
