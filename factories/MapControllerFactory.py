@@ -1,4 +1,3 @@
-from models.MapModel import MapModel
 from views.MapView import MapView
 from controllers.mvc.MapController import MapController
 from helpers.Autoconnect import Autoconnect
@@ -7,13 +6,19 @@ from factories.FactoryBaseClass import FactoryBaseClass
 from factories.MapModelFactory import MapModelFactory
 
 class MapControllerFactory(FactoryBaseClass):
-	def __init__(self, max_x_grid_spaces, max_y_grid_spaces):
-		self.max_x_grid_spaces = max_x_grid_spaces
-		self.max_y_grid_spaces = max_y_grid_spaces
+	def __init__(self, max_x_tiles, max_y_tiles):
+		self.max_x_tiles = max_x_tiles
+		self.max_y_tiles = max_y_tiles
 	
 	def getController(self):
 		autoconnect = Autoconnect()
-		mapModel = MapModelFactory(self.max_x_grid_spaces, self.max_y_grid_spaces, autoconnect, RandomMapGenerator).getMapModel()
+		mapModel = MapModelFactory(
+			self.get_copy(self.max_x_tiles), 
+			self.get_copy(self.max_y_tiles), 
+			autoconnect, 
+			RandomMapGenerator
+		).getMapModel()
+
 		mapView = MapView()
 		return MapController(mapModel, mapView)
 

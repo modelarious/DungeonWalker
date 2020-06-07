@@ -12,6 +12,11 @@ class MapModelFactory(FactoryBaseClass):
 		#XXX this is ripe for refactor. Most methods in mapModel are used once when creating
 		# the board, so these steps could likely be captured elsewhere 
 		# (perhaps MapGeneratorBaseClass). and it wouldn't need the autoconnect unit
-		emptyMap = MapModel(self.width, self.height, self.autoconnect)
+		emptyMap = MapModel(
+			self.get_copy(self.width), 
+			self.get_copy(self.height), 
+			self.get_copy(self.autoconnect)
+		)
+
 		return self.mapGenerator(emptyMap).generateMap()
 
