@@ -1,5 +1,7 @@
 import unittest
 
+from unittest.mock import MagicMock
+pygame = MagicMock(return_value=None)
 from models.RoomModel import RoomModel as Room
 from exceptions import *
 from settings import *

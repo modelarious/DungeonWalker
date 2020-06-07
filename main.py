@@ -15,8 +15,8 @@ gridController = GridControllerFactory(
 ).getController()
 
 mapController = MapControllerFactory(
-	max_x_grid_spaces=max_x//grid_size,
-	max_y_grid_spaces = max_y//grid_size
+	max_x_tiles=max_x//grid_size,
+	max_y_tiles = max_y//grid_size
 ).getController()
 
 gameController = GameController(gridController, mapController)
