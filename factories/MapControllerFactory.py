@@ -10,7 +10,6 @@ class MapControllerFactory(FactoryBaseClass):
 		self.max_y_tiles = max_y_tiles
 	
 	def getController(self):
-		
 		mapModel = MapModelFactory(
 			self.get_copy(self.max_x_tiles), 
 			self.get_copy(self.max_y_tiles), 

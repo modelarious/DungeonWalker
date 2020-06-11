@@ -11,7 +11,8 @@ class MapView(ViewBaseClass):
 	def updateView(self, game_screen, mapModel):
 		grid_size = 32
 		y = 0
-		for row in mapModel._board:
+		#XXX should not be accessing _board
+		for row in mapModel.get_board():
 
 			#XXX this is what needs to be updated, it needs to move maxX, minX, maxY, and minY as it moves through the rows and columns
 			x = 0

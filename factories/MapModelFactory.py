@@ -24,5 +24,9 @@ class MapModelFactory(FactoryBaseClass):
 			additionController
 		)
 
-		return self.mapGenerator(mg).generateMap()
+		return self.mapGenerator(
+			self.get_copy(self.width), 
+			self.get_copy(self.height),
+			mg
+		).generateMap()
 

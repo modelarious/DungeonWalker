@@ -20,6 +20,9 @@ class MapModel():
             board.append(blankRow)
         return board
     
+    def get_board(self):
+        return self._board
+    
     #XXX when you're done, clean these functions up, they're embarassing
     def get_tile(self, point):
         pX, pY = point
@@ -66,6 +69,15 @@ class MapModel():
     
     def getHeight(self):
         return copy(self.height)
+
+
+
+
+
+
+
+
+
 
 
 # model sits inside an "AdditionController" for lack of better name
@@ -320,11 +332,6 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
     
     def XXX_SPIT_OUT_BOARD(self):
         return self.additionController.board
-
-    # def play_move(self, currentPosition, proposedPosition):
-    #     tileToMove = self.board.get_tile(currentPosition)
-    #     self.board.change_tile(proposedPosition,tileToMove)
-    #     self.board.change_tile(currentPosition, charSet["passable"])
 
 
 

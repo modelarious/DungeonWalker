@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 
 class MapGeneratorControllerBaseClass(ABC):
-    def __init__(self, mapGenerator):
+    def __init__(self, width, height, mapGenerator):
+        self.width = width
+        self.height = height
         self.mapGenerator = mapGenerator
     
     @abstractmethod

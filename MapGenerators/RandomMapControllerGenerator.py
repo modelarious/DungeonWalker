@@ -5,16 +5,22 @@ from random import randint, seed
 from exceptions import RoomCollision
 
 class RandomMapControllerGenerator(MapGeneratorControllerBaseClass):
+    def __init__(self, width, height, mapGenerator, randomnessSeed=4):
+        super().__init__(width, height, mapGenerator)
+        self.randomnessSeed = randomnessSeed
+
+    # generates 4 random numbers that are likely to result in parameters that
+    # define a valid, placeable room
     def fourRandomNumbers(self):
-        height = randint(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT)
-        width = randint(MIN_ROOM_WIDTH, MAX_ROOM_WIDTH)
-        positionX = randint(1, self.mapGenerator.width - (width + 1))
-        positionY = randint(1, self.mapGenerator.height - (height + 1))
-        return [height, width, positionX, positionY]
+        roomHeight = randint(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT)
+        roomWidth = randint(MIN_ROOM_WIDTH, MAX_ROOM_WIDTH)
+        positionX = randint(1, self.width - (roomWidth + 1))
+        positionY = randint(1, self.height - (roomHeight + 1))
+        return [roomHeight, roomWidth, positionX, positionY]
 
     #optional "randomnessSeed" integer for deterministic behavior
     def generateMap(self):
-        seed(1)
+        seed(self.randomnessSeed)
         for _ in range(6):
             try:
                 frn = self.fourRandomNumbers()
