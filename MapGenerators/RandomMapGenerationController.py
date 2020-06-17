@@ -24,12 +24,17 @@ class RandomMapGenerationController(MapGenerationControllerBaseClass):
     #optional "randomnessSeed" integer for deterministic behavior
     def generateMap(self):
         seed(self.randomnessSeed)
-        for _ in range(6):
-            try:
-                frn = self.fourRandomNumbers()
-                self.mapGeneratorEngine.add_room(RoomModel(*frn))
-            except RoomCollision:
-                pass
+        
+        randomMapGenerationSuccess = False
+        while not randomMapGenerationSuccess:
+            for _ in range(6):
+                try:
+                    frn = self.fourRandomNumbers()
+                    self.mapGeneratorEngine.add_room(RoomModel(*frn))
+                except RoomCollision:
+                    pass
 
-        self.mapGeneratorEngine.connect_board_automatically()
+            print("connecting board up")
+            randomMapGenerationSuccess = self.mapGeneratorEngine.try_connect_board_automatically()
+            print("connected up the board")
         return self.mapGeneratorEngine.get_finalized_board()

@@ -140,7 +140,7 @@ class AdditionController():
         return self.board.get_tile(pt)
     
     def get_neighbors(self, currPoint):
-        if self.board.point_in_board(currPoint):
+        if self.point_in_board(currPoint):
             currX, currY = currPoint
             offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
             candidates = [(currX + offX, currY + offY) for offX, offY in offsets]
@@ -149,18 +149,8 @@ class AdditionController():
 
         return []
     
-    # XXX you're repeating a lot of the logic that exists in the map model
     def point_in_board(self, pt):
-        (pX, pY) = pt
-        if pX < 0 or pY < 0:
-            return False
-        try:
-            #XXX no, should be using the accessor functions
-            self.board.get_tile(pt)
-            return True
-        except IndexError:
-            return False
-
+        return self.board.point_in_board(pt)
 
 
 
@@ -220,7 +210,7 @@ class MapGeneratorEngine():
             return True
 
     def _acceptable_char(self, pt):
-        _acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]]
+        _acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]] #XXX this is bad!! these should be constants if you reference them like this
         if self.additionController.get_point(pt) in _acceptable_chars:
             return True
         return False
@@ -311,13 +301,13 @@ class MapGeneratorEngine():
         p = parent[endPoint]
         path.append(endPoint)
         while p is not None:
-            #print("Looking at ", p)
             path.append(p)
             p = parent[p]
         correctPath = [i for i in reversed(path)]
         return correctPath
 
     def _finalize_board(self):
+        print("finalizing board")
         if len(self.rooms) == 0:
             return False
         StartRoom = self.rooms[0]
@@ -326,7 +316,7 @@ class MapGeneratorEngine():
         self.additionController.setStartSpace(pointInStartRoom)
         return True
 
-    def connect_board_automatically(self):
+    def try_connect_board_automatically(self):
         if self.autoconnect.connect_graph(self):
             return self._finalize_board()
         return False
