@@ -1,12 +1,12 @@
-from models.MapModel import MapModel, AdditionController, MapGenerator
+from models.MapModel import MapModel, AdditionController, MapGeneratorEngine
 from factories.FactoryBaseClass import FactoryBaseClass
 from helpers.Autoconnect import Autoconnect
 
 class MapModelFactory(FactoryBaseClass):
-	def __init__(self, width, height, mapGenerator):
+	def __init__(self, width, height, mapGenerationController):
 		self.width = width
 		self.height = height
-		self.mapGenerator = mapGenerator
+		self.mapGenerationController = mapGenerationController
 
 	def getMapModel(self):
 		emptyMap = MapModel(
@@ -15,18 +15,18 @@ class MapModelFactory(FactoryBaseClass):
 		)
 		additionController = AdditionController(emptyMap)
 
-		# XXX NAMING HERE, THIS needs distinction from RandomMapGenerator and MapGeneratorBaseClass
-		# maybe randommapgenerator could be randommapgenerationcontroller or driver
-		mg = MapGenerator(
+		mapGeneratorEngine = MapGeneratorEngine(
 			self.get_copy(self.width), 
 			self.get_copy(self.height),
 			Autoconnect(),
 			additionController
 		)
 
-		return self.mapGenerator(
+		generatedMapModel = self.mapGenerationController(
 			self.get_copy(self.width), 
 			self.get_copy(self.height),
-			mg
+			mapGeneratorEngine
 		).generateMap()
+
+		return generatedMapModel
 

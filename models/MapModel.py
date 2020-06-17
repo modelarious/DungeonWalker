@@ -95,6 +95,7 @@ class AdditionController():
     def setStartSpace(self, pt):
         self.board.change_tile(pt, charSet["start"])
 
+    #XXX could use point_in_board?
     def _room_is_outside_bounds(self, room):
         if room.rightX > self.width - 1:
             return f"room.rightX ({room.rightX}) > self.width - 1 ({self.width - 1})"
@@ -134,7 +135,7 @@ class AdditionController():
             self.board.change_tile(node, charSet["pathTemp"])
 
     # XXX tons of api overhead cause it will call this a ton of 
-    # time while doing a* and the like
+    # times while doing a* and the like
     def get_point(self, pt):
         return self.board.get_tile(pt)
     
@@ -148,6 +149,7 @@ class AdditionController():
 
         return []
     
+    # XXX you're repeating a lot of the logic that exists in the map model
     def point_in_board(self, pt):
         (pX, pY) = pt
         if pX < 0 or pY < 0:
@@ -170,13 +172,13 @@ class AdditionController():
 
 
 
-class MapGenerator():
+class MapGeneratorEngine():
     def __init__(self, width, height, autoconnect, additionController):
         self.width = width #unused currently
         self.height = height #unused currently
         self.additionController = additionController
-        self._rooms = []
-        self._autoconnect = autoconnect
+        self.rooms = []
+        self.autoconnect = autoconnect
 
     # raises exceptions for cases where:
     # - the room would leave the bounds of the board
@@ -184,25 +186,26 @@ class MapGenerator():
     def add_room(self, room):
 
         # if the room would collide with another room that has already been placed
-        if any(room.collide(placedRoom) for placedRoom in self._rooms):
+        if any(room.collide(placedRoom) for placedRoom in self.rooms):
             raise RoomCollision
             
         # ask the controller to add the room to the board
         self.additionController.add_room(room)
 
-        # track this room in autoconnect
-        self._autoconnect.add_anchors(room)
+        # track this room in the graph
+        self.autoconnect.add_anchors(room)
 
-        # track this room
-        self._rooms.append(room)
+        # track this room for collision checks
+        self.rooms.append(room)
 
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search
     # if the connection isn't possible, it returns false
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
+    # XXX WTF???? why is this stuff not in the autoconnect component??
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
-        if self._autoconnect.have_edge(p1, p2):
+        if self.autoconnect.have_edge(p1, p2):
             return True
 
         # Discover a path that connects the rooms using depth limited bfs... if you
@@ -212,7 +215,7 @@ class MapGenerator():
         if not path:
             return False
         else:
-            self._autoconnect.add_edge(p1, p2)
+            self.autoconnect.add_edge(p1, p2)
             self.additionController.add_path(path)
             return True
 
@@ -223,8 +226,8 @@ class MapGenerator():
         return False
 
     '''
-defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
-manhatten_distance. Depth is limited by the cost already paid to reach a point.
+    defines the a star algorithm from "startPoint" to "endPoint", where the heuristic is
+    manhatten_distance. Depth is limited by the cost already paid to reach a point.
     '''
     def _depth_limited_search(self, startPoint, endPoint):
         # a little bit of tolerance allowing for up to 10 extra spaces to get around unexpected objects
@@ -279,6 +282,7 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
                 # neighbor passed all tests, so allow it
                 neighbors_filtered.append(n)
 
+            # XXX could improve this to send less params, could likely determine neighbors filtered inside this function
             self._add_neighbors_to_heap(neighbors_filtered, openPoints, done, parent,
                                        cost, currPoint, endPoint, maxDepth)
         return self._get_path(parent, endPoint)
@@ -314,23 +318,23 @@ manhatten_distance. Depth is limited by the cost already paid to reach a point.
         return correctPath
 
     def _finalize_board(self):
-        if len(self._rooms) == 0:
+        if len(self.rooms) == 0:
             return False
-        StartRoom = self._rooms[0]
-        GoalRoom, farthestPoint, pointInStartRoom = self._autoconnect.find_farthest_room(StartRoom)
+        StartRoom = self.rooms[0]
+        GoalRoom, farthestPoint, pointInStartRoom = self.autoconnect.find_farthest_room(StartRoom)
         self.additionController.setGoalSpace(farthestPoint)
         self.additionController.setStartSpace(pointInStartRoom)
         return True
 
     def connect_board_automatically(self):
-        if self._autoconnect.connect_graph(self):
+        if self.autoconnect.connect_graph(self):
             return self._finalize_board()
         return False
 
     def get_copy(self):
         return deepcopy(self)
     
-    def XXX_SPIT_OUT_BOARD(self):
+    def get_finalized_board(self):
         return self.additionController.board
 
 

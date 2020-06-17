@@ -1,6 +1,6 @@
 from views.MapView import MapView
 from controllers.mvc.MapController import MapController
-from MapGenerators.RandomMapControllerGenerator import RandomMapControllerGenerator
+from MapGenerators.RandomMapGenerationController import RandomMapGenerationController
 from factories.FactoryBaseClass import FactoryBaseClass
 from factories.MapModelFactory import MapModelFactory
 
@@ -13,7 +13,7 @@ class MapControllerFactory(FactoryBaseClass):
 		mapModel = MapModelFactory(
 			self.get_copy(self.max_x_tiles), 
 			self.get_copy(self.max_y_tiles), 
-			RandomMapControllerGenerator
+			RandomMapGenerationController
 		).getMapModel()
 
 		mapView = MapView()
