@@ -1,4 +1,6 @@
-from models.MapModel import MapModel, AdditionController, MapGeneratorEngine
+from models.MapModel import MapModel
+from controllers.AdditionController import AdditionController
+from engines.MapGeneratorEngine import MapGeneratorEngine
 from factories.FactoryBaseClass import FactoryBaseClass
 from helpers.Autoconnect import Autoconnect
 
