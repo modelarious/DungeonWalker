@@ -33,7 +33,8 @@ class MapGeneratorEngine():
     # will first determine if the connection is possible using depth limited search
     # if the connection isn't possible, it returns false
     # if the connection is possible, it will add an edge between them and draw a path between the two anchors
-    # XXX WTF???? why is this stuff not in the autoconnect component??
+    # XXX This stuff should go into the AdditionController.. also rename the AdditionController, maybe MapAdditionController, MapFeatureAdditionController?
+    # XXX anything that handles rooms should be in this engine, everything else should go in the AdditionController?
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
         if self.autoconnect.have_edge(p1, p2):
