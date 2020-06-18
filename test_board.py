@@ -54,14 +54,7 @@ class TestBoardCreation(unittest.TestCase):
 		return [[tile.get_char() for tile in row] for row in mapModel.get_board()]
 
 	def setUp(self):
-		self.board = Board(*generalTestBoardParams)
-		self.additionController = AdditionController(self.board)
-		self.autoconnect = Autoconnect()
-
-		self.mapGeneratorEngine = MapGeneratorEngine(
-			self.autoconnect,
-			self.additionController
-		)
+		self.setUp_override(generalTestBoardParams)
 
 	def setUp_override(self, boardParams):
 		self.board = Board(*boardParams)
