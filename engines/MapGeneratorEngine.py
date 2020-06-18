@@ -150,7 +150,6 @@ class MapGeneratorEngine():
         return correctPath
 
     def _finalize_board(self):
-        print("finalizing board")
         if len(self.rooms) == 0:
             return False
         StartRoom = self.rooms[0]
