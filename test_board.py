@@ -2,6 +2,9 @@ import unittest
 
 from models.MapModel import MapModel as Board
 from models.RoomModel import RoomModel as Room
+from helpers.Autoconnect import Autoconnect
+from controllers.AdditionController import AdditionController
+from engines.MapGeneratorEngine import MapGeneratorEngine
 from exceptions import *
 from settings import *
 from parameterized import parameterized
@@ -46,6 +49,19 @@ parentsAndPaths = [
 
 class TestBoardCreation(unittest.TestCase):
 
+	def get_char_board(self, mapModel):
+		return [[tile.get_char() for tile in row] for row in mapModel.get_board()]
+
+	def setUp(self):
+		b = Board(*generalTestBoardParams)
+		additionController = AdditionController(b)
+
+		self.mapGeneratorEngine = MapGeneratorEngine(
+			*generalTestBoardParams,
+			Autoconnect(),
+			additionController
+		)
+
 	#mge
 	@parameterized.expand(parentsAndPaths)
 	def test_get_path(self, parent, expectedPath):
@@ -78,47 +94,41 @@ class TestBoardCreation(unittest.TestCase):
 ````````````
 ````````````
 		'''
-		b = Board(*generalTestBoardParams)
-		actualPath = b._get_path(parent, (4, 7))
+		actualPath = self.mapGeneratorEngine._get_path(parent, (4, 7))
 		self.assertEqual(expectedPath, actualPath)
 
-# 	#mge
-# 	@parameterized.expand(parentsAndPaths)
-# 	def test_get_path_returns_blank_list(self, parent, expectedPath):
-# 		# same parent settings as above test, but now we request a point that isn't in parent
-# 		b = Board(*generalTestBoardParams)
-# 		actualPath = b._get_path(parent, (15, 15))
-# 		self.assertEqual([], actualPath) # should return an empty list
+	# same parent settings as above test, but now we request a point that isn't in parent
+	@parameterized.expand(parentsAndPaths)
+	def test_get_path_returns_blank_list(self, parent, expectedPath):
+		actualPath = self.mapGeneratorEngine._get_path(parent, (15, 15))
+		self.assertEqual([], actualPath) # should return an empty list
 
+	@parameterized.expand([r for r in RoomPlacements if r[-1] is None])
+	def test_room_is_added(self, name, x, y, _):
+		room = Room(*generalRoomSize, x, y)
+		self.mapGeneratorEngine.add_room(room)
+		self.assertTrue(room in self.mapGeneratorEngine.rooms)
 
-# 	#mge
-# 	@parameterized.expand([r for r in RoomPlacements if r[-1] is None])
-# 	def test_room_is_added(self, name, x, y, _):
-# 		b = Board(*generalTestBoardParams)
-# 		room = Room(*generalRoomSize, x, y)
-# 		b.add_room(room)
-# 		self.assertTrue(room in b._rooms)
+	# shallow test because room.collide() is already tested very well
+	def test_room_collision(self):
+		room = Room(*generalRoomSize, 1, 1)
+		self.mapGeneratorEngine.add_room(room)
 
-# 	# shallow test because room.collide() is already tested very well
-# 	def test_room_collision(self):
-# 		b = Board(*generalTestBoardParams)
-# 		room = Room(*generalRoomSize, 1, 1)
-# 		b.add_room(room)
+		# adding the room a second time raises exception
+		self.assertRaises(RoomCollision, self.mapGeneratorEngine.add_room, room)
 
-# 		# adding the room a second time raises exception
-# 		self.assertRaises(RoomCollision, b.add_room, room)
+	@parameterized.expand([
+		["X and Y are just within bounds on the top left", 1, 1, boardState1],
+		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, boardState2],
+		["X is just within bounds on the top right", generalTestBoardX - 6, 1, boardState3],
+		["X and Y are just within bounds on the bottom right", generalTestBoardX - 6, generalTestBoardY - 6, boardState4],
+	])
+	def test_board_state_after_room_add(self, name, x, y, expectedBoardState):
+		room = Room(*generalRoomSize, x, y)
+		self.mapGeneratorEngine.add_room(room)
 
-# 	@parameterized.expand([
-# 		["X and Y are just within bounds on the top left", 1, 1, boardState1],
-# 		["Y is just within bounds on the bottom left", 1, generalTestBoardY - 6, boardState2],
-# 		["X is just within bounds on the top right", generalTestBoardX - 6, 1, boardState3],
-# 		["X and Y are just within bounds on the bottom right", generalTestBoardX - 6, generalTestBoardY - 6, boardState4],
-# 	])
-# 	def test_board_state_after_room_add(self, name, x, y, expectedBoardState):
-# 		b = Board(*generalTestBoardParams)
-# 		room = Room(*generalRoomSize, x, y)
-# 		b.add_room(room)
-# 		self.assertEqual(expectedBoardState, b._board)
+		mapModel = self.mapGeneratorEngine.get_finalized_board()
+		self.assertEqual(expectedBoardState, self.get_char_board(mapModel))
 
 # 	@parameterized.expand([
 # 		["room 2 below room 1. Connect right anchor of room 1 to top anchor of room 2",
