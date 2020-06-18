@@ -11,16 +11,14 @@ class MapView(ViewBaseClass):
 	def updateView(self, game_screen, mapModel):
 		grid_size = 32
 		y = 0
-		#XXX should not be accessing _board
 		for row in mapModel.get_board():
-
-			#XXX this is what needs to be updated, it needs to move maxX, minX, maxY, and minY as it moves through the rows and columns
 			x = 0
 			for tile in row:
 				tile.draw_pygame_representation(game_screen, x % 1025, (x + grid_size) % 1025, y % 769, (y + grid_size)% 769)
 				x += grid_size
 
 			row = list(map(lambda a : a.get_char(), row))
+			
 			# XXX this processing should be done in the board generation step
 			print("".join(row).replace(charSet["pathTemp"], charSet["passable"]).replace(charSet["anchor"],
 																						 charSet["passable"]))

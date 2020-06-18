@@ -20,16 +20,20 @@ class AdditionController():
 
     # defines a boundary of 2 squares around the entire board that is unusable when placing rooms.
     # this is so that paths have enough space to be drawn with a 1 space buffer from the nearest room
-    def _room_is_outside_bounds(self, room):
+    def _fail_if_room_is_outside_bounds(self, room):
+        outOfBoundsMessage = ""
         if room.rightX > self.width - self.boundarySize:
-            return f"room.rightX ({room.rightX}) > self.width - {self.boundarySize} ({self.width - self.boundarySize})"
+            outOfBoundsMessage = f"room.rightX ({room.rightX}) > self.width - {self.boundarySize} ({self.width - self.boundarySize})"
         if room.leftX < self.boundarySize:
-            return f"room.leftX ({room.leftX}) < {self.boundarySize}"
+            outOfBoundsMessage = f"room.leftX ({room.leftX}) < {self.boundarySize}"
         if room.bottomY > self.height - self.boundarySize:
-            return f"room.bottomY ({room.bottomY}) > self.height - {self.boundarySize} ({self.height - self.boundarySize})"
+            outOfBoundsMessage = f"room.bottomY ({room.bottomY}) > self.height - {self.boundarySize} ({self.height - self.boundarySize})"
         if room.topY < self.boundarySize:
-            return f"room.topY ({room.topY}) < {self.boundarySize}"
-        return ""
+            outOfBoundsMessage = f"room.topY ({room.topY}) < {self.boundarySize}"
+        
+        if outOfBoundsMessage:
+            raise RoomOutsideBoard(outOfBoundsMessage)
+
     
     # raises exceptions for cases where:
     # - the room would leave the bounds of the board
@@ -37,14 +41,9 @@ class AdditionController():
     def add_room(self, room):
 
         # raise an exception if the rectangle would leave the bounds of the board
-        # XXX move most exception checking into the mapModel
-        outOfBounds = self._room_is_outside_bounds(room)
-        if outOfBounds:
-            raise RoomOutsideBoard(outOfBounds)
+        self._fail_if_room_is_outside_bounds(room)
 
         # add the room to the board
-        # XXX let the board handle adding a room to itself - done here
-        # XXX anytime change_tile is called, it should be from within the mapModel itself - done here
         for x in range(room.leftX, room.rightX):
             for y in range(room.topY, room.bottomY):
                 point = (x, y)
@@ -54,12 +53,15 @@ class AdditionController():
         for anchor in room.getAnchors():
             self.board.change_tile(anchor, charSet["anchor"])
     
+    # draw every node in the path
     def add_path(self, path):
         for node in path:
             self.board.change_tile(node, charSet["pathTemp"])
 
     # XXX tons of api overhead cause it will call this a ton of 
     # times while doing a* and the like
+    # XXX maybe the best solution would be to move the path finding stuff out 
+    # of the engine and into this class
     def get_point(self, pt):
         return self.board.get_tile(pt)
     
