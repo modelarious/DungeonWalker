@@ -31,20 +31,18 @@ RoomPlacements = [
 
 class TestBoardCreation(unittest.TestCase):
 
+	def setUp(self):
+		b = Board(*generalTestBoardParams)
+		self.additionController = AdditionController(b)
+
 	@parameterized.expand(RoomPlacements)
 	def test_room_is_outside_bounds(self, name, x, y, exception):
-		b = Board(*generalTestBoardParams)
 		room = Room(*generalRoomSize, x, y)
-		additionController = AdditionController(b)
-
 		if exception:
-			self.assertRaises(exception, additionController.add_room, room)
+			self.assertRaises(exception, self.additionController.add_room, room)
 		else:
-			additionController.add_room(room)
+			self.additionController.add_room(room)
 	
-
 	# XXX this is a pitiful amount of testing for this function
 	def test_get_neighbors_returns_empty_list(self):
-		b = Board(*generalTestBoardParams)
-		additionController = AdditionController(b)
-		self.assertEqual([], additionController.get_neighbors((300, 300)))
+		self.assertEqual([], self.additionController.get_neighbors((300, 300)))
