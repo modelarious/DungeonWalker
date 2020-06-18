@@ -11,14 +11,15 @@ class RandomMapGenerationController(MapGenerationControllerBaseClass):
 
     # generates 4 random numbers that are likely to result in parameters that
     # define a valid, placeable room
+    # XXX make this based off boundary from additionController class
     def fourRandomNumbers(self):
         roomHeight = randint(MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT)
         roomWidth = randint(MIN_ROOM_WIDTH, MAX_ROOM_WIDTH)
 
         # generate X,Y for the top left corner of the room that will keep it 
         # within board boundaries
-        positionX = randint(1, self.width - (roomWidth + 1))
-        positionY = randint(1, self.height - (roomHeight + 1))
+        positionX = randint(2, self.width - (roomWidth + 2))
+        positionY = randint(2, self.height - (roomHeight + 2))
         return [roomHeight, roomWidth, positionX, positionY]
 
     #optional "randomnessSeed" integer for deterministic behavior
@@ -27,7 +28,7 @@ class RandomMapGenerationController(MapGenerationControllerBaseClass):
         
         randomMapGenerationSuccess = False
         while not randomMapGenerationSuccess:
-            for _ in range(6):
+            for _ in range(600):
                 try:
                     frn = self.fourRandomNumbers()
                     self.mapGeneratorEngine.add_room(RoomModel(*frn))

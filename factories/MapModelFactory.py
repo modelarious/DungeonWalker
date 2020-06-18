@@ -6,8 +6,8 @@ from helpers.Autoconnect import Autoconnect
 
 class MapModelFactory(FactoryBaseClass):
 	def __init__(self, width, height, mapGenerationController):
-		self.width = width
-		self.height = height
+		self.width = width*4
+		self.height = height*4
 		self.mapGenerationController = mapGenerationController
 
 	def getMapModel(self):
