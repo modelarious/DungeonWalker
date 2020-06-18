@@ -3,15 +3,11 @@ import unittest
 
 from models.MapModel import MapModel as Board
 from exceptions import *
-from settings import MIN_BOARD_HEIGHT, charSet
+from settings import charSet
 from parameterized import parameterized
+from TestingFixtures import *
 
-minBoardSize = MIN_BOARD_HEIGHT
-modestBoardSize = minBoardSize * 4
 
-generalTestBoardParams = (modestBoardSize, modestBoardSize - 3)
-generalTestBoardX, generalTestBoardY = generalTestBoardParams
-generalRoomSize = (5,5)
 
 # used to test if points are reported as inside or outside the board
 # will be an array of entries of form
@@ -53,6 +49,7 @@ tempX, tempY = generalTestBoardParams
 tempX, tempY = tempX * 4, tempY * 4
 pointTests.append(["very outside of board X", (tempX, tempY), PointOutsideBoard])
 
+
 class TestBoardCreation(unittest.TestCase):
 	@parameterized.expand([
 		["small width", (minBoardSize, modestBoardSize)],
@@ -63,8 +60,8 @@ class TestBoardCreation(unittest.TestCase):
 	def test_correct_board_creation(self, name, boardParams):
 		b = Board(*boardParams)
 		(width, height) = boardParams
-		self.assertEqual(height, b.height)
-		self.assertEqual(width, b.width)
+		self.assertEqual(height, b.get_height())
+		self.assertEqual(width, b.get_width())
 
 		# all chars are set to "blocked" at first
 		self.assertTrue(all(
@@ -72,6 +69,7 @@ class TestBoardCreation(unittest.TestCase):
 			for y in range(b.height)
 			for x in range(b.width)
 		))
+        
 
 	def test_board_change_tile(self):
 		b = Board(*generalTestBoardParams)

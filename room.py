@@ -76,6 +76,9 @@ class Room(object):
 
 	def getAnchors(self):
 		return self.anchors
+	
+	def get_corners(self):
+		return self.corners
 
 	def __str__(self):
 		return f"leftX = {self.leftX}, rightX = {self.rightX}, topY = {self.topY}, bottomY = {self.bottomY}"

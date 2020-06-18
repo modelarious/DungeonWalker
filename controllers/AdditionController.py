@@ -5,10 +5,12 @@ from exceptions import RoomOutsideBoard
 # the MapGenerator tells the AdditionController what it wants done to the board
 # the AdditionController then goes and calls things like change_tile()
 class AdditionController():
+
     def __init__(self, mapModel):
         self.board = mapModel
-        self.width = mapModel.getWidth()
-        self.height = mapModel.getHeight()
+        self.width = mapModel.get_width()
+        self.height = mapModel.get_height()
+        self.boundarySize = 1
 
     def setGoalSpace(self, pt):
         self.board.change_tile(pt, charSet["goal"])
@@ -16,16 +18,17 @@ class AdditionController():
     def setStartSpace(self, pt):
         self.board.change_tile(pt, charSet["start"])
 
-    #XXX could use point_in_board?
+    # defines a boundary of 2 squares around the entire board that is unusable when placing rooms.
+    # this is so that paths have enough space to be drawn with a 1 space buffer from the nearest room
     def _room_is_outside_bounds(self, room):
-        if room.rightX > self.width - 1:
-            return f"room.rightX ({room.rightX}) > self.width - 1 ({self.width - 1})"
-        if room.leftX < 1:
-            return f"room.leftX ({room.leftX}) < 1"
-        if room.bottomY > self.height - 1:
-            return f"room.bottomY ({room.bottomY}) > self.height - 1 ({self.height - 1})"
-        if room.topY < 1:
-            return f"room.topY ({room.topY}) < 1"
+        if room.rightX > self.width - self.boundarySize:
+            return f"room.rightX ({room.rightX}) > self.width - {self.boundarySize} ({self.width - self.boundarySize})"
+        if room.leftX < self.boundarySize:
+            return f"room.leftX ({room.leftX}) < {self.boundarySize}"
+        if room.bottomY > self.height - self.boundarySize:
+            return f"room.bottomY ({room.bottomY}) > self.height - {self.boundarySize} ({self.height - self.boundarySize})"
+        if room.topY < self.boundarySize:
+            return f"room.topY ({room.topY}) < {self.boundarySize}"
         return ""
     
     # raises exceptions for cases where:
@@ -65,7 +68,7 @@ class AdditionController():
             currX, currY = currPoint
             offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
             candidates = [(currX + offX, currY + offY) for offX, offY in offsets]
-            candidates = list(filter(self.board.point_in_board, candidates))
+            candidates = list(filter(self.point_in_board, candidates))
             return candidates
 
         return []

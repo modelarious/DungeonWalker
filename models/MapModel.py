@@ -1,5 +1,5 @@
 from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
-from exceptions import * #BoardTooSmall
+from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
 
 class MapModel():
@@ -9,9 +9,9 @@ class MapModel():
         self.width = width
         self.height = height
 
-        self._board = self._empty_board()
+        self._board = self._create_empty_board()
     
-    def _empty_board(self):
+    def _create_empty_board(self):
         board = []
         for y in range(self.height):
             blankRow = [charSet["blocked"]]*self.width
@@ -53,8 +53,8 @@ class MapModel():
                 .replace(charSet["anchor"].get_char(), charSet["passable"].get_char()))
         print()
     
-    def getWidth(self):
+    def get_width(self):
         return copy(self.width)
     
-    def getHeight(self):
+    def get_height(self):
         return copy(self.height)
