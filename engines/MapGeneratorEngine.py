@@ -6,9 +6,7 @@ from copy import deepcopy
 
 
 class MapGeneratorEngine():
-    def __init__(self, width, height, autoconnect, additionController):
-        self.width = width #unused currently
-        self.height = height #unused currently
+    def __init__(self, autoconnect, additionController):
         self.additionController = additionController
         self.rooms = []
         self.autoconnect = autoconnect

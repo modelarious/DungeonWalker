@@ -18,8 +18,6 @@ class MapModelFactory(FactoryBaseClass):
 		additionController = AdditionController(emptyMap)
 
 		mapGeneratorEngine = MapGeneratorEngine(
-			self.get_copy(self.width), 
-			self.get_copy(self.height),
 			Autoconnect(),
 			additionController
 		)

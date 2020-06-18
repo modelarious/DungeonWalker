@@ -59,7 +59,6 @@ class TestBoardCreation(unittest.TestCase):
 		self.autoconnect = Autoconnect()
 
 		self.mapGeneratorEngine = MapGeneratorEngine(
-			*generalTestBoardParams,
 			self.autoconnect,
 			self.additionController
 		)
@@ -70,7 +69,6 @@ class TestBoardCreation(unittest.TestCase):
 		self.autoconnect = Autoconnect()
 
 		self.mapGeneratorEngine = MapGeneratorEngine(
-			*boardParams,
 			self.autoconnect,
 			self.additionController
 		)
