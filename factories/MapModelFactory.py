@@ -1,22 +1,32 @@
 from models.MapModel import MapModel
+from controllers.AdditionController import AdditionController
+from engines.MapGeneratorEngine import MapGeneratorEngine
 from factories.FactoryBaseClass import FactoryBaseClass
+from helpers.Autoconnect import Autoconnect
 
 class MapModelFactory(FactoryBaseClass):
-	def __init__(self, width, height, autoconnect, mapGenerator):
+	def __init__(self, width, height, mapGenerationController):
 		self.width = width
 		self.height = height
-		self.autoconnect = autoconnect
-		self.mapGenerator = mapGenerator
+		self.mapGenerationController = mapGenerationController
 
 	def getMapModel(self):
-		#XXX this is ripe for refactor. Most methods in mapModel are used once when creating
-		# the board, so these steps could likely be captured elsewhere 
-		# (perhaps MapGeneratorBaseClass). and it wouldn't need the autoconnect unit
 		emptyMap = MapModel(
 			self.get_copy(self.width), 
-			self.get_copy(self.height), 
-			self.get_copy(self.autoconnect)
+			self.get_copy(self.height)
+		)
+		additionController = AdditionController(emptyMap)
+
+		mapGeneratorEngine = MapGeneratorEngine(
+			Autoconnect(),
+			additionController
 		)
 
-		return self.mapGenerator(emptyMap).generateMap()
+		generatedMapModel = self.mapGenerationController(
+			self.get_copy(self.width), 
+			self.get_copy(self.height),
+			mapGeneratorEngine
+		).generateMap()
+
+		return generatedMapModel
 
