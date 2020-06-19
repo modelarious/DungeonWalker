@@ -62,11 +62,17 @@ class RoomModel(object):
 
 		self.middleX = (self.leftX + self.rightX - 1) // 2
 		self.middleY = (self.topY + self.bottomY - 1) // 2
+
+		self.leftAnchor = (self.leftX, self.middleY)
+		self.rightAnchor = (self.rightX - 1, self.middleY)
+		self.topAnchor = (self.middleX, self.topY)
+		self.bottomAnchor = (self.middleX, self.bottomY -1)
+
 		self.anchors = [
-			(self.leftX, self.middleY),
-			(self.rightX - 1, self.middleY),
-			(self.middleX, self.topY),
-			(self.middleX, self.bottomY -1)
+			self.leftAnchor,
+			self.rightAnchor,
+			self.topAnchor,
+			self.bottomAnchor
 		]
 
 	#checks if there are any gaps between any edges on the boxes, 
@@ -81,6 +87,18 @@ class RoomModel(object):
 
 	def getAnchors(self):
 		return self.anchors
+	
+	def get_left_anchor(self):
+		return self.leftAnchor
+	
+	def get_right_anchor(self):
+		return self.rightAnchor
+	
+	def get_top_anchor(self):
+		return self.topAnchor
+	
+	def get_bottom_anchor(self):
+		return self.bottomAnchor
 
 	def __str__(self):
 		return f"leftX = {self.leftX}, rightX = {self.rightX}, topY = {self.topY}, bottomY = {self.bottomY}"

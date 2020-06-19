@@ -62,8 +62,8 @@ class MapGeneratorEngine():
     manhatten_distance. Depth is limited by the cost already paid to reach a point.
     '''
     def _depth_limited_search(self, startPoint, endPoint):
-        # a little bit of tolerance allowing for up to 10 extra spaces to get around unexpected objects
-        maxDepth = manhatten_distance(*startPoint, *endPoint) + 10
+        # a little bit of tolerance allowing for up to 50 extra spaces to get around unexpected objects
+        maxDepth = manhatten_distance(*startPoint, *endPoint) + 50
 
         # first element in open list is the start point
         openPoints = []
