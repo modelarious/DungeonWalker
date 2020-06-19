@@ -47,6 +47,10 @@ class RoomModel(object):
 		#check if the room is too large
 		notWithinMax = self.roomWithinMaxRange(height, width)
 		if notWithinMax: raise RoomTooLarge(notWithinMax)
+
+
+		# forced spacing between two rooms
+		self.boundarySize = 3
 		
 		self.height = height
 		self.width = width
@@ -58,24 +62,43 @@ class RoomModel(object):
 
 		self.middleX = (self.leftX + self.rightX - 1) // 2
 		self.middleY = (self.topY + self.bottomY - 1) // 2
+
+		self.leftAnchor = (self.leftX, self.middleY)
+		self.rightAnchor = (self.rightX - 1, self.middleY)
+		self.topAnchor = (self.middleX, self.topY)
+		self.bottomAnchor = (self.middleX, self.bottomY -1)
+
 		self.anchors = [
-			(self.leftX, self.middleY),
-			(self.rightX - 1, self.middleY),
-			(self.middleX, self.topY),
-			(self.middleX, self.bottomY -1)
+			self.leftAnchor,
+			self.rightAnchor,
+			self.topAnchor,
+			self.bottomAnchor
 		]
 
 	#checks if there are any gaps between any edges on the boxes, 
-	#if there aren't, then there is a collision
+	#if there aren't, then there is a collision.
+	#Also forces a 3 tile boundary around all rooms so that a path can always be drawn between them
 	def collide(self, otherRoom):
-		conds = [self.leftX < otherRoom.rightX,
-			self.rightX > otherRoom.leftX,
-			self.topY < otherRoom.bottomY,
-			self.bottomY > otherRoom.topY]
+		conds = [self.leftX < otherRoom.rightX + self.boundarySize,
+			self.rightX > otherRoom.leftX - self.boundarySize,
+			self.topY - self.boundarySize < otherRoom.bottomY,
+			self.bottomY + self.boundarySize > otherRoom.topY]
 		return all(conds)
 
 	def getAnchors(self):
 		return self.anchors
+	
+	def get_left_anchor(self):
+		return self.leftAnchor
+	
+	def get_right_anchor(self):
+		return self.rightAnchor
+	
+	def get_top_anchor(self):
+		return self.topAnchor
+	
+	def get_bottom_anchor(self):
+		return self.bottomAnchor
 
 	def __str__(self):
 		return f"leftX = {self.leftX}, rightX = {self.rightX}, topY = {self.topY}, bottomY = {self.bottomY}"

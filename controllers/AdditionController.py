@@ -10,7 +10,7 @@ class AdditionController():
         self.board = mapModel
         self.width = mapModel.get_width()
         self.height = mapModel.get_height()
-        self.boundarySize = 1
+        self.boundarySize = 2
 
     def setGoalSpace(self, pt):
         self.board.change_tile(pt, charSet["goal"])
@@ -23,13 +23,13 @@ class AdditionController():
     def _fail_if_room_is_outside_bounds(self, room):
         outOfBoundsMessage = ""
         if room.rightX > self.width - self.boundarySize:
-            outOfBoundsMessage = f"room.rightX ({room.rightX}) > self.width - {self.boundarySize} ({self.width - self.boundarySize})"
+            outOfBoundsMessage = f"room.rightX ({room.rightX}) > self.width - {self.boundarySize} (boundary) ({self.width - self.boundarySize})"
         if room.leftX < self.boundarySize:
-            outOfBoundsMessage = f"room.leftX ({room.leftX}) < {self.boundarySize}"
+            outOfBoundsMessage = f"room.leftX ({room.leftX}) < {self.boundarySize} (boundary)"
         if room.bottomY > self.height - self.boundarySize:
-            outOfBoundsMessage = f"room.bottomY ({room.bottomY}) > self.height - {self.boundarySize} ({self.height - self.boundarySize})"
+            outOfBoundsMessage = f"room.bottomY ({room.bottomY}) > self.height - {self.boundarySize} (boundary) ({self.height - self.boundarySize})"
         if room.topY < self.boundarySize:
-            outOfBoundsMessage = f"room.topY ({room.topY}) < {self.boundarySize}"
+            outOfBoundsMessage = f"room.topY ({room.topY}) < {self.boundarySize} (boundary)"
         
         if outOfBoundsMessage:
             raise RoomOutsideBoard(outOfBoundsMessage)

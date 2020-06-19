@@ -15,6 +15,12 @@ medianRS = (maxRS + minRS) // 2
 evenValidRoomSize = 6
 oddValidRoomSize = 7
 
+r = Room(medianRS,medianRS,0,0)
+collisionBoundary = r.boundarySize
+roomSize = 3
+roomDefaultX = 1
+roomDefaultY = 1
+
 '''
 [(0, 2), (5, 2), (2, 0), (2, 5)]
 [(0, 3), (5, 3), (2, 0), (2, 6)]
@@ -71,23 +77,18 @@ class TestRoomCreation(unittest.TestCase):
 		["Room 2 taller than Room 1, no corners inside of each (form a cross)", Room(3, 7, 3, 3), Room(7, 3, 5, 1)]
 	])
 	def test_rooms_collide(self, name, room1, room2):
-	#	b = Board(12, 12)
-	#	b.add_room(room1)
-	#	b.add_room(room2)
-	#	b.draw_oard()
 		self.assertTrue(room1.collide(room2))
 		self.assertTrue(room2.collide(room1))
 
+	# rooms don't collide when they are one space away from each other
 	@parameterized.expand([
-		["Room 2 borders Room 1 on the side", Room(3, 3, 1, 1), Room(3, 3, 4, 1)],
-		["Room 2 borders Room 1 on the bottom", Room(3, 3, 1, 1), Room(3, 3, 1, 4)],
+		["Room 2 left border on right border of Room 1", Room(3, 3, 1, 1), Room(3, 3, 4 + collisionBoundary, 1)],
+		["Room 2 borders Room 1 on the bottom", Room(3, 3, 1, 1), Room(3, 3, 1, 4 + collisionBoundary)],
+		["Room 2 left border on right border of Room 1", Room(3, 3, 4 + collisionBoundary, 1), Room(3, 3, 1, 1)],
+		["Room 2 borders Room 1 on the top", Room(3, 3, 1, 4 + collisionBoundary), Room(3, 3, 1, 1)],
 		["Rooms are nowhere close", Room(3, 3, 1, 1), Room(3, 3, 15, 15)]
 	])
 	def test_rooms_dont_collide(self, name, room1, room2):
-	#	b = Board(30, 30)
-	#	b.add_room(room1)
-	#	b.add_room(room2)
-	#	b.draw_board()
 		self.assertFalse(room1.collide(room2))
 		self.assertFalse(room2.collide(room1))
 
