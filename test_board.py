@@ -12,6 +12,10 @@ import copy
 from TestingFixtures import *
 from test_addition_controller import RoomPlacements, boundary
 
+r = Room(*generalRoomSize, 0, 0)
+roomCollisionBoundary = r.boundarySize
+
+
 boardState1 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '&', '*', '*', '*', '&', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
 boardState2 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '&', '*', '*', '*', '&', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
 boardState3 = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '&', '*', '*', '*', '&', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
@@ -66,212 +70,195 @@ class TestBoardCreation(unittest.TestCase):
 			self.additionController
 		)
 
-# 	@parameterized.expand(parentsAndPaths)
-# 	def test_get_path(self, parent, expectedPath):
-# 		'''
-# 1st test:
-# ````````````
-# `***````````
-# `**&````````
-# `***````````
-# ````````***`
-# ````````&**`
-# ````````***`
-# ```****`````
-# ```****`````
-# ```****`````
-# ````````````
-# ````````````
+	@parameterized.expand(parentsAndPaths)
+	def test_get_path(self, parent, expectedPath):
+		'''
+1st test:
+````````````
+`***````````
+`**&````````
+`***````````
+````````***`
+````````&**`
+````````***`
+```****`````
+```****`````
+```****`````
+````````````
+````````````
 
-# 2nd test:
-# ````````````
-# `***````````
-# `**&````````
-# `***````````
-# ````````***`
-# ````*******`
-# ````*```***`
-# ```*&**`````
-# ```****`````
-# ```****`````
-# ````````````
-# ````````````
-# 		'''
-# 		actualPath = self.mapGeneratorEngine._get_path(parent, (4, 7))
-# 		self.assertEqual(expectedPath, actualPath)
+2nd test:
+````````````
+`***````````
+`**&````````
+`***````````
+````````***`
+````*******`
+````*```***`
+```*&**`````
+```****`````
+```****`````
+````````````
+````````````
+		'''
+		actualPath = self.mapGeneratorEngine._get_path(parent, (4, 7))
+		self.assertEqual(expectedPath, actualPath)
 
-# 	# same parent settings as above test, but now we request a point that isn't in parent
-# 	@parameterized.expand(parentsAndPaths)
-# 	def test_get_path_returns_blank_list(self, parent, expectedPath):
-# 		actualPath = self.mapGeneratorEngine._get_path(parent, (15, 15))
-# 		self.assertEqual([], actualPath) # should return an empty list
+	# same parent settings as above test, but now we request a point that isn't in parent
+	@parameterized.expand(parentsAndPaths)
+	def test_get_path_returns_blank_list(self, parent, expectedPath):
+		actualPath = self.mapGeneratorEngine._get_path(parent, (15, 15))
+		self.assertEqual([], actualPath) # should return an empty list
 
-# 	@parameterized.expand([r for r in RoomPlacements if r[-1] is None])
-# 	def test_room_is_added(self, name, x, y, _):
-# 		room = Room(*generalRoomSize, x, y)
-# 		self.mapGeneratorEngine.add_room(room)
-# 		self.assertTrue(room in self.mapGeneratorEngine.rooms)
+	@parameterized.expand([r for r in RoomPlacements if r[-1] is None])
+	def test_room_is_added(self, name, x, y, _):
+		room = Room(*generalRoomSize, x, y)
+		self.mapGeneratorEngine.add_room(room)
+		self.assertTrue(room in self.mapGeneratorEngine.rooms)
 
-# 	# shallow test because room.collide() is already tested very well
-# 	def test_room_collision(self):
-# 		room = Room(*generalRoomSize, boundary, boundary)
-# 		self.mapGeneratorEngine.add_room(room)
+	# shallow test because room.collide() is already tested very well
+	def test_room_collision(self):
+		room = Room(*generalRoomSize, boundary, boundary)
+		self.mapGeneratorEngine.add_room(room)
 
-# 		# adding the room a second time raises exception
-# 		self.assertRaises(RoomCollision, self.mapGeneratorEngine.add_room, room)
+		# adding the room a second time raises exception
+		self.assertRaises(RoomCollision, self.mapGeneratorEngine.add_room, room)
 
-	# @parameterized.expand([
-	# 	["X and Y are just within bounds on the top left", boundary, boundary, boardState1],
-	# 	["Y is just within bounds on the bottom left", boundary, generalTestBoardY - (generalRoomY + boundary), boardState2],
-	# 	["X is just within bounds on the top right", generalTestBoardX - (generalRoomX + boundary), boundary, boardState3],
-	# 	["X and Y are just within bounds on the bottom right", generalTestBoardX - (generalRoomX + boundary), generalTestBoardY - (generalRoomY + boundary), boardState4],
-	# ])
-	# def test_board_state_after_room_add(self, name, x, y, expectedBoardState):
-	# 	room = Room(*generalRoomSize, x, y)
-	# 	self.mapGeneratorEngine.add_room(room)
-	# 	self.assertEqual(expectedBoardState, self.get_char_board())
+	@parameterized.expand([
+		["X and Y are just within bounds on the top left", boundary, boundary, boardState1],
+		["Y is just within bounds on the bottom left", boundary, generalTestBoardY - (generalRoomY + boundary), boardState2],
+		["X is just within bounds on the top right", generalTestBoardX - (generalRoomX + boundary), boundary, boardState3],
+		["X and Y are just within bounds on the bottom right", generalTestBoardX - (generalRoomX + boundary), generalTestBoardY - (generalRoomY + boundary), boardState4],
+	])
+	def test_board_state_after_room_add(self, name, x, y, expectedBoardState):
+		room = Room(*generalRoomSize, x, y)
+		self.mapGeneratorEngine.add_room(room)
+		self.assertEqual(expectedBoardState, self.get_char_board())
 
-	# @parameterized.expand([
-	# 	["room 2 below room 1. Connect right anchor of room 1 to top anchor of room 2",
-	# 		Room(*generalRoomSize, boundary, boundary), Room(*generalRoomSize, boundary, 10), (4 + boundary, 2 + boundary), (2 + boundary, 10), boardState_connect_1],
-	# 	["room 2 to the right of room 1. Connect right anchor of room 1 to left anchor of room 2",
-	# 		Room(*generalRoomSize, boundary, boundary), Room(*generalRoomSize, 10, boundary), (4 + boundary, 2 + boundary), (10, 2 + boundary), boardState_connect_2],
-	# 	["room 2 to the right and below room 1. Connect right anchor of room 1 to right anchor of room 2",
-	# 		Room(*generalRoomSize, boundary, boundary), Room(*generalRoomSize, 10, 10), (4 + boundary, 2 + boundary), (14, 12), boardState_connect_3],
-	# ])
-	# def test_board_state_after_connect_path_nodes(self, name, room1, room2, anchor1, anchor2, expectedBoard):
-	# 	self.mapGeneratorEngine.add_room(room1)
-	# 	self.mapGeneratorEngine.add_room(room2)
-	# 	self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(anchor1, anchor2))
-	# 	self.assertEqual(self.get_char_board(), expectedBoard)
+	@parameterized.expand([
+		["room 2 below room 1. Connect right anchor of room 1 to top anchor of room 2",
+			Room(*generalRoomSize, boundary, boundary), Room(*generalRoomSize, boundary, 10), (4 + boundary, 2 + boundary), (2 + boundary, 10), boardState_connect_1],
+		["room 2 to the right of room 1. Connect right anchor of room 1 to left anchor of room 2",
+			Room(*generalRoomSize, boundary, boundary), Room(*generalRoomSize, 10, boundary), (4 + boundary, 2 + boundary), (10, 2 + boundary), boardState_connect_2],
+		["room 2 to the right and below room 1. Connect right anchor of room 1 to right anchor of room 2",
+			Room(*generalRoomSize, boundary, boundary), Room(*generalRoomSize, 10, 10), (4 + boundary, 2 + boundary), (14, 12), boardState_connect_3],
+	])
+	def test_board_state_after_connect_path_nodes(self, name, room1, room2, anchor1, anchor2, expectedBoard):
+		self.mapGeneratorEngine.add_room(room1)
+		self.mapGeneratorEngine.add_room(room2)
+		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(anchor1, anchor2))
+		self.assertEqual(self.get_char_board(), expectedBoard)
 
-	# @parameterized.expand([
-	# 	["room 2 below room 1. Connect right anchor of room 1 to top anchor of room 2",
-	# 		(2 + boundary, 4 + boundary), (12, 10), (4 + boundary, 2 + boundary), (14, 12), boardState_connect_complex_1],
-	# 	["room 2 to the right of room 1. Connect right anchor of room 1 to left anchor of room 2",
-	# 		(2 + boundary, 4 + boundary), (10, 12), (2 + boundary, 4 + boundary), (14, 12), boardState_connect_complex_2],
-	# 	["room 2 to the right and below room 1. Connect right anchor of room 1 to right anchor of room 2",
-	# 		(4 + boundary, 2 + boundary), (14, 12), (2 + boundary, 4 + boundary), (12, 10), boardState_connect_complex_3]
-	# ])
-	# def test_board_state_after_connect_path_nodes_more_complex(self, name, anchor1, anchor2, anchor3, anchor4, expectedBoard):
-	# 	room1 = Room(*generalRoomSize, boundary, boundary)
-	# 	room2 = Room(*generalRoomSize, 10, 10)
-	# 	self.mapGeneratorEngine.add_room(room1)
-	# 	self.mapGeneratorEngine.add_room(room2)
+	@parameterized.expand([
+		["room 2 below room 1. Connect right anchor of room 1 to top anchor of room 2",
+			(2 + boundary, 4 + boundary), (12, 10), (4 + boundary, 2 + boundary), (14, 12), boardState_connect_complex_1],
+		["room 2 to the right of room 1. Connect right anchor of room 1 to left anchor of room 2",
+			(2 + boundary, 4 + boundary), (10, 12), (2 + boundary, 4 + boundary), (14, 12), boardState_connect_complex_2],
+		["room 2 to the right and below room 1. Connect right anchor of room 1 to right anchor of room 2",
+			(4 + boundary, 2 + boundary), (14, 12), (2 + boundary, 4 + boundary), (12, 10), boardState_connect_complex_3]
+	])
+	def test_board_state_after_connect_path_nodes_more_complex(self, name, anchor1, anchor2, anchor3, anchor4, expectedBoard):
+		room1 = Room(*generalRoomSize, boundary, boundary)
+		room2 = Room(*generalRoomSize, 10, 10)
+		self.mapGeneratorEngine.add_room(room1)
+		self.mapGeneratorEngine.add_room(room2)
 
-	# 	self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(anchor1, anchor2))
-	# 	self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(anchor3, anchor4))
-	# 	self.assertEqual(self.get_char_board(), expectedBoard)
+		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(anchor1, anchor2))
+		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(anchor3, anchor4))
+		self.assertEqual(self.get_char_board(), expectedBoard)
 
 
 		
-	# def test_complex_case(self):
+	def test_complex_case(self):
 
-	# 	expectedEdges = {(2, 3): {(4, 3): True, (3, 2): True, (3, 4): True}, (4, 3): {(2, 3): True, (3, 2): True, (3, 4): True, (5, 14): True}, (3, 2): {(2, 3): True, (4, 3): True, (3, 4): True}, (3, 4): {(2, 3): True, (4, 3): True, (3, 2): True}, (10, 8): {(13, 8): True, (11, 6): True, (11, 10): True, (5, 14): True}, (13, 8): {(10, 8): True, (11, 6): True, (11, 10): True}, (11, 6): {(10, 8): True, (13, 8): True, (11, 10): True}, (11, 10): {(10, 8): True, (13, 8): True, (11, 6): True}, (2, 16): {(9, 16): True, (5, 14): True, (5, 19): True}, (9, 16): {(2, 16): True, (5, 14): True, (5, 19): True}, (5, 14): {(2, 16): True, (9, 16): True, (5, 19): True, (10, 8): True, (4, 3): True}, (5, 19): {(2, 16): True, (9, 16): True, (5, 14): True}}
-	# 	expectedBoard = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '&', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '&', '*', '-', '-', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '&', '*', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '&', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '*', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '-', '-', '-', '-', '-', '*', '*', '&', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '*', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '&', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '-', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '&', '*', '*', '*', '*', '*', '*', '&', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '&', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
-	# 	expectedAnchors = [(2, 3), (4, 3), (3, 2), (3, 4), (10, 8), (13, 8), (11, 6), (11, 10), (2, 16), (9, 16), (5, 14), (5, 19)]
+		expectedEdges = {(2, 3): {(4, 3): True, (3, 2): True, (3, 4): True}, (4, 3): {(2, 3): True, (3, 2): True, (3, 4): True, (5, 14): True}, (3, 2): {(2, 3): True, (4, 3): True, (3, 4): True}, (3, 4): {(2, 3): True, (4, 3): True, (3, 2): True}, (10, 8): {(13, 8): True, (11, 6): True, (11, 10): True, (5, 14): True}, (13, 8): {(10, 8): True, (11, 6): True, (11, 10): True}, (11, 6): {(10, 8): True, (13, 8): True, (11, 10): True}, (11, 10): {(10, 8): True, (13, 8): True, (11, 6): True}, (2, 16): {(9, 16): True, (5, 14): True, (5, 19): True}, (9, 16): {(2, 16): True, (5, 14): True, (5, 19): True}, (5, 14): {(2, 16): True, (9, 16): True, (5, 19): True, (10, 8): True, (4, 3): True}, (5, 19): {(2, 16): True, (9, 16): True, (5, 14): True}}
+		expectedBoard = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '&', '*', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '&', '*', '-', '-', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '&', '*', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '&', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '*', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '-', '-', '-', '-', '-', '*', '*', '&', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '*', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '*', '&', '*', '*', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '-', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '&', '*', '*', '*', '*', '*', '*', '&', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '*', '&', '*', '*', '*', '*', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+		expectedAnchors = [(2, 3), (4, 3), (3, 2), (3, 4), (10, 8), (13, 8), (11, 6), (11, 10), (2, 16), (9, 16), (5, 14), (5, 19)]
 
-	# 	self.setUp_override((16, 22))
-	# 	r1 = Room(3, 3, boundary, boundary)
-	# 	r2 = Room(5, 4, 10, 6)
-	# 	r3 = Room(6, 8, boundary, 14)
-	# 	self.mapGeneratorEngine.add_room(r1)
-	# 	self.mapGeneratorEngine.add_room(r2)
-	# 	self.mapGeneratorEngine.add_room(r3)
+		self.setUp_override((16, 22))
+		r1 = Room(3, 3, boundary, boundary)
+		r2 = Room(5, 4, 10, 6)
+		r3 = Room(6, 8, boundary, 14)
+		self.mapGeneratorEngine.add_room(r1)
+		self.mapGeneratorEngine.add_room(r2)
+		self.mapGeneratorEngine.add_room(r3)
 
-	# 	self.mapGeneratorEngine.connect_path_nodes(r2.get_left_anchor(), r3.get_top_anchor())
-	# 	self.mapGeneratorEngine.connect_path_nodes(r1.get_right_anchor(), r3.get_top_anchor())
+		self.mapGeneratorEngine.connect_path_nodes(r2.get_left_anchor(), r3.get_top_anchor())
+		self.mapGeneratorEngine.connect_path_nodes(r1.get_right_anchor(), r3.get_top_anchor())
 
-	# 	self.assertEqual(expectedEdges, self.autoconnect._edges)
-	# 	self.assertEqual(expectedBoard, self.get_char_board())
-	# 	self.assertEqual(expectedAnchors, self.autoconnect._anchors)
-
-
-# # 	# TODO trying to A* from the very right side of the board, or the very bottom might cause a crash as it might end up exploring out of bounds
+		self.assertEqual(expectedEdges, self.autoconnect._edges)
+		self.assertEqual(expectedBoard, self.get_char_board())
+		self.assertEqual(expectedAnchors, self.autoconnect._anchors)
 
 
-	# @parameterized.expand([
-	# 	[(300, 300), (1, 1)],
-	# 	[(1, 1), (300, 300)],
-	# ])
-	# def test_depth_limited_search_returns_False(self, startPoint, endPoint):
-	# 	self.assertFalse(self.mapGeneratorEngine._depth_limited_search(startPoint, endPoint))
-
-	# def test_can_connect_path_nodes_on_boundary(self):
-	# 	room1 = Room(*generalRoomSize, boundary, boundary)
-	# 	room2 = Room(*generalRoomSize, 15 - boundary, boundary)
-	# 	self.mapGeneratorEngine.add_room(room1)
-	# 	self.mapGeneratorEngine.add_room(room2)
-	# 	self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(room1.get_left_anchor(), room2.get_right_anchor()))
+# 	# TODO trying to A* from the very right side of the board, or the very bottom might cause a crash as it might end up exploring out of bounds
 
 
+	@parameterized.expand([
+		[(300, 300), (1, 1)],
+		[(1, 1), (300, 300)],
+	])
+	def test_depth_limited_search_returns_False(self, startPoint, endPoint):
+		self.assertFalse(self.mapGeneratorEngine._depth_limited_search(startPoint, endPoint))
 
-# 	'''
-# ````````````````````
-# `*****`*****````````
-# `*************``````
-# `*****`*****`*``````
-# `*r1**`*r2**`*``````
-# ````````````**``````
-# ````````````*```````
-# ``````````*****`````
-# ``````````*****`````
-# ``````````*****`````
-# ``````````*r3**`````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# ````````````````````
-# 	'''
-# 	def test_finalize_board(self):
-# 		r1 = Room(4, 5, 1, 1)  # 4 by 5 room at (1, 1)
-# 		r2 = Room(4, 5, 7, 1)  # 4 by 5 room at (7, 1) (separated from r1 by 1 space)
-# 		r3 = Room(4, 5, 10, 7)  # 4 by 5 room at (10, 7)
+	def test_can_connect_path_nodes_on_boundary(self):
+		room1 = Room(*generalRoomSize, boundary, boundary)
+		room2 = Room(*generalRoomSize, 15 - boundary, boundary)
+		self.mapGeneratorEngine.add_room(room1)
+		self.mapGeneratorEngine.add_room(room2)
+		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(room1.get_left_anchor(), room2.get_right_anchor()))
 
-# 		self.setUp_override((20, 20))
-# 		for r in [r1, r2, r3]:
-# 			self.mapGeneratorEngine.add_room(r)
 
-# 		#connect up r1 to r2 and r2 to r3
-# 		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes((11, 2), (12, 7)))
-# 		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes((5, 2), (7, 2)))
 
-# 		self.mapGeneratorEngine._finalize_board()
-# 		expectedBoardState = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', 'S', '*', '*', '*', '-', '-', '-', '*', '*', '*', '-', '-', '-', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '*', '*', '*', '`', '*', '*', '*', '*', '*', '`', '-', '`', '`', '`', '`', '`', '`'], ['`', '*', '*', '&', '*', '*', '`', '*', '*', '&', '*', '*', '`', '-', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '-', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '-', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '&', '*', '*', '*', 'G', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
-# 		self.assertEqual(self.get_char_board(), expectedBoardState)
+	'''
+````````````````````
+`*****`*****````````
+`*************``````
+`*****`*****`*``````
+`*r1**`*r2**`*``````
+````````````**``````
+````````````*```````
+``````````*****`````
+``````````*****`````
+``````````*****`````
+``````````*r3**`````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+````````````````````
+	'''
+	def test_finalize_board(self):
+		r1 = Room(4, 5, boundary, boundary)  # 4 by 5 room at top left corner
+		r2 = Room(4, 5, 7 + roomCollisionBoundary, boundary)  # 4 by 5 room separated from r1 by minimum spacing required between rooms
+		r3 = Room(4, 5, 10, 7 + boundary)  # 4 by 5 room at (10, 7)
 
-# 		'''
-# 		r4 = Room(4, 5, 13, 14)
-# 		self.mapGeneratorEngine.add_room(r4)
-# 		self.mapGeneratorEngine.draw_board()
+		self.setUp_override((20, 20))
+		for r in [r1, r2, r3]:
+			self.mapGeneratorEngine.add_room(r)
+			# self.mapGeneratorEngine.additionController.board.draw_board()
 
-# 		print(r4.getAnchors())
-# 		print(r1.getAnchors())
-
-# 		self.mapGeneratorEngine.connect_path_nodes((13, 15), (3, 4))
-# 		self.mapGeneratorEngine.draw_board()
-
-# 		reachable, layers = self.mapGeneratorEngine._autoconnect.get_reachable_nodes((1, 2))
-# 		for depth, pts in layers.items():
-# 			for pt in pts:
-# 				self.mapGeneratorEngine._change_tile(pt, str(depth))
-
-# 		self.mapGeneratorEngine.draw_board()
+		#connect up r1 to r2 and r2 to r3
+		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(r2.get_right_anchor(), r3.get_top_anchor()))
+		self.assertTrue(self.mapGeneratorEngine.connect_path_nodes(r1.get_right_anchor(), r2.get_left_anchor()))
 		# self.mapGeneratorEngine.additionController.board.draw_board()
 
-# 		'''
+		self.mapGeneratorEngine._finalize_board()
+		expectedBoardState = [['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', 'S', '*', '*', '*', '-', '-', '-', '-', '-', '*', '*', '*', '-', '-', '-', '`', '`', '`'], ['`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '*', '*', '*', '*', '*', '`', '-', '`', '`', '`'], ['`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '*', '*', '&', '*', '*', '`', '-', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '-', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '-', '-', '-', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '-', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '-', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '&', '*', '*', '*', 'G', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '*', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '*', '*', '&', '*', '*', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`'], ['`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`', '`']]
+		self.assertEqual(self.get_char_board(), expectedBoardState)
 
-# 	def test_finalize_board_fails_with_no_rooms(self):
-# 		self.assertFalse(self.mapGeneratorEngine._finalize_board())
+	def test_finalize_board_fails_with_no_rooms(self):
+		self.assertFalse(self.mapGeneratorEngine._finalize_board())
 	
-# 	def test_connect_board_fails_with_no_rooms(self):
-# 		self.assertFalse(self.mapGeneratorEngine.try_connect_board_automatically())
+	def test_connect_board_fails_with_no_rooms(self):
+		self.assertFalse(self.mapGeneratorEngine.try_connect_board_automatically())
 
+
+# these aren't worth fixing right now...
 # 	def test_run_hard_test(self):
 # 		self.setUp_override((60, 60))
 # 		self.mapGeneratorEngine.add_room(Room(*[4, 9, 40, 47]))
