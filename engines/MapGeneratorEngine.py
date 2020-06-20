@@ -166,7 +166,6 @@ class MapGeneratorEngine():
     def try_connect_board_automatically(self):
         if self.autoconnect.connect_graph(self):
             return self._finalize_board()
-        print("fell through")
         return False
 
     def get_copy(self):
