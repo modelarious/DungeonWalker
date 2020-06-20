@@ -1,6 +1,7 @@
 
 from itertools import combinations
 from queue import Queue, PriorityQueue
+from helpers.ManhattenDistance import manhatten_distance
 
 class Autoconnect(object):
     def __init__(self):
@@ -30,6 +31,9 @@ class Autoconnect(object):
     # add an edge between two nodes
     def add_edge(self, p1, p2):
         self.__cross_connect(p1, p2, self._edges)
+        # from pprint import pprint
+        # print(f"cross connected the edge {p1}, {p2}, now edges is")
+        # pprint(self._edges)
 
     # test if an edge exists between two nodes
     def have_edge(self, p1, p2):
@@ -124,44 +128,71 @@ class Autoconnect(object):
         q = PriorityQueue()
         for a1 in self._anchors:
             for a2 in self._anchors:
-                if self.have_edge(a1, a2):
-                    continue
-                # something like ( 5 , ((1, 1), (6, 1)) )
-                distance_edge_tuple = (
-                    manhatten_distance(*a1, *a2),
-                    (a1, a2)
-                )
-                q.put(distance_edge_tuple)
+                if a1 != a2:
+                    if self.have_edge(a1, a2):
+                        continue
+                    # something like ( 5 , ((1, 1), (6, 1)) )
+                    distance_edge_tuple = (
+                        manhatten_distance(*a1, *a2),
+                        (a1, a2)
+                    )
+                    q.put(distance_edge_tuple)
         return q
 
     def connect_graph(self, board):
+        # from pprint import pprint
+        # print("connect_graph was called")
+        # pprint("self.edges: ")
+        # pprint(self._edges)
+        # pprint(f"self._invalidNeighbors {self._invalidNeighbors}")
+        # pprint(f"self._anchors {self._anchors}")
+        # pprint(f"self._anchor_to_room_map {self._anchor_to_room_map}")
+
         # returns a priority queue where we consider smallest edges first
         consideredEdges = self._compute_all_unused_possible_edges()
+
         while not consideredEdges.empty():
             dist, edge = consideredEdges.get()
 
-            # if we don't want to connect these two points for any reason
+            # print(f"DIST='{dist}' edge='{edge}'")
+
+            # # if we don't want to connect these two points for any reason
+            # XXX in the case of two rooms, you will never get to check if the graph is already connected
+            # you need to refine your approach here. get_reachable_nodes is returning a list that contains the same values multiple times,
+            # there has got to be a better way to traverse this graph, or at least keep track of which rooms
+            # are already connected instead of doing it by point, so that the get_reachable_nodes call
+            # isn't so expensive.  If you keep track of all the connected components and update that knowledge every
+            # time an edge is added, you will know when the graph is completely connected because there will only
+            # be a single component on the graph (and therefore it will contain all the nodes).
+            # something like: 
+            #   [ (r1), (r2), (r3) ]
+            #    then r1 and r2 get connected
+            #   [ (r1, r2), (r3)]
+            #    then r3 is connected
+            #   [ (r1, r2, r3) ]
+            # you are done
+            # anyways....
             if self.points_are_invalid(*edge):
+                # print(f"points are invalid {edge}")
                 continue
 
             # if the graph is already connected, can stop
             reachable, _ = self.get_reachable_nodes(edge[0])
+            # print(f"nodes reachable from {edge[0]} : {reachable}")
             if set(reachable) == set(self._anchors):
+                # print(f"graph is connected!!!")
                 return True
 
             # don't connect two rooms if they already have a path to each other
             if edge[1] in reachable:
+                # print(f"skipping two rooms that are already connected")
                 continue
 
             # if we can connect the two nodes, then do it and
             # don't consider anymore connections between these two rooms
             if board.connect_path_nodes(*edge):
+                # print(f"connected the edge {edge}, now invalidating it")
                 self._invalidate_rooms(*edge)
 
+        # print("return false")
         return False
-
-
-
-
-def manhatten_distance(p1X, p1Y, p2X, p2Y):
-    return abs(p1X - p2X) + abs(p1Y - p2Y)

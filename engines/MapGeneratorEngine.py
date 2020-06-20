@@ -38,6 +38,7 @@ class MapGeneratorEngine():
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
         if self.autoconnect.have_edge(p1, p2):
+            # print("returning early as we've already done this shit!")
             return True
 
         # Discover a path that connects the rooms using depth limited bfs... if you
@@ -45,10 +46,12 @@ class MapGeneratorEngine():
         # then return false
         path = self._depth_limited_search(p1, p2)
         if not path:
+            # print("didn't work")
             return False
         else:
             self.autoconnect.add_edge(p1, p2)
             self.additionController.add_path(path)
+            # print("connected up the path and all that")
             return True
 
     def _acceptable_char(self, pt):
@@ -152,9 +155,12 @@ class MapGeneratorEngine():
         if len(self.rooms) == 0:
             return False
         StartRoom = self.rooms[0]
-        GoalRoom, farthestPoint, pointInStartRoom = self.autoconnect.find_farthest_room(StartRoom)
-        self.additionController.setGoalSpace(farthestPoint)
-        self.additionController.setStartSpace(pointInStartRoom)
+
+        # XXX https://www.geeksforgeeks.org/longest-path-undirected-tree/
+        RoomFarthestFromStart, farthestfromStart, _ = self.autoconnect.find_farthest_room(StartRoom)
+        _, farthestFromGoal, _ = self.autoconnect.find_farthest_room(RoomFarthestFromStart)
+        self.additionController.setGoalSpace(farthestfromStart)
+        self.additionController.setStartSpace(farthestFromGoal)
         return True
 
     def try_connect_board_automatically(self):
