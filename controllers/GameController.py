@@ -22,10 +22,11 @@ from pygame.locals import *
 
 # XXX need a controller orchestrator that will know which order to draw things in
 class GameController(object):
-	def __init__(self, gridController, mapController):
+	def __init__(self, gridController, mapController, playerController):
 		pygame.init()
 		self.gridController = gridController
 		self.mapController = mapController
+		self.playerController = playerController
 		self.game_screen = pygame.display.set_mode(gridController.getGameDimensions())
 
 	def main_loop(self):
@@ -42,6 +43,9 @@ class GameController(object):
 
 				# draw the camera's view of the map to the screen
 				self.mapController.updateView(self.game_screen)
+
+				# draw the player to the screen
+				self.playerController.updateView(self.game_screen)
 
 				# draw the window onto the screen
 				pygame.display.update()

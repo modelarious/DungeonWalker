@@ -11,6 +11,9 @@ class MapModel():
         self.height = height
 
         self._board = self._create_empty_board()
+
+        self.starting_point = (20, 20)
+        self.goal_point = (0, 0)
     
     def _create_empty_board(self):
         board = []
@@ -60,5 +63,15 @@ class MapModel():
     def get_height(self):
         return copy(self.height)
     
-    def get_start_tile(self):
-        return PENIS
+    def set_starting_tile(self, pt):
+        print("STARTING SPACE SETUP", pt)
+        self.change_tile(pt, charSet["start"])
+        self.starting_point = pt
+
+    def set_goal_tile(self, pt):
+        print("GOAL SPACE SETUP", pt)
+        self.change_tile(pt, charSet["goal"])
+        self.goal_point = pt
+    
+    def get_starting_coordinates(self):
+        return self.starting_point

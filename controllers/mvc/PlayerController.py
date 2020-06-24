@@ -7,12 +7,14 @@ from views.PlayerCharacterView import PlayerCharacterView
 
 
 class PlayerController(ControllerBaseClass):
-	def __init__(self, playerCharacterView: PlayerCharacterView, playerModel: PlayerCharacterModel, mapController: MapController ):
+	def __init__(self, 
+			playerCharacterView: PlayerCharacterView, 
+			playerModel: PlayerCharacterModel, 
+			mapController: MapController ):
+			
 		self._playerCharacterView = playerCharacterView
 		self._player = playerModel
 		self._mapController = mapController
-
-		# self.inputQueue = inputQueue
 	
 	def updateView(self, game_screen):
 		self._playerCharacterView.updateView(game_screen, self._player)

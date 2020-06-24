@@ -164,7 +164,9 @@ class MapGeneratorEngine():
         return True
 
     def try_connect_board_automatically(self):
+        print("trying to connect board")
         if self.autoconnect.connect_graph(self):
+            print("finalizing the board")
             return self._finalize_board()
         return False
 

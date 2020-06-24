@@ -8,9 +8,8 @@ class MapController(ControllerBaseClass):
 	def get_map(self):
 		return self._mapModel.get_board()
 	
-	def place_player_at_starting_location(self):
-		self._mapModel.set_start_tile
-
+	def get_starting_coordinates(self):
+		return self._mapModel.get_starting_coordinates()
 	
 	def updateView(self, game_screen):
 		# here I made the view inspect the model directly, though some sources say that I should be
