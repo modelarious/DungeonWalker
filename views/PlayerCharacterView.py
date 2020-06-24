@@ -2,7 +2,6 @@ from views.ViewBaseClass import ViewBaseClass
 import pygame
 from oldsettings import charSet
 
-# XXX DELETE THIS CLASS 
 # draws the player to the screen
 class PlayerCharacterView(ViewBaseClass):
 	def __init__(self, grid_size):
