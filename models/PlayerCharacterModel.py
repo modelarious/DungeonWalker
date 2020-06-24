@@ -2,6 +2,8 @@
 from abc import ABC, abstractmethod
 from helpers.Direction import Left, Right, Up, Down
 
+# I'm imagining that an ai input device would want to 
+# use this interface, so I want to bake it into the design
 class MoveSetInterface(ABC):
 
     # @abstractmethod
@@ -20,18 +22,6 @@ class Character(MoveSetInterface):
     def move(self, direction):
         self._x, self._y = direction.move(self._x, self._y)
     
-    # def get_x(self):
-    #     return self._x
-    
-    # def get_y(self):
-    #     return self._y
-    
-    # def change_x(self, x):
-    #     self._x = x
-    
-    # def change_y(self, y):
-    #     self._y = y
-    
     def get_pos(self):
         return (self._x, self._y)
     
@@ -39,9 +29,8 @@ class Character(MoveSetInterface):
         self._x, self._y = x, y
     
 
-
-# next step is to get the player character moving
-# XXX FIRST GET IT SHOWING YOU NIT
+# this level of abstraction may not be needed right now, but I'm pretty sure 
+# enemies will inherit from Character as well and will need some differentiation
 class PlayerCharacterModel(Character):
     def hello(self):
         pass

@@ -156,7 +156,10 @@ class MapGeneratorEngine():
             return False
         StartRoom = self.rooms[0]
 
-        # XXX https://www.geeksforgeeks.org/longest-path-undirected-tree/
+        # https://www.geeksforgeeks.org/longest-path-undirected-tree/
+        # this algo finds the two farthest nodes in an undirected tree. This only works because
+        # the map has no cycles (like A -> B -> C -> A)
+        # XXX I'm not sure if find_farthest_room could handle cycles, I should look into that
         RoomFarthestFromStart, farthestfromStart, _ = self.autoconnect.find_farthest_room(StartRoom)
         _, farthestFromGoal, _ = self.autoconnect.find_farthest_room(RoomFarthestFromStart)
         self.additionController.setGoalSpace(farthestfromStart)
@@ -164,9 +167,7 @@ class MapGeneratorEngine():
         return True
 
     def try_connect_board_automatically(self):
-        print("trying to connect board")
         if self.autoconnect.connect_graph(self):
-            print("finalizing the board")
             return self._finalize_board()
         return False
 
@@ -174,7 +175,7 @@ class MapGeneratorEngine():
         return deepcopy(self)
     
     def get_finalized_board(self):
-        return self.additionController.board
+        return self.additionController.board # XXX don't grab their attributes like that :(
 
 
 
