@@ -29,7 +29,23 @@ class GameController(object):
 		self.playerController = playerController
 		self.game_screen = pygame.display.set_mode(gridController.getGameDimensions())
 
+	
+	def draw_game(self):
+
+		# draw the camera's view of the map to the screen
+		self.mapController.updateView(self.game_screen)
+
+		# draw the player to the screen
+		self.playerController.updateView(self.game_screen)
+
+		# draw the window onto the screen
+		pygame.display.update()
+
 	def main_loop(self):
+		# draw the grid
+		self.gridController.updateView(self.game_screen)
+		
+		self.draw_game()
 		
 		# run the game loop
 		while True:
@@ -37,16 +53,9 @@ class GameController(object):
 				if event.type == QUIT:
 					pygame.quit()
 					sys.exit()
-					
-				# draw the grid
-				self.gridController.updateView(self.game_screen)
 
-				# draw the camera's view of the map to the screen
-				self.mapController.updateView(self.game_screen)
+				if self.playerController.handleInputEvent(event):
+					self.draw_game()
 
-				# draw the player to the screen
-				self.playerController.updateView(self.game_screen)
 
-				# draw the window onto the screen
-				pygame.display.update()
-		
+			
