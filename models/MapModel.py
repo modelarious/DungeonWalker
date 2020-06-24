@@ -1,6 +1,7 @@
 from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
 from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
+from models.PlayerCharacterModel import PlayerCharacterModel
 
 class MapModel():
     def __init__(self, width, height):
@@ -58,3 +59,6 @@ class MapModel():
     
     def get_height(self):
         return copy(self.height)
+    
+    def get_start_tile(self):
+        return PENIS

@@ -3,13 +3,14 @@ import pygame
 from oldsettings import charSet
 
 
-# draws the grid to the screen using the board model
+# draws the grid to the screen using the map model
 class MapView(ViewBaseClass):
-	def __init__(self):
+	def __init__(self, grid_size):
+		self._grid_size = grid_size
 		pass
 		
 	def updateView(self, game_screen, mapModel):
-		grid_size = 32
+		grid_size = self._grid_size
 		y = 0
 		for row in mapModel.get_board():
 			x = 0
