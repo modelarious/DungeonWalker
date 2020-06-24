@@ -9,7 +9,7 @@ class Colors():
 
 max_x = 1024
 max_y = 768
-grid_size = 8
+grid_size = 32
 colors = Colors()
 gridController = GridControllerFactory(
 	max_x=max_x, max_y=max_y, grid_size=grid_size, colors=colors

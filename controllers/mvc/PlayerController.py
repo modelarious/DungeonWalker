@@ -1,14 +1,19 @@
 from controllers.mvc.ControllerBaseClass import ControllerBaseClass
+from pygame import KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, event
+from helpers.Direction import Left, Right, Up, Down
 
 # type hints
 from controllers.mvc.MapController import MapController
 from models.PlayerCharacterModel import PlayerCharacterModel
 from views.PlayerCharacterView import PlayerCharacterView
 
-# XXX will likely move this to another class
-import pygame
-from helpers.Direction import *
 
+playerInputToActionMap = {
+	K_LEFT : Left(),
+	K_RIGHT : Right(),
+	K_UP : Up(),
+	K_DOWN : Down()
+}
 
 class PlayerController(ControllerBaseClass):
 	def __init__(self, 
@@ -23,31 +28,17 @@ class PlayerController(ControllerBaseClass):
 	def updateView(self, game_screen):
 		self._playerCharacterView.updateView(game_screen, self._player)
 	
-	def handleInputEvent(self, event):
+	# move the player if the 
+	def handleInputEvent(self, event: event):
+		# we only care about keys being pressed down
+		if event.type != KEYDOWN:
+			return False
 		
-		if event.type == pygame.KEYDOWN:
-			direction = None
+		# retrieve the direction for this input or `None` if we don't use the given input in the game
+		direction = playerInputToActionMap.get(event.key)
+		if direction == None:
+			return False
+
+		self._player.move(direction)
+		return True
 		
-			# XXX should be a map
-			if event.key == pygame.K_LEFT:
-				direction = Left()
-			elif event.key == pygame.K_RIGHT:
-				direction = Right()
-			elif event.key == pygame.K_UP:
-				direction = Up()
-			elif event.key == pygame.K_DOWN:
-				direction = Down()
-			else:
-				return False
-
-			self._player.move(direction)
-
-			return True
-		
-		return False
-
-
-
-	# def applyMove(self):
-	# 	board = self.mapController.get_map()
-	# 	self.player.get_pos()

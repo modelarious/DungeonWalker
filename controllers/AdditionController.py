@@ -13,11 +13,9 @@ class AdditionController():
         self.boundarySize = 2
 
     def setGoalSpace(self, pt):
-        print("setting goal space")
         self.board.set_goal_tile(pt)
 
     def setStartSpace(self, pt):
-        print('setting start space')
         self.board.set_starting_tile(pt)
 
     # defines a boundary of 2 squares around the entire board that is unusable when placing rooms.
