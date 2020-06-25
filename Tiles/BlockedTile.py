@@ -7,6 +7,6 @@ class BlockedTile(TileInterface):
     
     # responsibility of this class to draw itself in the boundaries given
     def draw_pygame_representation(self, game_screen, minX, maxX, minY, maxY):
-        BLACK = (255, 255, 255)
+        WHITE = (255, 255, 255)
         r = pygame.Rect(minX, minY, maxX-minX, maxY-minY)
-        pygame.draw.rect(game_screen, BLACK, r)
+        pygame.draw.rect(game_screen, WHITE, r)

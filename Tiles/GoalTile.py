@@ -6,6 +6,8 @@ class GoalTile(TileInterface):
     
     # responsibility of this class to draw itself in the boundaries given
     def draw_pygame_representation(self, game_screen, minX, maxX, minY, maxY):
+        super().draw_pygame_representation(game_screen, minX, maxX, minY, maxY)
+        
         BLACK = (255, 255, 255)
         #draw an x in the space alotted
         pygame.draw.line(game_screen, BLACK, (minX, minY), (maxX, maxY))

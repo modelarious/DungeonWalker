@@ -35,6 +35,9 @@ class GameController(object):
 		# draw the camera's view of the map to the screen
 		self.mapController.updateView(self.game_screen)
 
+		# draw the grid
+		self.gridController.updateView(self.game_screen)
+
 		# draw the player to the screen
 		self.playerController.updateView(self.game_screen)
 
@@ -42,9 +45,6 @@ class GameController(object):
 		pygame.display.update()
 
 	def main_loop(self):
-		# draw the grid
-		self.gridController.updateView(self.game_screen)
-		
 		self.draw_game()
 		
 		# run the game loop
