@@ -20,13 +20,16 @@ class Character(MoveSetInterface):
         self._y = y
 
     def move(self, direction):
-        self._x, self._y = direction.move(self._x, self._y)
+        self._x, self._y = self.get_speculative_position(direction)
     
     def get_pos(self):
         return (self._x, self._y)
     
     def set_pos(self, x, y):
         self._x, self._y = x, y
+    
+    def get_speculative_position(self, direction):
+        return direction.move(self._x, self._y)
     
 
 # this level of abstraction may not be needed right now, but I'm pretty sure 

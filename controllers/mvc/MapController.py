@@ -15,3 +15,6 @@ class MapController(ControllerBaseClass):
 		# here I made the view inspect the model directly, though some sources say that I should be
 		# getting the data out in the controller and then passing it to the view
 		self._mapView.updateView(game_screen, self._mapModel)
+	
+	def is_legal_move(self, start_pos, prospective_pos):
+		return self._mapModel.is_legal_move(start_pos, prospective_pos)
