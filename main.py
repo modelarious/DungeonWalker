@@ -1,5 +1,6 @@
 from factories.GridControllerFactory import GridControllerFactory
 from factories.MapControllerFactory import MapControllerFactory
+from factories.PlayerControllerFactory import PlayerControllerFactory
 from controllers.GameController import GameController
 
 class Colors():
@@ -16,9 +17,15 @@ gridController = GridControllerFactory(
 
 mapController = MapControllerFactory(
 	max_x_tiles=max_x//grid_size,
-	max_y_tiles = max_y//grid_size
+	max_y_tiles=max_y//grid_size,
+	grid_size=grid_size
 ).getController()
 
-gameController = GameController(gridController, mapController)
+playerController = PlayerControllerFactory(
+	grid_size=grid_size,
+	mapController=mapController
+).getController()
+
+gameController = GameController(gridController, mapController, playerController)
 
 gameController.main_loop()

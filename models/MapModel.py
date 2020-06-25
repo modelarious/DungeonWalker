@@ -1,6 +1,7 @@
 from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
 from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
+from models.PlayerCharacterModel import PlayerCharacterModel
 
 class MapModel():
     def __init__(self, width, height):
@@ -10,6 +11,9 @@ class MapModel():
         self.height = height
 
         self._board = self._create_empty_board()
+
+        self.starting_point = (20, 20)
+        self.goal_point = (0, 0)
     
     def _create_empty_board(self):
         board = []
@@ -58,3 +62,16 @@ class MapModel():
     
     def get_height(self):
         return copy(self.height)
+    
+    def set_starting_tile(self, pt):
+        print("STARTING SPACE SETUP", pt)
+        self.change_tile(pt, charSet["start"])
+        self.starting_point = pt
+
+    def set_goal_tile(self, pt):
+        print("GOAL SPACE SETUP", pt)
+        self.change_tile(pt, charSet["goal"])
+        self.goal_point = pt
+    
+    def get_starting_coordinates(self):
+        return self.starting_point

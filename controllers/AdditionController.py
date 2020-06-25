@@ -13,10 +13,10 @@ class AdditionController():
         self.boundarySize = 2
 
     def setGoalSpace(self, pt):
-        self.board.change_tile(pt, charSet["goal"])
+        self.board.set_goal_tile(pt)
 
     def setStartSpace(self, pt):
-        self.board.change_tile(pt, charSet["start"])
+        self.board.set_starting_tile(pt)
 
     # defines a boundary of 2 squares around the entire board that is unusable when placing rooms.
     # this is so that paths have enough space to be drawn with a 1 space buffer from the nearest room
