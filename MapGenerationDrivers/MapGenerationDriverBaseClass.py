@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class MapGenerationControllerBaseClass(ABC):
+class MapGenerationDriverBaseClass(ABC):
     def __init__(self, width, height, mapGeneratorEngine):
         self.width = width
         self.height = height

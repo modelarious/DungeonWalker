@@ -9,8 +9,9 @@ class MapModelFactory(FactoryBaseClass):
 		self.width = width
 		self.height = height
 		self.mapGenerationController = mapGenerationController
+		self.generatedMapModel = None
 
-	def getMapModel(self):
+	def generate_new_map(self):
 		emptyMap = MapModel(
 			self.get_copy(self.width), 
 			self.get_copy(self.height)
@@ -22,11 +23,11 @@ class MapModelFactory(FactoryBaseClass):
 			additionController
 		)
 
-		generatedMapModel = self.mapGenerationController(
+		self.generatedMapModel = self.mapGenerationController(
 			self.get_copy(self.width), 
 			self.get_copy(self.height),
 			mapGeneratorEngine
 		).generateMap()
 
-		return generatedMapModel
+		return self.generatedMapModel
 

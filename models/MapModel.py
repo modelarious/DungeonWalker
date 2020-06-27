@@ -73,6 +73,9 @@ class MapModel():
 	
 	def get_starting_coordinates(self):
 		return self.starting_point
+
+	def get_goal_space_coords(self):
+		return self.goal_point
 	
 	def is_legal_move(self, start_pos, prospective_pos):
 		s_x, s_y = start_pos
