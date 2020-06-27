@@ -52,4 +52,3 @@ class PlayerController(ControllerBaseClass):
 		if self._player.get_pos() == self._mapController.get_goal_space_coords():
 			return True
 		return False
-		
