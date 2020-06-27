@@ -58,8 +58,9 @@ class GameController(object):
 					self.draw_game()
 
 					if self.playerController.player_has_won():
-						self.mapController.generate_new_map()
 						print("player is a winner!")
+						self.mapController.generate_new_map()
+						self.draw_game()
 
 
 			

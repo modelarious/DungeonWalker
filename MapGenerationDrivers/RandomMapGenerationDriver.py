@@ -5,9 +5,12 @@ from random import randint, seed
 from exceptions import RoomCollision
 
 class RandomMapGenerationDriver(MapGenerationDriverBaseClass):
-    def __init__(self, width, height, mapGeneratorEngine, randomnessSeed=9):
+    def __init__(self, width, height, mapGeneratorEngine, randomnessSeed=None):
         super().__init__(width, height, mapGeneratorEngine)
-        self.randomnessSeed = randomnessSeed
+        if randomnessSeed == None:
+            self.randomnessSeed = randint(0, 100000)
+        else:
+            self.randomnessSeed = randomnessSeed
 
     # generates 4 random numbers that are likely to result in parameters that
     # define a valid, placeable room
