@@ -1,26 +1,9 @@
 import pygame, sys
 from pygame.locals import *
 
-# while True:
-#     player.draw(screen)
-#     event = Event()
-#     pygame.display.update()
-# The order should be:
-
 # Handle events to update game state
-# Clean background screen.fill()
-# Draw
-# update display
-# Use Clock to keep a fps rate.
-
-# all other views are going to accept the pygame instance.
-# this controller controls all the other controllers (which have their own little MVC loop).
-# when a controller says it has updated it's model, it is queued up to have .updateView(game_screen, model_response) called on it.
-# the queue needs to be ordered properly so we draw things in the right order.
-# 
-# this controller will pass the pygame instance and model response into them
-
-# XXX need a controller orchestrator that will know which order to draw things in
+# this controller controls all the other controllers (which each have their own little MVC loop).
+# I didn't use the observer pattern because the pieces of the screen need to be drawn in a particular order
 class GameController(object):
 	def __init__(self, gridController, mapController, playerController):
 		pygame.init()
@@ -55,12 +38,13 @@ class GameController(object):
 					sys.exit()
 				
 				if self.playerController.handleInputEvent(event):
-					self.draw_game()
-
+					
 					if self.playerController.player_has_won():
 						print("player is a winner!")
 						self.mapController.generate_new_map()
-						self.draw_game()
+						self.playerController.place_player_at_start()
+					
+					self.draw_game()
 
 
 			
