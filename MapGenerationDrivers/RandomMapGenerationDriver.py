@@ -1,11 +1,11 @@
-from MapGenerators.MapGenerationControllerBaseClass import MapGenerationControllerBaseClass
+from MapGenerationDrivers.MapGenerationDriverBaseClass import MapGenerationDriverBaseClass
 from models.RoomModel import RoomModel
 from settings import MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT, MIN_ROOM_WIDTH, MAX_ROOM_WIDTH
 from random import randint, seed
 from exceptions import RoomCollision
 
-class RandomMapGenerationController(MapGenerationControllerBaseClass):
-    def __init__(self, width, height, mapGeneratorEngine, randomnessSeed=4):
+class RandomMapGenerationDriver(MapGenerationDriverBaseClass):
+    def __init__(self, width, height, mapGeneratorEngine, randomnessSeed=9):
         super().__init__(width, height, mapGeneratorEngine)
         self.randomnessSeed = randomnessSeed
 
@@ -24,6 +24,7 @@ class RandomMapGenerationController(MapGenerationControllerBaseClass):
 
     #optional "randomnessSeed" integer for deterministic behavior
     def generateMap(self):
+        print(self.randomnessSeed)
         seed(self.randomnessSeed)
         
         randomMapGenerationSuccess = False

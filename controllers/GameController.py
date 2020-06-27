@@ -53,11 +53,12 @@ class GameController(object):
 				if event.type == QUIT:
 					pygame.quit()
 					sys.exit()
-
+				
 				if self.playerController.handleInputEvent(event):
 					self.draw_game()
 
 					if self.playerController.player_has_won():
+						self.mapController.generate_new_map()
 						print("player is a winner!")
 
 

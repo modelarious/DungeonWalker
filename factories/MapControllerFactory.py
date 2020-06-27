@@ -1,6 +1,6 @@
 from views.MapView import MapView
 from controllers.mvc.MapController import MapController
-from MapGenerators.RandomMapGenerationController import RandomMapGenerationController
+from MapGenerationDrivers.RandomMapGenerationDriver import RandomMapGenerationDriver
 from factories.FactoryBaseClass import FactoryBaseClass
 from factories.MapModelFactory import MapModelFactory
 
@@ -11,12 +11,16 @@ class MapControllerFactory(FactoryBaseClass):
 		self._grid_size = grid_size
 	
 	def getController(self):
-		mapModel = MapModelFactory(
+
+		# XXX RandomMapGenerationDriver instantiation is weird, should make it so 
+		# that you pass in RandomMapGenerationDriver(), then register the map with it
+		mapModelFactory = MapModelFactory(
 			self.get_copy(self.max_x_tiles), 
 			self.get_copy(self.max_y_tiles), 
-			RandomMapGenerationController
-		).getMapModel()
+			RandomMapGenerationDriver
+		)
+		mapModel = mapModelFactory.generate_new_map()
 
 		mapView = MapView(self.get_copy(self._grid_size))
-		return MapController(mapModel, mapView)
+		return MapController(mapModel, mapView, mapModelFactory)
 
