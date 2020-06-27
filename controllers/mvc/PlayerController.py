@@ -52,3 +52,8 @@ class PlayerController(ControllerBaseClass):
 		if self._player.get_pos() == self._mapController.get_goal_space_coords():
 			return True
 		return False
+	
+	def place_player_at_start(self):
+		start_coords = self._mapController.get_starting_coordinates()
+		self._player.set_pos(*start_coords)
+
