@@ -11,6 +11,9 @@ class MapController(ControllerBaseClass):
 	def get_starting_coordinates(self):
 		return self._mapModel.get_starting_coordinates()
 	
+	def get_goal_space_coords(self):
+		return self._mapModel.get_goal_space_coords()
+	
 	def updateView(self, game_screen):
 		# here I made the view inspect the model directly, though some sources say that I should be
 		# getting the data out in the controller and then passing it to the view
