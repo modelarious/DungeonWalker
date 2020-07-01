@@ -29,6 +29,7 @@ class PlayerController(ControllerBaseClass):
 		self._playerCharacterView.updateView(game_screen, self._player)
 	
 	# move the player if the input requests it
+	# XXX template method pattern could be useful here
 	def handleInputEvent(self, event: event):
 		# we only care about keys being pressed down
 		if event.type != KEYDOWN:
@@ -42,11 +43,12 @@ class PlayerController(ControllerBaseClass):
 		# prevent the player from moving to a invalid space
 		orig_pos = self._player.get_pos()
 		speculative_new_player_pos = self._player.get_speculative_position(direction)
-		if self._mapController.is_legal_move(orig_pos, speculative_new_player_pos):
-			self._player.move(direction)
-			return True
+		if not self._mapController.is_legal_move(orig_pos, speculative_new_player_pos):
+			return False
 		
-		return False
+		# move the player
+		self._player.move(direction)
+		return True
 	
 	def player_has_won(self):
 		if self._player.get_pos() == self._mapController.get_goal_space_coords():

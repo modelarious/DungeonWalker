@@ -1,8 +1,11 @@
 from factories.GridControllerFactory import GridControllerFactory
 from factories.MapControllerFactory import MapControllerFactory
 from factories.PlayerControllerFactory import PlayerControllerFactory
+from factories.EnemyOrchestratorFactory import EnemyOrchestratorFactory
 from controllers.GameController import GameController
 
+
+# XXX Get rid of this nonsense
 class Colors():
 	def __init__(self):
 		self.BLACK = (255, 255, 255)
@@ -26,6 +29,11 @@ playerController = PlayerControllerFactory(
 	mapController=mapController
 ).getController()
 
-gameController = GameController(gridController, mapController, playerController)
+enemyOrchestrator = EnemyOrchestratorFactory(
+	mapController=mapController,
+	playerController=playerController
+).getOrchestrator()
+
+gameController = GameController(gridController, mapController, playerController, enemyOrchestrator)
 
 gameController.main_loop()
