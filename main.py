@@ -33,7 +33,8 @@ playerController = PlayerControllerFactory(
 enemyControllerFactory = EnemyControllerFactory(mapController, playerController)
 
 enemyOrchestrator = EnemyOrchestratorFactory(
-	enemyControllerFactory=enemyControllerFactory
+	enemyControllerFactory=enemyControllerFactory,
+	enemyCount=100
 ).getOrchestrator()
 
 gameEngine = GameEngine(gridController, mapController, playerController, enemyOrchestrator)
