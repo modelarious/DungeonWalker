@@ -14,7 +14,7 @@ class MoveSetInterface(ABC):
     def move(self, direction):
         pass
 
-class Character(MoveSetInterface):
+class CharacterModel(MoveSetInterface):
     def __init__(self, x, y):
         self._x = x
         self._y = y
@@ -30,10 +30,3 @@ class Character(MoveSetInterface):
     
     def get_speculative_position(self, direction):
         return direction.move(self._x, self._y)
-    
-
-# this level of abstraction may not be needed right now, but I'm pretty sure 
-# enemies will inherit from Character as well and will need some differentiation
-class PlayerCharacterModel(Character):
-    def hello(self):
-        pass
