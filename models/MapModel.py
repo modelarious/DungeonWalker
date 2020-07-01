@@ -2,6 +2,8 @@ from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
 from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
 
+
+# XXX you made the data returned by get_* functions a copy of the internal data.. do you need this immutability?
 class MapModel():
 	def __init__(self, width, height):
 		if width < MIN_BOARD_WIDTH or height < MIN_BOARD_HEIGHT: raise BoardTooSmall
@@ -49,6 +51,7 @@ class MapModel():
 			return False
 	
 	# print the board to the screen (used to quickly verify the view)
+	# XXX can be removed if you don't want to see the board output on the terminal
 	def draw_board(self):
 		for row in self._board:
 			row = list(map(lambda a : a.get_char(), row))
