@@ -1,6 +1,7 @@
 from controllers.mvc.EnemyController import EnemyController
 from views.CharacterView import CharacterView
 from models.CharacterModel import CharacterModel
+from random import randint
 
 class EnemyControllerFactory:
     def __init__(self, mapController, playerController):
@@ -8,7 +9,6 @@ class EnemyControllerFactory:
         self.playerController = playerController
     
     def get_enemy(self):
-        from random import randint
         characterModel = CharacterModel(randint(0, 10),randint(0, 10))
         RED = (255, 0, 0)
         characterView = CharacterView(grid_size=32, color=RED)
