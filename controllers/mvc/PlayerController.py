@@ -1,12 +1,6 @@
-from controllers.mvc.ControllerBaseClass import ControllerBaseClass
+from controllers.mvc.CharacterController import CharacterController
 from pygame import KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, event
 from helpers.Direction import Left, Right, Up, Down
-
-# type hints
-from controllers.mvc.MapController import MapController
-from models.CharacterModel import CharacterModel
-from views.CharacterView import CharacterView
-
 
 playerInputToActionMap = {
 	K_LEFT : Left(),
@@ -14,20 +8,6 @@ playerInputToActionMap = {
 	K_UP : Up(),
 	K_DOWN : Down()
 }
-
-class CharacterController(ControllerBaseClass):
-	def __init__(self, 
-			characterView: CharacterView,
-			characterModel: CharacterModel,
-			mapController: MapController ):
-
-		self._characterView = characterView
-		self._characterModel = characterModel
-		self._mapController = mapController
-	
-	def updateView(self, game_screen):
-		self._characterView.updateView(game_screen, self._characterModel)
-
 
 class PlayerController(CharacterController):
 	
@@ -61,21 +41,3 @@ class PlayerController(CharacterController):
 	def place_player_at_start(self):
 		start_coords = self._mapController.get_starting_coordinates()
 		self._characterModel.set_pos(*start_coords)
-
-
-
-
-# XXX might be better not to give the enemy controller the player controller but instead an object that
-# wraps the player model and lets the enemy make queries about the player 
-class EnemyController(CharacterController):
-	def __init__(self, 
-			characterView: CharacterView,
-			characterModel: CharacterModel,
-			mapController: MapController,
-			playerController: PlayerController ):
-		super().__init__(characterView, characterModel, mapController)
-		self.playerController = playerController
-
-	def update_position(self):
-		direction = Right()
-		self._characterModel.move(direction)

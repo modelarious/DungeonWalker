@@ -1,4 +1,4 @@
-from controllers.mvc.PlayerController import EnemyController
+from controllers.mvc.EnemyController import EnemyController
 from views.CharacterView import CharacterView
 from models.CharacterModel import CharacterModel
 
