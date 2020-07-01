@@ -2,9 +2,9 @@ import pygame, sys
 from pygame.locals import *
 
 # Handle events to update game state
-# this controller controls all the other controllers (which each have their own little MVC loop).
+# this Engine controls all the other controllers (which each have their own little MVC loop).
 # I didn't use the observer pattern because the pieces of the screen need to be drawn in a particular order
-class GameController(object):
+class GameEngine(object):
 	def __init__(self, gridController, mapController, playerController, enemyOrchestrator):
 		pygame.init()
 		self.gridController = gridController
@@ -46,7 +46,6 @@ class GameController(object):
 				if self.playerController.handleInputEvent(event):
 					
 					if self.playerController.player_has_won():
-						print("player is a winner!")
 						self.mapController.generate_new_map()
 						self.playerController.place_player_at_start()
 					

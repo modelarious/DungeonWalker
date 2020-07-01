@@ -2,7 +2,8 @@ from factories.GridControllerFactory import GridControllerFactory
 from factories.MapControllerFactory import MapControllerFactory
 from factories.PlayerControllerFactory import PlayerControllerFactory
 from factories.EnemyOrchestratorFactory import EnemyOrchestratorFactory
-from controllers.GameController import GameController
+from factories.EnemyControllerFactory import EnemyControllerFactory
+from engines.GameEngine import GameEngine
 
 
 # XXX Get rid of this nonsense
@@ -29,11 +30,12 @@ playerController = PlayerControllerFactory(
 	mapController=mapController
 ).getController()
 
+enemyControllerFactory = EnemyControllerFactory(mapController, playerController)
+
 enemyOrchestrator = EnemyOrchestratorFactory(
-	mapController=mapController,
-	playerController=playerController
+	enemyControllerFactory=enemyControllerFactory
 ).getOrchestrator()
 
-gameController = GameController(gridController, mapController, playerController, enemyOrchestrator)
+gameEngine = GameEngine(gridController, mapController, playerController, enemyOrchestrator)
 
-gameController.main_loop()
+gameEngine.main_loop()
