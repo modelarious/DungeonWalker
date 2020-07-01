@@ -5,7 +5,7 @@ from helpers.Direction import Left, Right, Up, Down
 # type hints
 from controllers.mvc.MapController import MapController
 from models.PlayerCharacterModel import PlayerCharacterModel
-from views.PlayerCharacterView import PlayerCharacterView
+from views.CharacterView import CharacterView
 
 
 playerInputToActionMap = {
@@ -17,7 +17,7 @@ playerInputToActionMap = {
 
 class PlayerController(ControllerBaseClass):
 	def __init__(self, 
-			playerCharacterView: PlayerCharacterView, 
+			playerCharacterView: CharacterView, 
 			playerModel: PlayerCharacterModel, 
 			mapController: MapController ):
 

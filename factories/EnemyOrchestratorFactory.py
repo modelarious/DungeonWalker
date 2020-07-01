@@ -1,3 +1,6 @@
+from helpers.Direction import Left
+
+
 class EnemyOrchestratorFactory:
     def __init__(self, mapController, playerController):
         self.mapController = mapController
@@ -14,10 +17,11 @@ class EnemyOrchestrator:
         self.playerController = playerController
         self.enemyControllerArray = enemyControllerArray
 
-    def updateView(self, game_screen):
+    def updateView(self, gameScreen):
         for enemyController in self.enemyControllerArray:
-            pass
+            enemyController.updateView(gameScreen)
         
     def react_to_player(self):
+        direction = Left()
         for enemyController in self.enemyControllerArray:
-            pass
+            enemyController.update_position()
