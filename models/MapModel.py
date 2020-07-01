@@ -1,7 +1,6 @@
 from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
 from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
-from models.CharacterModel import CharacterModel
 
 class MapModel():
 	def __init__(self, width, height):
