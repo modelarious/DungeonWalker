@@ -1,6 +1,6 @@
-from models.PlayerCharacterModel import PlayerCharacterModel
+from models.CharacterModel import CharacterModel
 from controllers.mvc.PlayerController import PlayerController
-from views.PlayerCharacterView import PlayerCharacterView
+from views.CharacterView import CharacterView
 
 # type hints
 from controllers.mvc.MapController import MapController
@@ -11,10 +11,11 @@ class PlayerControllerFactory():
 		self.mapController = mapController
 
 	def getController(self):
+		GREEN = (0, 255, 0)
+
 		start_x, start_y = self.mapController.get_starting_coordinates()
-		print(f"start coordinates: {start_x}, {start_y}")
-		playerModel = PlayerCharacterModel(start_x, start_y)
-		playerCharacterView = PlayerCharacterView(self._grid_size)
+		playerModel = CharacterModel(start_x, start_y)
+		playerCharacterView = CharacterView(self._grid_size, GREEN)
 		playerController = PlayerController(playerCharacterView, playerModel, self.mapController)
 
 		return playerController
