@@ -2,7 +2,7 @@ from controllers.mvc.CharacterController import CharacterController
 
 from helpers.Direction import Left, Right, Up, Down
 
-from random import choice
+from random import shuffle
 
 # type hints
 from controllers.mvc.MapController import MapController
@@ -23,5 +23,11 @@ class EnemyController(CharacterController):
 		self.playerController = playerController
 
 	def update_position(self):
-		direction = choice([Right(), Left(), Up(), Down()])
-		self._characterModel.move(direction)
+		directions = [Right(), Left(), Up(), Down()]
+		shuffle(directions)
+		for move in directions:
+			if self.movement_valid(move):
+				self._characterModel.move(move)
+				return True
+		
+		return False

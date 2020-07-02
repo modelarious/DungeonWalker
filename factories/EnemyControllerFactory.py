@@ -9,7 +9,7 @@ class EnemyControllerFactory:
         self.playerController = playerController
     
     def get_enemy(self):
-        characterModel = CharacterModel(randint(0, 10),randint(0, 10))
+        characterModel = CharacterModel(randint(5, 15),randint(5, 15))
         RED = (255, 0, 0)
         characterView = CharacterView(grid_size=32, color=RED)
         return EnemyController(characterView, characterModel, self.mapController, self.playerController)
