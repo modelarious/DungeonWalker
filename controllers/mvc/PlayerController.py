@@ -22,16 +22,13 @@ class PlayerController(CharacterController):
 		direction = playerInputToActionMap.get(event.key)
 		if direction == None:
 			return False
-
-		# prevent the player from moving to a invalid space
-		orig_pos = self._characterModel.get_pos()
-		speculative_new_player_pos = self._characterModel.get_speculative_position(direction)
-		if not self._mapController.is_legal_move(orig_pos, speculative_new_player_pos):
+		
+		if not self.movement_valid(direction):
 			return False
 		
-		# move the player
 		self._characterModel.move(direction)
 		return True
+
 	
 	def player_has_won(self):
 		if self._characterModel.get_pos() == self._mapController.get_goal_space_coords():
@@ -39,5 +36,6 @@ class PlayerController(CharacterController):
 		return False
 	
 	def place_player_at_start(self):
+		# XXX this is not how a controller should be used... it should be asking the model
 		start_coords = self._mapController.get_starting_coordinates()
 		self._characterModel.set_pos(*start_coords)
