@@ -8,8 +8,8 @@ class EnemyControllerFactory:
         self.mapController = mapController
         self.playerController = playerController
     
-    def get_enemy(self):
-        characterModel = CharacterModel(randint(5, 15),randint(5, 15))
+    def get_enemy(self, spawnCoords):
+        characterModel = CharacterModel(*spawnCoords)
         RED = (255, 0, 0)
         characterView = CharacterView(grid_size=32, color=RED)
         return EnemyController(characterView, characterModel, self.mapController, self.playerController)

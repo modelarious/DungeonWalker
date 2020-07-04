@@ -15,6 +15,8 @@ class MapModel():
 
 		self.starting_point = (20, 20)
 		self.goal_point = (0, 0)
+
+		self.enemySpawnPoints = []
 	
 	def _create_empty_board(self):
 		board = []
@@ -25,6 +27,12 @@ class MapModel():
 	
 	def get_board(self):
 		return self._board
+	
+	def get_spawn_points(self):
+		return self.enemySpawnPoints
+
+	def add_enemy_spawn_points(self, enemySpawnPoints):
+		self.enemySpawnPoints.extend(enemySpawnPoints)
 	
 	def get_tile(self, point):
 		pX, pY = point

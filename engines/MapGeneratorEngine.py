@@ -10,7 +10,6 @@ class MapGeneratorEngine():
         self.additionController = additionController
         self.autoconnect = autoconnect
         self.rooms = []
-        self.enemySpawnPoints = []
 
     # raises exceptions for cases where:
     # - the room would leave the bounds of the board
@@ -29,11 +28,6 @@ class MapGeneratorEngine():
 
         # track this room for collision checks
         self.rooms.append(room)
-
-        self.enemySpawnPoints.extend(room.generate_spawn_points())
-    
-    def get_spawn_points(self):
-        return self.enemySpawnPoints
 
     # used when you want to connect two anchors from two different graph components (ie two different rooms)
     # will first determine if the connection is possible using depth limited search

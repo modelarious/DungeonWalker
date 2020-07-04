@@ -15,6 +15,9 @@ class MapController(ControllerBaseClass):
 	def get_goal_space_coords(self):
 		return self._mapModel.get_goal_space_coords()
 	
+	def get_enemy_spawn_points(self):
+		return self._mapModel.get_spawn_points()
+	
 	def updateView(self, game_screen):
 		# here I made the view inspect the model directly, though some sources say that I should be
 		# getting the data out in the controller and then passing it to the view
