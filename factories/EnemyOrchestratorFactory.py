@@ -1,12 +1,12 @@
 from orchestrators.EnemyOrchestrator import EnemyOrchestrator
 
 class EnemyOrchestratorFactory:
-    def __init__(self, enemyControllerFactory, enemyCount):
+    def __init__(self, enemyControllerFactory, enemySpawnPoints):
         self.enemyControllerFactory = enemyControllerFactory
-        self.enemyCount = enemyCount
+        self.enemySpawnPoints = enemySpawnPoints
 
     def getOrchestrator(self):
         enemyControllerArray = []
-        for _ in range(self.enemyCount):
-            enemyControllerArray.append(self.enemyControllerFactory.get_enemy())
+        for spawnCoords in self.enemySpawnPoints:
+            enemyControllerArray.append(self.enemyControllerFactory.get_enemy(spawnCoords))
         return EnemyOrchestrator(enemyControllerArray)
