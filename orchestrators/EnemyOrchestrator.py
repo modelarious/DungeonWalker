@@ -24,9 +24,23 @@ class EnemyOrchestrator:
         for enemyController in self.enemyControllerArray:
             enemyController.updateView(gameScreen)
         
+    
+    # XXX this really needs to be tested to make sure it actually prevents movement
     def react_to_player(self):
+
+        # gather current enemy positions and prevent enemies from moving to an overlapping position
+        preventedPositions = []
+        for enemy in self.enemyControllerArray:
+            preventedPositions.append(enemy.get_pos())
+
+        # update the enemy positions. When the position updates, the new enemy position becomes blacklisted
+        # and the old position gets removed from the blacklist
         for enemyController in self.enemyControllerArray:
-            enemyController.update_position()
+            previousPosition = enemyController.get_pos()
+            enemyController.update_position(preventedPositions)
+
+            preventedPositions.remove(previousPosition)
+            preventedPositions.append(enemyController.get_pos())
     
     def remove_enemy_from_player_position(self):
         playerPos = self.playerController.get_pos()
