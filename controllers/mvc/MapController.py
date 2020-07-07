@@ -5,6 +5,7 @@ class MapController(ControllerBaseClass):
 		self._mapModel = mapModel
 		self._mapView = mapView
 		self._mapModelFactory = mapModelFactory
+		self.enemyOrchestrator = None
 	
 	def get_map(self):
 		return self._mapModel.get_board()
@@ -28,3 +29,11 @@ class MapController(ControllerBaseClass):
 	
 	def generate_new_map(self):
 		self._mapModel = self._mapModelFactory.generate_new_map()
+		if self.enemyOrchestrator:
+			print("generate new enemies")
+			self.enemyOrchestrator.generate_new_enemies()
+	
+	# due to the order of construction of objects, the enemyOrchestrator uses the observer pattern
+	# to know when to update itself
+	def register_enemy_orchestrator(self, enemyOrchestrator):
+		self.enemyOrchestrator = enemyOrchestrator

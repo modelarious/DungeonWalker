@@ -34,9 +34,12 @@ enemyControllerFactory = EnemyControllerFactory(mapController, playerController)
 
 enemyOrchestrator = EnemyOrchestratorFactory(
 	enemyControllerFactory=enemyControllerFactory,
-	enemySpawnPoints=mapController.get_enemy_spawn_points(),
+	mapController=mapController,
 	playerController=playerController
 ).getOrchestrator()
+
+# observer pattern used to generate enemy spawns when the map is regenerated
+mapController.register_enemy_orchestrator(enemyOrchestrator)
 
 gameEngine = GameEngine(gridController, mapController, playerController, enemyOrchestrator)
 

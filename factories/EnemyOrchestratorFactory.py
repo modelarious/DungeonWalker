@@ -1,13 +1,11 @@
 from orchestrators.EnemyOrchestrator import EnemyOrchestrator
 
+# XXX entirely boilerplate.. is this needed?
 class EnemyOrchestratorFactory:
-    def __init__(self, enemyControllerFactory, enemySpawnPoints, playerController):
+    def __init__(self, enemyControllerFactory, mapController, playerController):
         self.enemyControllerFactory = enemyControllerFactory
-        self.enemySpawnPoints = enemySpawnPoints
+        self.mapController = mapController
         self.playerController = playerController
 
     def getOrchestrator(self):
-        enemyControllerArray = []
-        for spawnCoords in self.enemySpawnPoints:
-            enemyControllerArray.append(self.enemyControllerFactory.get_enemy(spawnCoords))
-        return EnemyOrchestrator(enemyControllerArray, self.playerController)
+        return EnemyOrchestrator(self.enemyControllerFactory, self.mapController, self.playerController)
