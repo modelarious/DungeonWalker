@@ -1,6 +1,5 @@
 
 from abc import ABC, abstractmethod
-from helpers.Direction import Left, Right, Up, Down
 
 # I'm imagining that an ai input device would want to 
 # use this interface, so I want to bake it into the design

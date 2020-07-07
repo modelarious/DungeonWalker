@@ -18,6 +18,9 @@ class CharacterController(ControllerBaseClass):
 	def updateView(self, game_screen):
 		self._characterView.updateView(game_screen, self._characterModel)
 	
+	def get_pos(self):
+		return self._characterModel.get_pos()
+	
 	def movement_valid(self, direction):
 		# prevent the player from moving to a invalid space
 		orig_pos = self._characterModel.get_pos()
