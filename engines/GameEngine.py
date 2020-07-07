@@ -44,6 +44,9 @@ class GameEngine(object):
 					sys.exit()
 				
 				if self.playerController.handleInputEvent(event):
+
+					if self.enemyOrchestrator.player_hit_enemy():
+						self.enemyOrchestrator.remove_enemy_from_player_position()
 					
 					if self.playerController.player_has_won():
 						self.mapController.generate_new_map()
