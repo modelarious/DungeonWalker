@@ -51,6 +51,9 @@ class GameEngine(object):
 					
 					else:
 						self.enemyOrchestrator.react_to_player()
+						if self.enemyOrchestrator.enemy_hit_player():
+							print("enemy killed you!")
+							return False
 					
 					self.draw_game()
 

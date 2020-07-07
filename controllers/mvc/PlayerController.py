@@ -1,12 +1,13 @@
 from controllers.mvc.CharacterController import CharacterController
-from pygame import KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, event
-from helpers.Direction import Left, Right, Up, Down
+from pygame import KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, K_SPACE, event
+from helpers.Direction import Left, Right, Up, Down, NullMove
 
 playerInputToActionMap = {
 	K_LEFT : Left(),
 	K_RIGHT : Right(),
 	K_UP : Up(),
-	K_DOWN : Down()
+	K_DOWN : Down(),
+	K_SPACE : NullMove(),
 }
 
 class PlayerController(CharacterController):
