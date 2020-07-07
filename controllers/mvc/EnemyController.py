@@ -22,11 +22,11 @@ class EnemyController(CharacterController):
 		super().__init__(characterView, characterModel, mapController)
 		self.playerController = playerController
 
-	def update_position(self):
-		directions = [Right(), Left(), Up(), Down(), NullMove()]
+	def update_position(self, preventedPositions):
+		directions = [Right(), Left(), Up(), Down()]#, NullMove()]
 		shuffle(directions)
 		for move in directions:
-			if self.movement_valid(move):
+			if self.movement_valid(move) and not self.movement_prevented(move, preventedPositions):
 				self._characterModel.move(move)
 				return True
 		
