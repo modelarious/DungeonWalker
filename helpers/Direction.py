@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 class Direction(ABC):
     @abstractmethod
     def move(self, x, y):
-        return x, y
+        return (x, y)
 
 class Left(Direction):
     def move(self, x, y):
@@ -19,3 +19,7 @@ class Up(Direction):
 class Down(Direction):
     def move(self, x, y):
         return (x, y + 1)
+    
+class NullMove(Direction):
+    def move(self, x, y):
+        return (x, y)

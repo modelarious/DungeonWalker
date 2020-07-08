@@ -1,8 +1,12 @@
 from factories.GridControllerFactory import GridControllerFactory
 from factories.MapControllerFactory import MapControllerFactory
 from factories.PlayerControllerFactory import PlayerControllerFactory
-from controllers.GameController import GameController
+from factories.EnemyOrchestratorFactory import EnemyOrchestratorFactory
+from factories.EnemyControllerFactory import EnemyControllerFactory
+from engines.GameEngine import GameEngine
 
+
+# XXX Get rid of this nonsense
 class Colors():
 	def __init__(self):
 		self.BLACK = (255, 255, 255)
@@ -26,6 +30,17 @@ playerController = PlayerControllerFactory(
 	mapController=mapController
 ).getController()
 
-gameController = GameController(gridController, mapController, playerController)
+enemyControllerFactory = EnemyControllerFactory(mapController, playerController)
 
-gameController.main_loop()
+enemyOrchestrator = EnemyOrchestratorFactory(
+	enemyControllerFactory=enemyControllerFactory,
+	mapController=mapController,
+	playerController=playerController
+).getOrchestrator()
+
+# observer pattern used to generate enemy spawns when the map is regenerated
+mapController.register_enemy_orchestrator(enemyOrchestrator)
+
+gameEngine = GameEngine(gridController, mapController, playerController, enemyOrchestrator)
+
+gameEngine.main_loop()

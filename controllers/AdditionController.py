@@ -33,7 +33,10 @@ class AdditionController():
         
         if outOfBoundsMessage:
             raise RoomOutsideBoard(outOfBoundsMessage)
+    
 
+    def add_enemy_spawn_points(self, enemySpawnPointList):
+        self.board.add_enemy_spawn_points(enemySpawnPointList)
     
     # raises exceptions for cases where:
     # - the room would leave the bounds of the board
@@ -42,6 +45,8 @@ class AdditionController():
 
         # raise an exception if the rectangle would leave the bounds of the board
         self._fail_if_room_is_outside_bounds(room)
+
+        self.add_enemy_spawn_points(room.generate_spawn_points())
 
         # add the room to the board
         for x in range(room.leftX, room.rightX):

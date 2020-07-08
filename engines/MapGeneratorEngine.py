@@ -8,8 +8,8 @@ from copy import deepcopy
 class MapGeneratorEngine():
     def __init__(self, autoconnect, additionController):
         self.additionController = additionController
-        self.rooms = []
         self.autoconnect = autoconnect
+        self.rooms = []
 
     # raises exceptions for cases where:
     # - the room would leave the bounds of the board

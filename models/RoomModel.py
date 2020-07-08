@@ -2,7 +2,7 @@ from exceptions import RoomTooSmall, RoomTooLarge
 from settings import MIN_ROOM_HEIGHT, MIN_ROOM_WIDTH, MAX_ROOM_HEIGHT, MAX_ROOM_WIDTH
 from heapq import heappush, heappop
 from itertools import combinations
-
+from random import random
 
 '''
 exceptions that can be thrown:
@@ -99,6 +99,17 @@ class RoomModel(object):
 	
 	def get_bottom_anchor(self):
 		return self.bottomAnchor
+	
+	def generate_spawn_points(self):
+		spawnPoints = []
+		for ptX in range(self.width):
+			for ptY in range(self.height):
+				if random() > 0.95:
+					coords = (ptX + self.leftX, ptY + self.topY)
+					spawnPoints.append(coords)
+
+		print(spawnPoints)
+		return spawnPoints
 
 	def __str__(self):
 		return f"leftX = {self.leftX}, rightX = {self.rightX}, topY = {self.topY}, bottomY = {self.bottomY}"

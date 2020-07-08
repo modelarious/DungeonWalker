@@ -1,34 +1,19 @@
-from controllers.mvc.ControllerBaseClass import ControllerBaseClass
-from pygame import KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, event
-from helpers.Direction import Left, Right, Up, Down
-
-# type hints
-from controllers.mvc.MapController import MapController
-from models.PlayerCharacterModel import PlayerCharacterModel
-from views.PlayerCharacterView import PlayerCharacterView
-
+from controllers.mvc.CharacterController import CharacterController
+from pygame import KEYDOWN, K_LEFT, K_RIGHT, K_UP, K_DOWN, K_SPACE, event
+from helpers.Direction import Left, Right, Up, Down, NullMove
 
 playerInputToActionMap = {
 	K_LEFT : Left(),
 	K_RIGHT : Right(),
 	K_UP : Up(),
-	K_DOWN : Down()
+	K_DOWN : Down(),
+	K_SPACE : NullMove(),
 }
 
-class PlayerController(ControllerBaseClass):
-	def __init__(self, 
-			playerCharacterView: PlayerCharacterView, 
-			playerModel: PlayerCharacterModel, 
-			mapController: MapController ):
-
-		self._playerCharacterView = playerCharacterView
-		self._player = playerModel
-		self._mapController = mapController
-	
-	def updateView(self, game_screen):
-		self._playerCharacterView.updateView(game_screen, self._player)
+class PlayerController(CharacterController):
 	
 	# move the player if the input requests it
+	# XXX template method pattern could be useful here
 	def handleInputEvent(self, event: event):
 		# we only care about keys being pressed down
 		if event.type != KEYDOWN:
@@ -38,17 +23,20 @@ class PlayerController(ControllerBaseClass):
 		direction = playerInputToActionMap.get(event.key)
 		if direction == None:
 			return False
-
-		# prevent the player from moving to a invalid space
-		orig_pos = self._player.get_pos()
-		speculative_new_player_pos = self._player.get_speculative_position(direction)
-		if self._mapController.is_legal_move(orig_pos, speculative_new_player_pos):
-			self._player.move(direction)
-			return True
 		
-		return False
+		if not self.movement_valid(direction):
+			return False
+		
+		self._characterModel.move(direction)
+		return True
+
 	
 	def player_has_won(self):
-		if self._player.get_pos() == self._mapController.get_goal_space_coords():
+		if self._characterModel.get_pos() == self._mapController.get_goal_space_coords():
 			return True
 		return False
+	
+	def place_player_at_start(self):
+		# XXX this is not how a controller should be used... it should be asking the model
+		start_coords = self._mapController.get_starting_coordinates()
+		self._characterModel.set_pos(*start_coords)

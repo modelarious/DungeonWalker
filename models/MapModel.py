@@ -1,8 +1,9 @@
 from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
 from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
-from models.PlayerCharacterModel import PlayerCharacterModel
 
+
+# XXX you made the data returned by get_* functions a copy of the internal data.. do you need this immutability?
 class MapModel():
 	def __init__(self, width, height):
 		if width < MIN_BOARD_WIDTH or height < MIN_BOARD_HEIGHT: raise BoardTooSmall
@@ -14,6 +15,8 @@ class MapModel():
 
 		self.starting_point = (20, 20)
 		self.goal_point = (0, 0)
+
+		self.enemySpawnPoints = []
 	
 	def _create_empty_board(self):
 		board = []
@@ -24,6 +27,12 @@ class MapModel():
 	
 	def get_board(self):
 		return self._board
+	
+	def get_spawn_points(self):
+		return self.enemySpawnPoints
+
+	def add_enemy_spawn_points(self, enemySpawnPoints):
+		self.enemySpawnPoints.extend(enemySpawnPoints)
 	
 	def get_tile(self, point):
 		pX, pY = point
@@ -50,6 +59,7 @@ class MapModel():
 			return False
 	
 	# print the board to the screen (used to quickly verify the view)
+	# XXX can be removed if you don't want to see the board output on the terminal
 	def draw_board(self):
 		for row in self._board:
 			row = list(map(lambda a : a.get_char(), row))
