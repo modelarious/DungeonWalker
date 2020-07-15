@@ -78,13 +78,6 @@ class TileManager:
         pygameTile = pygame.image.fromstring(rawBytesTile, tile.size, strFormat)
         return pygameTile
 
-        
-# class TileLoader:
-#     def __init__(self, filename, tileAccumulator):
-#         self.filename = filename
-#         self.tileAccumulator = tileAccumulator
-    
-
 
 # fetches the legend from the file
 def get_first_column(image):
@@ -99,18 +92,22 @@ def get_first_column(image):
     # for testing, move over to the Walls column
     left += scale_factor * 3
 
-    # get first 3x3 of values
+    # get first 3x3 of values (the walls)
     tiles = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
-    for t in tiles:
-        TM.add_tile(TileType.WALL, TilePosition.CENTER, t)
+    for t, pos in zip(tiles, TilePosition):
+        TM.add_tile(TileType.WALL, pos, t)
         # t.show()
 
     # skip down to the next 3x3 of tiles
-    top += scale_factor * 3
+    # top += scale_factor * 3
 
+    # for testing, move over to the Ground column
+    left += scale_factor * 3 * 3
+
+    # get next 3x3 of values (the ground)
     ground = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
-    for t in ground:
-        TM.add_tile(TileType.GROUND, TilePosition.CENTER, t)
+    for t, pos in zip(ground, TilePosition):
+        TM.add_tile(TileType.GROUND, pos, t)
         # t.show()
     
     return TM
