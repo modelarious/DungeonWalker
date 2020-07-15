@@ -44,7 +44,6 @@ class TilePosition(Enum):
 
 # images are not hashable because they are mutable, so this is my solution that allows a hashmap
 # to index an array of tiles instead
-# XXX all the functionality in this file could likely fit in this class...
 class TileLoader:
     def __init__(self, tilesetImage, tileTypeToColumnNumberAssignments):
         self.tiles = []
@@ -142,7 +141,6 @@ with Image.open(infile2) as i:
             x = 0
             y = 0
 
-            # XXX what this has taught us is that our TilePosition is defined in the wrong order
             for tp in TilePosition:
                 t = tileLoader.get_tile(tt, tp)
                 game_screen.blit(t, (x, y))
