@@ -2,15 +2,7 @@ from PIL import Image
 import pygame
 from time import sleep
 
-def export_for_pygame(tilesetArray):
-    strFormat = 'RGBA'
-    exported = []
-    for tile in tilesetArray:
 
-        # https://riptutorial.com/pygame/example/21220/using-with-pil fetched on July 13, 2020
-        raw_bytes = tile.tobytes("raw", strFormat)
-        exported.append(pygame.image.fromstring(raw_bytes, tile.size, strFormat))
-    return exported
 
 # def crop(infile,height,width):
 #     im = Image.open(infile)
@@ -52,15 +44,19 @@ class TileManager:
     
     def add_tile(self, title, tile):
         self.tileIndex[title] = len(self.tiles)
-        self.tiles.append(tile)
+        self.tiles.append(self.export_for_pygame(tile))
     
     def get_tile(self, title):
         arrayIndex = self.tileIndex[title]
         return self.tiles[arrayIndex]
     
-    # XXX yuck, make it call this function on each element as it's added
-    def finalize_tiles(self):
-        self.tiles = export_for_pygame(self.tiles)
+    def export_for_pygame(self, tile):
+        strFormat = 'RGBA'
+        # https://riptutorial.com/pygame/example/21220/using-with-pil fetched on July 13, 2020
+        rawBytesTile = tile.tobytes("raw", strFormat)
+        pygameTile = pygame.image.fromstring(rawBytesTile, tile.size, strFormat)
+        return pygameTile
+
         
 # class TileLoader:
 #     def __init__(self, filename, tileAccumulator):
@@ -86,14 +82,15 @@ def get_first_column(image):
     tiles = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
     for t in tiles:
         TM.add_tile("farts", t)
-        t.show()
+        # t.show()
 
     # skip down to the next 3x3 of tiles
     top += scale_factor * 3
 
     ground = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
     for t in ground:
-        t.show()
+        TM.add_tile("farts", t)
+        # t.show()
     
     return TM
 
@@ -119,11 +116,27 @@ with Image.open(infile2) as i:
     # a class, so you don't have to do dirty deeds
     tileManager = TileManager()
     TM = get_first_column(i)
-    TM.finalize_tiles()
 
     game_screen = pygame.display.set_mode((1024, 768))
     while True:
         for event in pygame.event.get():
             t = TM.get_tile("farts")
             game_screen.blit(t, t.get_rect())
+            game_screen.blit(t, (32, 0))
+            game_screen.blit(t, (64, 0))
+            game_screen.blit(t, (96, 0))
+
             pygame.display.flip()
+
+
+# get tile should take a Type and a Position:
+# Type: GROUND, WALL, etc
+# Position: UPPER_LEFT_CORNER, CENTER, etc...
+# then these can be constants and you can dynamically populate the tile manager using them
+# to makes sure that the contents of the tile manager line up with the constants you'll use to access it
+
+# going to need two objects at least:
+# - object that handles loading all the tiles from a tileset file
+# - object that handles reading in the map, mapping the correct tiles to the 
+#   right positions and holding that result in a 2d array, of which a 2x2 
+#   box of tiles can be selected to be returned (step towards the camera feature)
