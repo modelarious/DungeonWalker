@@ -66,7 +66,7 @@ class TileManager:
 
     # fetches the legend from the file
     # XXX THIS SHOULD TAKE A column number and a tileType
-    def populate_from_column(self):
+    def populate_from_column(self, tileType, columnNumber):
 
         # XXX these could likely be member variables
         top = 162
@@ -77,25 +77,18 @@ class TileManager:
         scale_factor = grid_size + border # so to jump to the next tile, you need to move the tile width (grid_size) + the size of the shared border (border)
 
         # for testing, move over to the Walls column
-        left += scale_factor * 3
+        left += scale_factor * 3 * columnNumber
 
-        # get first 3x3 of values (the walls)
+        # get first 3x3 of values (standard pieces)
         tiles = self.get_three_by_three_tile_matrix(self.image, left, top, grid_size, scale_factor, border)
         for t, pos in zip(tiles, TilePosition):
-            self.add_tile(TileType.WALL, pos, t)
-            # t.show()
+            self.add_tile(tileType, pos, t)
 
         # skip down to the next 3x3 of tiles
         # top += scale_factor * 3
 
         # for testing, move over to the Ground column
-        left += scale_factor * 3 * 3
-
-        # get next 3x3 of values (the ground)
-        ground = self.get_three_by_three_tile_matrix(self.image, left, top, grid_size, scale_factor, border)
-        for t, pos in zip(ground, TilePosition):
-            self.add_tile(TileType.GROUND, pos, t)
-            # t.show()
+        # left += scale_factor * 3 * 3
     
     # XXX doesn't need a bunch of those parameters
     def get_three_by_three_tile_matrix(self, image, leftX, topY, grid_size, scale_factor, border):
@@ -132,12 +125,13 @@ def crop_and_resize_square_image(im, top, left, grid_size):
 infile2 = "assets/tilesets/world abyss.png"
 with Image.open(infile2) as i:
     tileManager = TileManager(i)
-    tileManager.populate_from_column()
+    tileManager.populate_from_column(TileType.WALL, 1) # wall tiles are column 1
+    tileManager.populate_from_column(TileType.GROUND, 4) # ground tiles are column 4
 
     game_screen = pygame.display.set_mode((1024, 768))
     while True:
         for event in pygame.event.get():
-            tt = TileType.GROUND
+            tt = TileType.WALL
             x = 0
             y = 0
 
