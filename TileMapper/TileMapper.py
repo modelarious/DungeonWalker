@@ -27,8 +27,8 @@ def get_three_by_three_tile_matrix(image, leftX, topY, grid_size, scale_factor, 
     tiles = []
 
     # range to 3*scale_factor because we are grabbing 3 squares
-    for x_dim in range(startX, startX + 3*scale_factor, scale_factor):
-        for y_dim in range(startY, startY + 3*scale_factor, scale_factor):
+    for y_dim in range(startY, startY + 3*scale_factor, scale_factor):
+        for x_dim in range(startX, startX + 3*scale_factor, scale_factor):
             tile = crop_and_resize_square_image(image, y_dim, x_dim, grid_size)
             tiles.append(tile)
     
@@ -141,6 +141,8 @@ with Image.open(infile2) as i:
             tt = TileType.GROUND
             x = 0
             y = 0
+
+            # XXX what this has taught us is that our TilePosition is defined in the wrong order
             for tp in TilePosition:
                 t = TM.get_tile(tt, tp)
                 game_screen.blit(t, (x, y))
