@@ -138,11 +138,17 @@ with Image.open(infile2) as i:
     game_screen = pygame.display.set_mode((1024, 768))
     while True:
         for event in pygame.event.get():
-            t = TM.get_tile(TileType.GROUND, TilePosition.CENTER)
-            game_screen.blit(t, t.get_rect())
-            game_screen.blit(t, (32, 0))
-            game_screen.blit(t, (64, 0))
-            game_screen.blit(t, (96, 0))
+            tt = TileType.GROUND
+            x = 0
+            y = 0
+            for tp in TilePosition:
+                t = TM.get_tile(tt, tp)
+                game_screen.blit(t, (x, y))
+                if x == 64:
+                    x = 0
+                    y += 32
+                else:
+                    x += 32
 
             pygame.display.flip()
 
