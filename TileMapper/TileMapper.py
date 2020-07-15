@@ -34,6 +34,23 @@ def get_three_by_three_tile_matrix(image, leftX, topY, grid_size, scale_factor, 
     
     return tiles
 
+from enum import Enum
+class TileType(Enum):
+    GROUND = 1
+    WALL = 2
+
+class TilePosition(Enum):
+    UPPER_LEFT_CORNER = 1
+    UPPER_MIDDLE = 2
+    UPPER_RIGHT_CORNER = 3
+    MIDDLE_LEFT = 4
+    CENTER = 5
+    MIDDLE_RIGHT = 6
+    BOTTOM_LEFT_CORNER = 7
+    BOTTOM_MIDDLE = 8
+    BOTTOM_RIGHT_CORNER = 9
+
+
 # images are not hashable because they are mutable, so this is my solution that allows a hashmap
 # to index an array of tiles instead
 # XXX all the functionality in this file could likely fit in this class...
@@ -41,13 +58,17 @@ class TileManager:
     def __init__(self):
         self.tiles = []
         self.tileIndex = {} # string -> index_to_tiles_array
+
+        # pre populate data container with blank objects
+        for tileType in TileType:
+            self.tileIndex[tileType] = {}
     
-    def add_tile(self, title, tile):
-        self.tileIndex[title] = len(self.tiles)
+    def add_tile(self, tileType, tilePosition, tile):
+        self.tileIndex[tileType][tilePosition] = len(self.tiles)
         self.tiles.append(self.export_for_pygame(tile))
     
-    def get_tile(self, title):
-        arrayIndex = self.tileIndex[title]
+    def get_tile(self, tileType, tilePosition):
+        arrayIndex = self.tileIndex[tileType][tilePosition]
         return self.tiles[arrayIndex]
     
     def export_for_pygame(self, tile):
@@ -81,7 +102,7 @@ def get_first_column(image):
     # get first 3x3 of values
     tiles = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
     for t in tiles:
-        TM.add_tile("farts", t)
+        TM.add_tile(TileType.WALL, TilePosition.CENTER, t)
         # t.show()
 
     # skip down to the next 3x3 of tiles
@@ -89,7 +110,7 @@ def get_first_column(image):
 
     ground = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
     for t in ground:
-        TM.add_tile("farts", t)
+        TM.add_tile(TileType.GROUND, TilePosition.CENTER, t)
         # t.show()
     
     return TM
@@ -120,7 +141,7 @@ with Image.open(infile2) as i:
     game_screen = pygame.display.set_mode((1024, 768))
     while True:
         for event in pygame.event.get():
-            t = TM.get_tile("farts")
+            t = TM.get_tile(TileType.GROUND, TilePosition.CENTER)
             game_screen.blit(t, t.get_rect())
             game_screen.blit(t, (32, 0))
             game_screen.blit(t, (64, 0))
