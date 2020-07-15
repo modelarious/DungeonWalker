@@ -18,22 +18,6 @@ def get_stairs_one(image):
     grid_size = 24
     return crop_and_resize_square_image(image, top, left, grid_size)
 
-def get_three_by_three_tile_matrix(image, leftX, topY, grid_size, scale_factor, border):
-
-    # ignore the border on the left and top
-    startX = leftX + border
-    startY = topY + border
-
-    tiles = []
-
-    # range to 3*scale_factor because we are grabbing 3 squares
-    for y_dim in range(startY, startY + 3*scale_factor, scale_factor):
-        for x_dim in range(startX, startX + 3*scale_factor, scale_factor):
-            tile = crop_and_resize_square_image(image, y_dim, x_dim, grid_size)
-            tiles.append(tile)
-    
-    return tiles
-
 from enum import Enum
 class TileType(Enum):
     GROUND = 1
@@ -55,9 +39,10 @@ class TilePosition(Enum):
 # to index an array of tiles instead
 # XXX all the functionality in this file could likely fit in this class...
 class TileManager:
-    def __init__(self):
+    def __init__(self, tilesetImage):
         self.tiles = []
         self.tileIndex = {} # string -> index_to_tiles_array
+        self.image = tilesetImage
 
         # pre populate data container with blank objects
         for tileType in TileType:
@@ -65,52 +50,69 @@ class TileManager:
     
     def add_tile(self, tileType, tilePosition, tile):
         self.tileIndex[tileType][tilePosition] = len(self.tiles)
-        self.tiles.append(self.export_for_pygame(tile))
+        self.tiles.append(self._export_for_pygame(tile))
     
     def get_tile(self, tileType, tilePosition):
         arrayIndex = self.tileIndex[tileType][tilePosition]
         return self.tiles[arrayIndex]
     
-    def export_for_pygame(self, tile):
+    # translate from PIL to pygame so the tile can be drawn to the screen
+    def _export_for_pygame(self, tile):
         strFormat = 'RGBA'
         # https://riptutorial.com/pygame/example/21220/using-with-pil fetched on July 13, 2020
         rawBytesTile = tile.tobytes("raw", strFormat)
         pygameTile = pygame.image.fromstring(rawBytesTile, tile.size, strFormat)
         return pygameTile
 
+    # fetches the legend from the file
+    # XXX THIS SHOULD TAKE A column number and a tileType
+    def populate_from_column(self):
 
-# fetches the legend from the file
-def get_first_column(image):
-    TM = TileManager()
-    top = 162
-    left = 8
-    grid_size = 24 # each of the square tiles are 24 pixels wide
-    border = 1 # there is a 1 pixel border around each of the individual square tiles. This border is shared (so the right border of one tile is the left border of the adjacent tile)
+        # XXX these could likely be member variables
+        top = 162
+        left = 8
+        grid_size = 24 # each of the square tiles are 24 pixels wide
+        border = 1 # there is a 1 pixel border around each of the individual square tiles. This border is shared (so the right border of one tile is the left border of the adjacent tile)
 
-    scale_factor = grid_size + border # so to jump to the next tile, you need to move the tile width (grid_size) + the size of the shared border (border)
+        scale_factor = grid_size + border # so to jump to the next tile, you need to move the tile width (grid_size) + the size of the shared border (border)
 
-    # for testing, move over to the Walls column
-    left += scale_factor * 3
+        # for testing, move over to the Walls column
+        left += scale_factor * 3
 
-    # get first 3x3 of values (the walls)
-    tiles = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
-    for t, pos in zip(tiles, TilePosition):
-        TM.add_tile(TileType.WALL, pos, t)
-        # t.show()
+        # get first 3x3 of values (the walls)
+        tiles = self.get_three_by_three_tile_matrix(self.image, left, top, grid_size, scale_factor, border)
+        for t, pos in zip(tiles, TilePosition):
+            self.add_tile(TileType.WALL, pos, t)
+            # t.show()
 
-    # skip down to the next 3x3 of tiles
-    # top += scale_factor * 3
+        # skip down to the next 3x3 of tiles
+        # top += scale_factor * 3
 
-    # for testing, move over to the Ground column
-    left += scale_factor * 3 * 3
+        # for testing, move over to the Ground column
+        left += scale_factor * 3 * 3
 
-    # get next 3x3 of values (the ground)
-    ground = get_three_by_three_tile_matrix(image, left, top, grid_size, scale_factor, border)
-    for t, pos in zip(ground, TilePosition):
-        TM.add_tile(TileType.GROUND, pos, t)
-        # t.show()
+        # get next 3x3 of values (the ground)
+        ground = self.get_three_by_three_tile_matrix(self.image, left, top, grid_size, scale_factor, border)
+        for t, pos in zip(ground, TilePosition):
+            self.add_tile(TileType.GROUND, pos, t)
+            # t.show()
     
-    return TM
+    # XXX doesn't need a bunch of those parameters
+    def get_three_by_three_tile_matrix(self, image, leftX, topY, grid_size, scale_factor, border):
+
+        # ignore the border on the left and top
+        startX = leftX + border
+        startY = topY + border
+
+        tiles = []
+
+        # range to 3*scale_factor because we are grabbing 3 squares
+        for y_dim in range(startY, startY + 3*scale_factor, scale_factor):
+            for x_dim in range(startX, startX + 3*scale_factor, scale_factor):
+                tile = crop_and_resize_square_image(image, y_dim, x_dim, grid_size)
+                tiles.append(tile)
+        
+        return tiles
 
 # def get_stairs_two(image):
 #     top = 387
@@ -129,11 +131,8 @@ def crop_and_resize_square_image(im, top, left, grid_size):
 
 infile2 = "assets/tilesets/world abyss.png"
 with Image.open(infile2) as i:
-
-    # XXX GROSS!!!!!!! Don't modify the tileManager inside a function.... make this whole thing into
-    # a class, so you don't have to do dirty deeds
-    tileManager = TileManager()
-    TM = get_first_column(i)
+    tileManager = TileManager(i)
+    tileManager.populate_from_column()
 
     game_screen = pygame.display.set_mode((1024, 768))
     while True:
@@ -144,7 +143,7 @@ with Image.open(infile2) as i:
 
             # XXX what this has taught us is that our TilePosition is defined in the wrong order
             for tp in TilePosition:
-                t = TM.get_tile(tt, tp)
+                t = tileManager.get_tile(tt, tp)
                 game_screen.blit(t, (x, y))
                 if x == 64:
                     x = 0
