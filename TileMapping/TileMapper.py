@@ -1,7 +1,43 @@
+from models.MapModel import NeighborOffsets
+from settings import charSet
+from TileMapping.TileType import TileType
+from TileMapping.TilePosition import TilePosition
+
 class TileMapper:
     def __init__(self, mapModel, tileLoader):
-        self.board = mapModel
-        self.tileLoader = tileLoader # XXX could be changed to a TileLoaderFactory later -> subclass RandomTileSetLoaderFactory that gives a random tileset
+        self._mapModel = mapModel
+        self._tileLoader = tileLoader # XXX could be changed to a TileLoaderFactory later -> subclass RandomTileSetLoaderFactory that gives a random tileset
+        self._tileArray = {} #pretends to be a 2d array that spans the entire map
+    
+
+
+    # some class that takes in the neighbors and then spits out the two keys Type and Position
+	# then you just ask the TileLoader for the associated tile
+
+	# XXX NO!!! ASk the TileLoader to figure it out for you, it will ask each tile if that arrangement
+	# of blocks corresponds to them (so when the given tile is completely surrounded by blocked
+	# tiles, then the Center Wall tile will call dibs).
+
+	# XXX Tile mapper asks Map Model to get neighbors, then asks tileLoader what tile to use there and stores it
+    # XXX * 2 - this is a good candidate for multi threading
+    def process_board(self):
+        print("processing tileset")
+        for point in self._mapModel:
+            
+            x, y = point
+            # print(point)
+            if x not in self._tileArray:
+                self._tileArray[x] = {}
+            neighbs = self._mapModel.get_all_eight_surrounding_neighbors_and_self(point)
+
+            # center wall piece if all surrounding pieces are blocked XXX should be handled by a centerWall class
+            if all(neighbs[t] == charSet["blocked"] for t in neighbs.keys()):
+                self._tileArray[x][y] = self._tileLoader.get_tile(TileType.WALL, TilePosition.CENTER)
+            # else:
+            #     self._tileArray[x][y] = self._tileLoader.get_tile(TileType., TilePosition.CENTER)
+            # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
+                # print(neighbs)
+        print("done processing tileset")
 
 # def crop(infile,height,width):
 #     im = Image.open(infile)

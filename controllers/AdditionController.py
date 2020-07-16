@@ -72,8 +72,8 @@ class AdditionController():
     def get_point(self, pt):
         return self.board.get_tile(pt)
     
-    def get_neighbors(self, currPoint):
-        return self.board.get_neighbors(currPoint)
+    def get_neighbors_within_board(self, currPoint):
+        return self.board.get_neighbors_within_board(currPoint)
     
     def point_in_board(self, pt):
         return self.board.point_in_board(pt)

@@ -30,7 +30,6 @@ class MapControllerFactory(FactoryBaseClass):
 
 		# XXX this is a lot of baggage for one factory
 		# and a lot is related to tile mapping, so make that into a separate factory
-		tileLoader = None
 		infile2 = "assets/tilesets/world abyss.png"
 		with Image.open(infile2) as i:
 			tileTypeToColumnNumberAssignments = {
@@ -40,6 +39,8 @@ class MapControllerFactory(FactoryBaseClass):
 			tileLoader = TileLoader(i, tileTypeToColumnNumberAssignments)
 
 		tileMapper = TileMapper(mapModel, tileLoader)
+
+		tileMapper.process_board()
 
 		return MapController(mapModel, mapView, mapModelFactory, tileMapper)
 

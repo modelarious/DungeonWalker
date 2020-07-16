@@ -89,7 +89,7 @@ class MapGeneratorEngine():
                 break
 
             # get neighbors of current point
-            neighbors = self.additionController.get_neighbors(currPoint)
+            neighbors = self.additionController.get_neighbors_within_board(currPoint)
 
             # code to make the path stay away from touching walls by 1 space
             neighbors_filtered = []
@@ -102,7 +102,7 @@ class MapGeneratorEngine():
                 #p1X, p1Y = n
                 #nestedNeighborOffsets = [ x for x in product([-1, 0, 1], repeat=2) if x != (0, 0)] # XXX TODO want to check in a full 9 spaces around the point
                 #tileAndNeighbors = [n] + [(p1X + offX, p1Y + offY) for offX, offY in nestedNeighborOffsets]
-                tileAndNeighbors = [n] + self.additionController.get_neighbors(n)
+                tileAndNeighbors = [n] + self.additionController.get_neighbors_within_board(n)
 
                 # if any are an unacceptable tile, skip this neighbor
                 neighborTileUnacceptable = False
