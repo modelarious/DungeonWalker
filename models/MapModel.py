@@ -100,3 +100,13 @@ class MapModel():
 			return False
 		
 		return True
+	
+	def get_neighbors(self, currPoint):
+		if self.point_in_board(currPoint):
+			currX, currY = currPoint
+			offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
+			candidates = [(currX + offX, currY + offY) for offX, offY in offsets]
+			candidates = list(filter(self.point_in_board, candidates))
+			return candidates
+
+		return []

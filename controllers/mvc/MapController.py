@@ -1,10 +1,15 @@
 from controllers.mvc.ControllerBaseClass import ControllerBaseClass
 
 class MapController(ControllerBaseClass):
-	def __init__(self, mapModel, mapView, mapModelFactory):
+	def __init__(self, mapModel, mapView, mapModelFactory, tileMapper):
 		self._mapModel = mapModel
 		self._mapView = mapView
 		self._mapModelFactory = mapModelFactory
+		self._tileMapper = tileMapper
+
+		# will be populated by a call to register_enemy_orchestrator. Then this controller
+		# will notify the enemyOrchestrator when it is time to generate new spawn points.
+		# XXX future: this might become array when there are multiple enemy types
 		self.enemyOrchestrator = None
 	
 	def get_map(self):
