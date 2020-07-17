@@ -22,16 +22,34 @@ class TileMapper:
     # XXX * 2 - this is a good candidate for multi threading
     def process_board(self):
         print("processing tileset")
+        self._tileArray = {}
         for point in self._mapModel:
             
             x, y = point
             if x not in self._tileArray:
                 self._tileArray[x] = {}
             neighbs = self._mapModel.get_all_eight_surrounding_neighbors_and_self(point)
+            def element_is_not_in(x, arr):
+                return x not in arr
+            
+            def element_is_in(x, arr):
+                return x in arr
+            blockedChars = [charSet["blocked"]]
+
+            
+            # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
+            #     element_checker = defs_in
+            # else:
+            #     element_checker = element_is_not_in
+
+            # element_checker
 
             # center wall piece if all surrounding pieces are blocked XXX should be handled by a centerWall class
-            if all(neighbs[t] == charSet["blocked"] for t in neighbs.keys()):
+            if all(neighbs[t] in blockedChars for t in neighbs.keys()):
                 self._tileArray[x][y] = self._tileLoader.get_tile(TileType.WALL, TilePosition.CENTER)
+            
+            elif all(neighbs[t] not in blockedChars for t in neighbs.keys()):
+                self._tileArray[x][y] = self._tileLoader.get_tile(TileType.GROUND, TilePosition.CENTER)
             # else:
             #     self._tileArray[x][y] = self._tileLoader.get_tile(TileType., TilePosition.CENTER)
             # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
