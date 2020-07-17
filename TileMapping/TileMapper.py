@@ -25,7 +25,6 @@ class TileMapper:
         for point in self._mapModel:
             
             x, y = point
-            # print(point)
             if x not in self._tileArray:
                 self._tileArray[x] = {}
             neighbs = self._mapModel.get_all_eight_surrounding_neighbors_and_self(point)
@@ -38,6 +37,18 @@ class TileMapper:
             # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
                 # print(neighbs)
         print("done processing tileset")
+    
+    def get_tile_mapping(self):
+        # XXX just for now, we don't have mappings for all the tiles
+        out = []
+        for x in self._tileArray:
+            for y in self._tileArray[x]:
+                out.append( ((x, y), self._tileArray[x][y]) )
+        return out
+
+
+
+
 
 # def crop(infile,height,width):
 #     im = Image.open(infile)

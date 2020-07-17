@@ -8,6 +8,7 @@ from TileMapping.TileMapper import TileMapper
 from TileMapping.TileMapper import TileLoader
 from PIL import Image
 from TileMapping.TileType import TileType
+from views.TileMappedView import TileMappedView
 
 class MapControllerFactory(FactoryBaseClass):
 	def __init__(self, max_x_tiles, max_y_tiles, grid_size):
@@ -26,8 +27,6 @@ class MapControllerFactory(FactoryBaseClass):
 		)
 		mapModel = mapModelFactory.generate_new_map()
 
-		mapView = MapView(self.get_copy(self._grid_size))
-
 		# XXX this is a lot of baggage for one factory
 		# and a lot is related to tile mapping, so make that into a separate factory
 		infile2 = "assets/tilesets/world abyss.png"
@@ -41,6 +40,12 @@ class MapControllerFactory(FactoryBaseClass):
 		tileMapper = TileMapper(mapModel, tileLoader)
 
 		tileMapper.process_board()
+
+		tileMapperView = TileMappedView(self.get_copy(self._grid_size), tileMapper)
+
+
+
+		mapView = MapView(self.get_copy(self._grid_size), tileMapperView)
 
 		return MapController(mapModel, mapView, mapModelFactory, tileMapper)
 

@@ -5,9 +5,9 @@ from oldsettings import charSet
 
 # draws the grid to the screen using the map model
 class MapView(ViewBaseClass):
-	def __init__(self, grid_size):
+	def __init__(self, grid_size, tileMapperView):
 		self._grid_size = grid_size
-		pass
+		self._tileMapperView = tileMapperView
 		
 	def updateView(self, game_screen, mapModel):
 		grid_size = self._grid_size
@@ -25,3 +25,5 @@ class MapView(ViewBaseClass):
 																						 charSet["passable"]))
 			y += grid_size
 		print()
+
+		self._tileMapperView.updateView(game_screen)
