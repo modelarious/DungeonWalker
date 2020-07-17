@@ -40,7 +40,7 @@ class MapController(ControllerBaseClass):
 		if self.enemyOrchestrator:
 			print("generate new enemies")
 			self.enemyOrchestrator.generate_new_enemies()
-		self._tileMapper.process_board()
+		self._tileMapper.process_board(self._mapModel)
 	
 	# due to the order of construction of objects, the enemyOrchestrator uses the observer pattern
 	# to know when to update itself

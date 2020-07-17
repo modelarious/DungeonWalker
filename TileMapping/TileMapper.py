@@ -4,8 +4,7 @@ from TileMapping.TileType import TileType
 from TileMapping.TilePosition import TilePosition
 
 class TileMapper:
-    def __init__(self, mapModel, tileLoader):
-        self._mapModel = mapModel
+    def __init__(self, tileLoader):
         self._tileLoader = tileLoader # XXX could be changed to a TileLoaderFactory later -> subclass RandomTileSetLoaderFactory that gives a random tileset
         self._tileArray = {} #pretends to be a 2d array that spans the entire map
     
@@ -20,15 +19,15 @@ class TileMapper:
 
 	# XXX Tile mapper asks Map Model to get neighbors, then asks tileLoader what tile to use there and stores it
     # XXX * 2 - this is a good candidate for multi threading
-    def process_board(self):
+    def process_board(self, mapModel):
         print("processing tileset")
         self._tileArray = {}
-        for point in self._mapModel:
+        for point in mapModel:
             
             x, y = point
             if x not in self._tileArray:
                 self._tileArray[x] = {}
-            neighbs = self._mapModel.get_all_eight_surrounding_neighbors_and_self(point)
+            neighbs = mapModel.get_all_eight_surrounding_neighbors_and_self(point)
             def element_is_not_in(x, arr):
                 return x not in arr
             

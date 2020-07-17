@@ -37,9 +37,9 @@ class MapControllerFactory(FactoryBaseClass):
 			}
 			tileLoader = TileLoader(i, tileTypeToColumnNumberAssignments)
 
-		tileMapper = TileMapper(mapModel, tileLoader)
+		tileMapper = TileMapper(tileLoader)
 
-		tileMapper.process_board()
+		tileMapper.process_board(mapModel)
 
 		tileMapperView = TileMappedView(self.get_copy(self._grid_size), tileMapper)
 
