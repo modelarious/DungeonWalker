@@ -6,16 +6,17 @@ from PIL import Image
 # images are not hashable because they are mutable, so this is my solution that allows a hashmap
 # to index an array of tiles instead
 class TileLoader:
-    def __init__(self, tilesetImage, tileTypeToColumnNumberAssignments):
+    def __init__(self, tilesetImage, grid_size, tileTypeToColumnNumberAssignments):
         # data structure
         self.tiles = []
         self.tileIndex = {} # string -> index_to_tiles_array
         
         # useful local constants
+        self.grid_size = grid_size # the grid_size we are using for display
         self.image = tilesetImage
-        self.grid_size = 24 # each of the square tiles are 24 pixels wide
-        self.border = 1 # there is a 1 pixel border around each of the individual square tiles. This border is shared (so the right border of one tile is the left border of the adjacent tile)
-        self.scale_factor = self.grid_size + self.border # so to jump to the next tile, you need to move the tile width (grid_size) + the size of the shared border (border)
+        self.tile_set_grid_size = 24 # each of the square tiles on the image are 24 pixels wide
+        self.border = 1 # there is a 1 pixel border around each of the individual square tiles in the image. This border is shared (so the right border of one tile is the left border of the adjacent tile)
+        self.scale_factor = self.tile_set_grid_size + self.border # so to jump to the next tile, you need to move the tile width (tile_set_grid_size) + the size of the shared border (border)
 
         # perform load of the tileset into the data structures
         self._populate_data(tileTypeToColumnNumberAssignments)
@@ -79,10 +80,10 @@ class TileLoader:
         return tiles
 
     def _crop_and_resize_square_image(self, top, left):
-        right = left + self.grid_size
-        bottom = top + self.grid_size
+        right = left + self.tile_set_grid_size
+        bottom = top + self.tile_set_grid_size
         box = (left, top, right, bottom)
         cropped = self.image.crop(box)
-        desiredSize = (32, 32)
+        desiredSize = (self.grid_size, self.grid_size)
         resized = cropped.resize(desiredSize)
         return resized
