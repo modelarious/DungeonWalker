@@ -1,12 +1,19 @@
 from controllers.mvc.ControllerBaseClass import ControllerBaseClass
 
 class MapController(ControllerBaseClass):
-	def __init__(self, mapModel, mapView, mapModelFactory):
+	def __init__(self, mapModel, mapView, mapModelFactory, tileMapper):
 		self._mapModel = mapModel
 		self._mapView = mapView
 		self._mapModelFactory = mapModelFactory
+		self._tileMapper = tileMapper
+
+		# will be populated by a call to register_enemy_orchestrator. Then this controller
+		# will notify the enemyOrchestrator when it is time to generate new spawn points.
+		# XXX future: this might become array when there are multiple enemy types
 		self.enemyOrchestrator = None
 	
+	# XXX these are obviously really bad signs of an ownership problem.
+	# XXX anyone using these functions should instead own the mapModel and just ask it directly
 	def get_map(self):
 		return self._mapModel.get_board()
 	
@@ -19,19 +26,21 @@ class MapController(ControllerBaseClass):
 	def get_enemy_spawn_points(self):
 		return self._mapModel.get_spawn_points()
 	
+	def is_legal_move(self, start_pos, prospective_pos):
+		return self._mapModel.is_legal_move(start_pos, prospective_pos)
+	
+	# XXX I'd say the below 3 functions are all that should make up the mapController
 	def updateView(self, game_screen):
 		# here I made the view inspect the model directly, though some sources say that I should be
 		# getting the data out in the controller and then passing it to the view
 		self._mapView.updateView(game_screen, self._mapModel)
-	
-	def is_legal_move(self, start_pos, prospective_pos):
-		return self._mapModel.is_legal_move(start_pos, prospective_pos)
 	
 	def generate_new_map(self):
 		self._mapModel = self._mapModelFactory.generate_new_map()
 		if self.enemyOrchestrator:
 			print("generate new enemies")
 			self.enemyOrchestrator.generate_new_enemies()
+		self._tileMapper.process_board(self._mapModel)
 	
 	# due to the order of construction of objects, the enemyOrchestrator uses the observer pattern
 	# to know when to update itself

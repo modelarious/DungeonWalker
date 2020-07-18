@@ -45,4 +45,4 @@ class TestBoardCreation(unittest.TestCase):
 	
 	# XXX this is a pitiful amount of testing for this function
 	def test_get_neighbors_returns_empty_list(self):
-		self.assertEqual([], self.additionController.get_neighbors((300, 300)))
+		self.assertEqual([], self.additionController.get_neighbors_within_board((300, 300)))

@@ -4,6 +4,8 @@ from exceptions import RoomOutsideBoard
 # model sits inside an "AdditionController" for lack of better name
 # the MapGenerator tells the AdditionController what it wants done to the board
 # the AdditionController then goes and calls things like change_tile()
+# XXX AdditionEngine might be better.. but there's a better way to divide system responsibility
+# XXX make this also responsible for adding paths
 class AdditionController():
 
     def __init__(self, mapModel):
@@ -70,15 +72,8 @@ class AdditionController():
     def get_point(self, pt):
         return self.board.get_tile(pt)
     
-    def get_neighbors(self, currPoint):
-        if self.point_in_board(currPoint):
-            currX, currY = currPoint
-            offsets = ((-1, 0), (1, 0), (0, -1), (0, 1))
-            candidates = [(currX + offX, currY + offY) for offX, offY in offsets]
-            candidates = list(filter(self.point_in_board, candidates))
-            return candidates
-
-        return []
+    def get_neighbors_within_board(self, currPoint):
+        return self.board.get_neighbors_within_board(currPoint)
     
     def point_in_board(self, pt):
         return self.board.point_in_board(pt)

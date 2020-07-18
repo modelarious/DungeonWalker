@@ -11,9 +11,16 @@ class Colors():
 	def __init__(self):
 		self.BLACK = (255, 255, 255)
 
+grid_size = 32
+# max_x_dim = 32
+# max_y_dim = 24
+
+# max_x = grid_size * max_x_dim #1024 32*32
+# max_y = grid_size * max_y_dim #768 32*24
+
 max_x = 1024
 max_y = 768
-grid_size = 32
+
 colors = Colors()
 gridController = GridControllerFactory(
 	max_x=max_x, max_y=max_y, grid_size=grid_size, colors=colors
