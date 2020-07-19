@@ -88,7 +88,7 @@ class TemplateLoader(Loader):
         top = 162
         left = 8
 
-        output = []
+        positionKeyMap = {}
 
         # get first 3x3 of values
         tileCountInRow = 3
@@ -96,20 +96,36 @@ class TemplateLoader(Loader):
         for tile, pos in zip(tiles, coords):
             try:
                 threeByThreeMatrixKey = self._calculate_three_by_three_matrix_template_key(tile)
-                output.append( (pos, threeByThreeMatrixKey) )
+                positionKeyMap[pos] = threeByThreeMatrixKey
+
             except TemplateTileEmpty:
                 print("tile was empty!!")
                 # the template doesn't have any information for this tile (it's not in the tileset)
                 pass
+        
+        # skip down to the next 3x3 of tiles (tileCountInRow == tileCountInCol cause it's square
+        # , so using it here)
+        
+        # top += self.scaleFactor * tileCountInRow
+        # tiles, coords = self._get_n_by_n_tile_matrix(left, top, tileCountInRow)
+        # for tile, pos in zip(tiles, coords):
+        #     try:
+        #         threeByThreeMatrixKey = self._calculate_three_by_three_matrix_template_key(tile)
+        #         tile.show()
+        #         print(threeByThreeMatrixKey)
+        #         input()
+        #         positionKeyMap[pos] = threeByThreeMatrixKey
+
+        #     except TemplateTileEmpty:
+        #         print("tile was empty!!")
+        #         # the template doesn't have any information for this tile (it's not in the tileset)
+        #         pass
+
+
 
         from pprint import pprint
-        print()
-        print()
-        print()
-        print()
-        pprint(output)
-
-        return output
+        pprint(positionKeyMap)
+        return positionKeyMap
 
     '''
 exampleKey = (
@@ -134,7 +150,6 @@ exampleKey = (
 
     def _turn_color_matrix_into_key(self, tileColorMatrix):
         threeByThreeMatrixKey = []
-        # XXX this needs to be done
         for row in tileColorMatrix:
             outRow = []
             for color in row:
@@ -145,11 +160,7 @@ exampleKey = (
                     outRow.append(Same)
             threeByThreeMatrixKey.append(tuple(outRow))
         
-            
-
-
-        
-        return ((Different, Different, Different), (Same, Same, Different), (Same, Same, Different))
+        return tuple(threeByThreeMatrixKey)
 
     # works for any "n", but only used for three by three calculations
     # processing a tile in the template to generate a key for fast fetching later
