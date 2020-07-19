@@ -42,13 +42,13 @@ class Loader:
         # XXX why y before x?
         for yDim in range(startY, startY + n*self.scaleFactor, self.scaleFactor):
             for xDim in range(startX, startX + n*self.scaleFactor, self.scaleFactor):
-                tile = self._crop_and_resize_square_image(yDim, xDim)
+                tile = self._crop_and_resize_square_image(xDim, yDim)
                 tiles.append(tile)
                 coordinates.append((xDim, yDim))
 
         return tiles, coordinates
 
-    def _crop_and_resize_square_image(self, top, left):
+    def _crop_and_resize_square_image(self, left, top):
         right = left + self.tileSetGridSize
         bottom = top + self.tileSetGridSize
         box = (left, top, right, bottom)
@@ -105,7 +105,7 @@ class TemplateLoader(Loader):
         
         # skip down to the next 3x3 of tiles (tileCountInRow == tileCountInCol cause it's square
         # , so using it here)
-        
+
         # top += self.scaleFactor * tileCountInRow
         # tiles, coords = self._get_n_by_n_tile_matrix(left, top, tileCountInRow)
         # for tile, pos in zip(tiles, coords):
@@ -211,12 +211,17 @@ class TileLoader(Loader):
 
         # key: value mapping where the key is the arrangement of columns as discussed 
         # here: https://github.com/modelarious/DungeonWalker/issues/64#issuecomment-660400003
-        template_column = self._parse_template_column()
+        templateColumn = self._parse_template_column()
         
         # populate the requested tile types from the requested columns
         for tileType, columnNumber in tileTypeToColumnNumberAssignments.items():
             self.tileIndex[tileType] = {}
-            self._populate_from_column(tileType, columnNumber)
+            self._populate_from_column(tileType, columnNumber, templateColumn)
+        
+        # XXX just display the whole thing
+        for tileType, tileDictionary in self.tileIndex.items():
+            for tile in self.tileIndex[tileType].values():
+                tile.show()
     
     def _add_tile(self, tileType, tile, tileNeighborSettings):
         self.tileIndex[tileType][tileNeighborSettings] = len(self.tiles)
@@ -234,23 +239,18 @@ class TileLoader(Loader):
         return self.templateLoader.parse_template_column()
 
     # fetches the legend from the file
-    def _populate_from_column(self, tileType, columnNumber):
-
-        # XXX these could likely be member variables
-        top = 162
-        left = 8
+    def _populate_from_column(self, tileType, columnNumber, templateColumn):
 
         # move to the requested column. * 3 because the scaleFactor applies to 
         # single tiles and we need to jump over 3 of them to get to the next column.
         # therefore we need to jump over 3 * columnNumber to get to columnNumber
-        left += self.scaleFactor * 3 * columnNumber
+        scaling = self.scaleFactor * 3 * columnNumber
 
-        # get first 3x3 of values (standard pieces)
-        tiles = self._get_n_by_n_tile_matrix(left, top, 3)
-        for t, pos in zip(tiles, TileNeighborSettings):
-            self._add_tile(tileType, pos, t)
-
-        # skip down to the next 3x3 of tiles
-        top += self.scaleFactor * 3
-        # XXX fetch more advanced pieces (going to need a reflection algo for some tiles, and ability to ignore empty tiles that haven't been reflected)
-    
+        # pull out all the tiles that we found in the template, but from the current column instead, 
+        # and use the key created when building the template in order to store them. For more 
+        # info, see here: https://github.com/modelarious/DungeonWalker/issues/64#issuecomment-660400003
+        for tileOffset, threeByThreeMatrixKey in templateColumn.items():
+            x, y = tileOffset
+            thisColX = x + scaling
+            tile = self._crop_and_resize_square_image(thisColX, y)
+            self.tileIndex[tileType][threeByThreeMatrixKey] = tile
