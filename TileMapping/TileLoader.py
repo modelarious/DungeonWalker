@@ -178,8 +178,29 @@ class TileLoader(Loader):
 		self._populate_data(tileTypeToColumnNumberAssignments)
 
 	def get_tile(self, tileType, tileNeighborSettings):
-		arrayIndex = self.tileIndex[tileType][tileNeighborSettings]
+		# there are 512 arrangement of 9 elements with 2 choices 
+		# (512 arrangements of Same and Different into a 3x3 grid)
+		# but there are only ~40 tiles in the template. This means 
+		# we need to remap some keys that don't exist in our 
+		# tileset to ones that do.
+		processedTileNeighborSettings = self._possibly_remap_incoming_key_to_actual_tile(tileType, tileNeighborSettings)
+		arrayIndex = self.tileIndex[tileType][processedTileNeighborSettings]
 		return self.tiles[arrayIndex]
+	
+	def _possibly_remap_incoming_key_to_actual_tile(self, tileType, tileNeighborSettings):
+		# there are 512 arrangement of 9 elements with 2 choices 
+		# (512 arrangements of Same and Different into a 3x3 grid)
+		# but there are only ~40 tiles in the template. This means 
+		# we need to remap some keys that don't exist in our 
+		# tileset to ones that do.
+
+		# if the arrangement exists in our tileset, just use that
+		if tileNeighborSettings in self.tileIndex[tileType]:
+			return tileNeighborSettings
+		
+		# else defer to mapping function to update the key to one that exists in the tileset
+		# and will fill the correct role
+		return map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings)
 
 	# perform load of the tileset into the data structures
 	def _populate_data(self, tileTypeToColumnNumberAssignments):
@@ -232,4 +253,103 @@ class TileLoader(Loader):
 			self._add_tile(tileType, tile, threeByThreeMatrixKey)
 
 
-			
+
+
+
+def map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings):
+	upperNeighbor = tileNeighborSettings[0][1]
+	lowerNeighbor = tileNeighborSettings[2][1]
+	leftNeighbor  = tileNeighborSettings[1][0]
+	rightNeighbor = tileNeighborSettings[1][2]
+
+	print([upperNeighbor, lowerNeighbor, leftNeighbor, rightNeighbor])
+
+	buildAKey = [
+		[Same, Same, Same],
+		[Same, Same, Same],
+		[Same, Same, Same]
+	]
+
+	if rightNeighbor == Different:
+		# set the right side to Different
+		# ex:
+		# 	correctedKey = (
+  		# 		(Same, Same, Different),
+  		# 		(Same, Same, Different),
+  		# 		(Same, Same, Different)
+		# 	)
+		for row in range(len(buildAKey)):
+			buildAKey[row][-1] = Different
+		# print(buildAKey)
+	
+	if leftNeighbor == Different:
+		# set the left side to Different
+		# ex:
+		# 	correctedKey = (
+  		# 		(Different, Same, Same),
+  		# 		(Different, Same, Same),
+  		# 		(Different, Same, Same)
+		# 	)
+		for row in range(len(buildAKey)):
+			buildAKey[row][0] = Different
+		# print(buildAKey)
+	
+	if lowerNeighbor == Different:
+		# set the bottom row side to Different
+		# ex:
+		# 	correctedKey = (
+  		# 		(Same, Same, Same),
+  		# 		(Same, Same, Same),
+  		# 		(Different, Different, Different)
+		# 	)
+
+		buildAKey[-1] = [Different, Different, Different]
+	
+	if upperNeighbor == Different:
+		# set the top row side to Different
+		# ex:
+		# 	correctedKey = (
+  		# 		(Same, Same, Same),
+  		# 		(Same, Same, Same),
+  		# 		(Different, Different, Different)
+		# 	)
+
+		buildAKey[0] = [Different, Different, Different]
+		print(buildAKey)
+	
+
+	
+
+	# build-a-key
+	# if right neighbor is different, make all right tiles Different like the key below
+	# if bottom neighbor is different, make all bottom tiles Different
+	# etc...
+	# if rightNeighbor == Different:
+	# 	if all(x == Same for x in [upperNeighbor, lowerNeighbor, leftNeighbor]):
+	# 		correctedKey = (
+  	# 			(Same, Same, Different),
+  	# 			(Same, Same, Different),
+  	# 			(Same, Same, Different)
+	# 		)
+	# 		return correctedKey
+		
+	
+	# if leftNeighbor == Different:
+	# 	if all(x == Same for x in [upperNeighbor, lowerNeighbor, rightNeighbor]):
+	# 		correctedKey = (
+  	# 			(Different, Same, Same),
+  	# 			(Different, Same, Same),
+  	# 			(Different, Same, Same)
+	# 		)
+	# 		return correctedKey
+
+	print(buildAKey)
+	tupleCorrectedKey = []
+	for row in buildAKey:
+		tupleCorrectedKey.append(tuple(row))
+	print(tupleCorrectedKey)
+	print()
+	print()
+
+	return tuple(tupleCorrectedKey)
+

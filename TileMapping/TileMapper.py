@@ -40,12 +40,22 @@ class TileMapper:
             # based on the center tile, choose which tile type to use
             blockedChars = [charSet["blocked"]]
             if neighbs[1][1] in blockedChars:
+                # if the middle tile is blocked, then SAME tiles will be in blockedChars
                 existenceFunc = element_is_in
                 tileType = TileType.WALL
             else:
+                # if the middle tile is passable, then SAME tiles will NOT be in blockedChars
                 existenceFunc = element_is_not_in
                 tileType = TileType.GROUND
 
+            # build a key like the following to use to get the correct pokemon tile:
+            '''
+            exampleKey = (
+                (Different, Different, Different),
+                (Same,      Same,      Different),
+                (Same,      Same,      Different)
+            )
+            '''
             tileLoaderKey = []
             for yDim in range(len(neighbs)):
                 tileLoaderRow = []
@@ -58,46 +68,18 @@ class TileMapper:
             
             tileLoaderKey = tuple(tileLoaderKey)
 
-
-            print(point)
-            if point == (1, 5):
-                from pprint import pprint
-                print(neighbs)
-                pprint(tileLoaderKey)
-                input()
-
             # input()
-            # self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
+            self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
 
-            try:
-                self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
-            except:
-                pass
+            # try:
+            #     self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
+            # except:
+            #     pass
 
-
-
-            
-            # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
-            #     element_checker = defs_in
-            # else:
-            #     element_checker = element_is_not_in
-
-            # element_checker
-
-            # center wall piece if all surrounding pieces are blocked XXX should be handled by a centerWall class
-            # if all(neighbs[t] in blockedChars for t in neighbs.keys()):
-            #     self._tileArray[x][y] = self._tileLoader.get_tile(TileType.WALL, TilePosition.CENTER)
-            
-            # elif all(neighbs[t] not in blockedChars for t in neighbs.keys()):
-            #     self._tileArray[x][y] = 
-            # else:
-            #     self._tileArray[x][y] = self._tileLoader.get_tile(TileType., TilePosition.CENTER)
-            # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
-                # print(neighbs)
         print("done processing tileset")
     
     def get_tile_mapping(self):
-        # XXX just for now, we don't have mappings for all the tiles
+        # XXX just for now, cause we don't have mappings for all the tiles
         out = []
         for x in self._tileArray:
             for y in self._tileArray[x]:
