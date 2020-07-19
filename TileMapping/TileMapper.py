@@ -31,53 +31,50 @@ class TileMapper:
             # print(neighbs)
             # input()
 
-            # def element_is_not_in(x, arr):
-            #     return x not in arr
+            def element_is_not_in(x, arr):
+                return x not in arr
             
-            # def element_is_in(x, arr):
-            #     return x in arr
+            def element_is_in(x, arr):
+                return x in arr
 
-            # XXX
-            exampleKey = (
-                (Same, Same, Same),
-                (Same, Same, Same),
-                (Same, Same, Same)
-            )
-            
             # based on the center tile, choose which tile type to use
             blockedChars = [charSet["blocked"]]
             if neighbs[1][1] in blockedChars:
+                existenceFunc = element_is_in
                 tileType = TileType.WALL
-
-                tileLoaderKey = []
-                for yDim in range(len(neighbs)):
-                    tileLoaderRow = []
-                    for xDim in range(len(neighbs[yDim])):
-                        if neighbs[yDim][xDim] in blockedChars:
-                            tileLoaderRow.append(Same)
-                        else:
-                            tileLoaderRow.append(Different)
-                    tileLoaderKey.append(tuple(tileLoaderRow))
-                
-                exampleKey = tuple(tileLoaderKey)
-                # print(exampleKey)
-
             else:
+                existenceFunc = element_is_not_in
                 tileType = TileType.GROUND
+
+            tileLoaderKey = []
+            for yDim in range(len(neighbs)):
+                tileLoaderRow = []
+                for xDim in range(len(neighbs[yDim])):
+                    if existenceFunc(neighbs[yDim][xDim], blockedChars):
+                        tileLoaderRow.append(Same)
+                    else:
+                        tileLoaderRow.append(Different)
+                tileLoaderKey.append(tuple(tileLoaderRow))
+            
+            tileLoaderKey = tuple(tileLoaderKey)
 
 
             print(point)
             if point == (1, 5):
                 from pprint import pprint
                 print(neighbs)
-                pprint(exampleKey)
+                pprint(tileLoaderKey)
                 input()
 
             # input()
+            # self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
+
             try:
-                self._tileArray[x][y] = self._tileLoader.get_tile(tileType, exampleKey)
+                self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
             except:
                 pass
+
+
 
             
             # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
