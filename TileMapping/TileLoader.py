@@ -262,14 +262,17 @@ def map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings):
 	leftNeighbor  = tileNeighborSettings[1][0]
 	rightNeighbor = tileNeighborSettings[1][2]
 
-	print([upperNeighbor, lowerNeighbor, leftNeighbor, rightNeighbor])
-
+	# build-a-key
+	# if right neighbor is different, make all right tiles Different
+	# if bottom neighbor is different, make all bottom tiles Different
+	# etc...
 	buildAKey = [
 		[Same, Same, Same],
 		[Same, Same, Same],
 		[Same, Same, Same]
 	]
 
+	#apply all 4 of the following tests to map to a tile in the dataset
 	if rightNeighbor == Different:
 		# set the right side to Different
 		# ex:
@@ -280,7 +283,6 @@ def map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings):
 		# 	)
 		for row in range(len(buildAKey)):
 			buildAKey[row][-1] = Different
-		# print(buildAKey)
 	
 	if leftNeighbor == Different:
 		# set the left side to Different
@@ -292,7 +294,6 @@ def map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings):
 		# 	)
 		for row in range(len(buildAKey)):
 			buildAKey[row][0] = Different
-		# print(buildAKey)
 	
 	if lowerNeighbor == Different:
 		# set the bottom row side to Different
@@ -302,7 +303,6 @@ def map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings):
   		# 		(Same, Same, Same),
   		# 		(Different, Different, Different)
 		# 	)
-
 		buildAKey[-1] = [Different, Different, Different]
 	
 	if upperNeighbor == Different:
@@ -313,43 +313,12 @@ def map_key_that_doesnt_exist_in_tileset_to_one_that_does(tileNeighborSettings):
   		# 		(Same, Same, Same),
   		# 		(Different, Different, Different)
 		# 	)
-
 		buildAKey[0] = [Different, Different, Different]
-		print(buildAKey)
-	
 
-	
-
-	# build-a-key
-	# if right neighbor is different, make all right tiles Different like the key below
-	# if bottom neighbor is different, make all bottom tiles Different
-	# etc...
-	# if rightNeighbor == Different:
-	# 	if all(x == Same for x in [upperNeighbor, lowerNeighbor, leftNeighbor]):
-	# 		correctedKey = (
-  	# 			(Same, Same, Different),
-  	# 			(Same, Same, Different),
-  	# 			(Same, Same, Different)
-	# 		)
-	# 		return correctedKey
-		
-	
-	# if leftNeighbor == Different:
-	# 	if all(x == Same for x in [upperNeighbor, lowerNeighbor, rightNeighbor]):
-	# 		correctedKey = (
-  	# 			(Different, Same, Same),
-  	# 			(Different, Same, Same),
-  	# 			(Different, Same, Same)
-	# 		)
-	# 		return correctedKey
-
-	print(buildAKey)
+	# turn our 3x3 array into 3x3 tuple so it is hashable
 	tupleCorrectedKey = []
 	for row in buildAKey:
 		tupleCorrectedKey.append(tuple(row))
-	print(tupleCorrectedKey)
-	print()
-	print()
 
 	return tuple(tupleCorrectedKey)
 
