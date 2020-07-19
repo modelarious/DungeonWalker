@@ -130,11 +130,15 @@ class MapModel():
 	# 	    NeighborOffset.UPPER_LEFT_CORNER : charSet["blocked"],
 	#       NeighborOffset.UPPER_RIGHT_CORNER : charSet["blocked"]
 	#   }
-		output = {}
+		neighbors = []
 		if self.point_in_board(point):
 			x, y = point
 			# offsets = (UPPER_LEFT_CORNER, UPPER_MIDDLE, UPPER_RIGHT_CORNER) # this should be using the TilePositions, and those should be made into individual classes
 			#candidates = [offset.applyOffset(x, y) for offset in NeighborOffsets]
+
+			# build a 3x3 array (so maxRowLength = 3)
+			row = []
+			maxRowLength = 3
 			for offset in NeighborOffsets:
 				offX, offY = offset.value
 				appliedOffset = (x + offX, y + offY)
@@ -146,9 +150,15 @@ class MapModel():
 				if self.point_in_board(appliedOffset):
 					tile = self.get_tile(appliedOffset)
 				
-				output[offset] = tile
+				# track this tile
+				row.append(tile)
 
-		return output
+				# if we have filled the row, append it
+				if len(row) == maxRowLength:
+					neighbors.append(row)
+					row = []
+
+		return neighbors
 	
 	def __iter__(self):
 		return MapModelIterator(self)

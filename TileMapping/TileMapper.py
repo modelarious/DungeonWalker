@@ -29,20 +29,12 @@ class TileMapper:
             neighbs = mapModel.get_all_eight_surrounding_neighbors_and_self(point)
 
             # print(neighbs)
-            # input()
 
             # def element_is_not_in(x, arr):
             #     return x not in arr
             
             # def element_is_in(x, arr):
             #     return x in arr
-            
-            # based on the center tile, choose which tile type to use
-            blockedChars = [charSet["blocked"]]
-            if neighbs[NeighborOffsets.CENTER_MIDDLE] in blockedChars:
-                tileType = TileType.WALL
-            else:
-                tileType = TileType.GROUND
 
             # XXX
             exampleKey = (
@@ -50,8 +42,35 @@ class TileMapper:
                 (Same,      Same,      Different),
                 (Same,      Same,      Different)
             )
+            
+            # based on the center tile, choose which tile type to use
+            blockedChars = [charSet["blocked"]]
+            if neighbs[1][1] in blockedChars:
+                tileType = TileType.WALL
 
-            self._tileArray[x][y] = self._tileLoader.get_tile(tileType, exampleKey)
+                tileLoaderKey = []
+                for yDim in range(len(neighbs)):
+                    tileLoaderRow = []
+                    for xDim in range(len(neighbs[yDim])):
+                        if neighbs[xDim][yDim] in blockedChars:
+                            tileLoaderRow.append(Same)
+                        else:
+                            tileLoaderRow.append(Different)
+                    tileLoaderKey.append(tuple(tileLoaderRow))
+                
+                exampleKey = tuple(tileLoaderKey)
+                # print(exampleKey)
+
+            else:
+                tileType = TileType.GROUND
+
+
+            # input()
+            try:
+                self._tileArray[x][y] = self._tileLoader.get_tile(tileType, exampleKey)
+            except:
+                pass
+
             
             # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
             #     element_checker = defs_in
