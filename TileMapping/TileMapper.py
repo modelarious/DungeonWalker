@@ -29,6 +29,7 @@ class TileMapper:
             neighbs = mapModel.get_all_eight_surrounding_neighbors_and_self(point)
 
             # print(neighbs)
+            # input()
 
             # def element_is_not_in(x, arr):
             #     return x not in arr
@@ -38,9 +39,9 @@ class TileMapper:
 
             # XXX
             exampleKey = (
-                (Different, Different, Different),
-                (Same,      Same,      Different),
-                (Same,      Same,      Different)
+                (Same, Same, Same),
+                (Same, Same, Same),
+                (Same, Same, Same)
             )
             
             # based on the center tile, choose which tile type to use
@@ -52,7 +53,7 @@ class TileMapper:
                 for yDim in range(len(neighbs)):
                     tileLoaderRow = []
                     for xDim in range(len(neighbs[yDim])):
-                        if neighbs[xDim][yDim] in blockedChars:
+                        if neighbs[yDim][xDim] in blockedChars:
                             tileLoaderRow.append(Same)
                         else:
                             tileLoaderRow.append(Different)
@@ -64,6 +65,13 @@ class TileMapper:
             else:
                 tileType = TileType.GROUND
 
+
+            print(point)
+            if point == (1, 5):
+                from pprint import pprint
+                print(neighbs)
+                pprint(exampleKey)
+                input()
 
             # input()
             try:
