@@ -108,9 +108,9 @@ class TemplateLoader(Loader):
 		return positionKeyMap
 	'''
 exampleKey = (
-  [Different, Different, Different],
-  [Same,      Same,      Different],
-  [Same,      Same,      Different]
+  (Different, Different, Different),
+  (Same,      Same,      Different),
+  (Same,      Same,      Different)
 )
 	'''
 	def _calculate_three_by_three_matrix_template_key(self, tile):
@@ -194,10 +194,10 @@ class TileLoader(Loader):
 			self._populate_from_column(tileType, columnNumber, templateColumn)
 		
 		# XXX just display the whole thing
-		for tileType, tileDictionary in self.tileIndex.items():
-			for tile in self.tileIndex[tileType].values():
-				tile.show()
-			input()
+		# for tileType, tileDictionary in self.tileIndex.items():
+		# 	for tile in self.tileIndex[tileType].values():
+		# 		tile.show()
+		# 	input()
 	
 	def _add_tile(self, tileType, tile, tileNeighborSettings):
 		self.tileIndex[tileType][tileNeighborSettings] = len(self.tiles)
@@ -229,4 +229,7 @@ class TileLoader(Loader):
 			x, y = tileOffset
 			thisColX = x + scaling
 			tile = self._crop_and_resize_square_image(thisColX, y)
-			self.tileIndex[tileType][threeByThreeMatrixKey] = tile
+			self._add_tile(tileType, tile, threeByThreeMatrixKey)
+
+
+			

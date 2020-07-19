@@ -3,13 +3,13 @@ from settings import charSet
 from TileMapping.TileType import TileType
 from TileMapping.TilePosition import TilePosition
 
+from TileMapping.TileLoader import Same, Different
+
 class TileMapper:
     def __init__(self, tileLoader):
         self._tileLoader = tileLoader # XXX could be changed to a TileLoaderFactory later -> subclass RandomTileSetLoaderFactory that gives a random tileset
         self._tileArray = {} #pretends to be a 2d array that spans the entire map
     
-
-
     # some class that takes in the neighbors and then spits out the two keys Type and Position
 	# then you just ask the TileLoader for the associated tile
 
@@ -18,7 +18,6 @@ class TileMapper:
 	# tiles, then the Center Wall tile will call dibs).
 
 	# XXX Tile mapper asks Map Model to get neighbors, then asks tileLoader what tile to use there and stores it
-    # XXX * 2 - this is a good candidate for multi threading
     def process_board(self, mapModel):
         print("processing tileset")
         self._tileArray = {}
@@ -28,13 +27,31 @@ class TileMapper:
             if x not in self._tileArray:
                 self._tileArray[x] = {}
             neighbs = mapModel.get_all_eight_surrounding_neighbors_and_self(point)
-            def element_is_not_in(x, arr):
-                return x not in arr
-            
-            def element_is_in(x, arr):
-                return x in arr
-            blockedChars = [charSet["blocked"]]
 
+            # print(neighbs)
+            # input()
+
+            # def element_is_not_in(x, arr):
+            #     return x not in arr
+            
+            # def element_is_in(x, arr):
+            #     return x in arr
+            
+            # based on the center tile, choose which tile type to use
+            blockedChars = [charSet["blocked"]]
+            if neighbs[NeighborOffsets.CENTER_MIDDLE] in blockedChars:
+                tileType = TileType.WALL
+            else:
+                tileType = TileType.GROUND
+
+            # XXX
+            exampleKey = (
+                (Different, Different, Different),
+                (Same,      Same,      Different),
+                (Same,      Same,      Different)
+            )
+
+            self._tileArray[x][y] = self._tileLoader.get_tile(tileType, exampleKey)
             
             # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
             #     element_checker = defs_in
@@ -44,11 +61,11 @@ class TileMapper:
             # element_checker
 
             # center wall piece if all surrounding pieces are blocked XXX should be handled by a centerWall class
-            if all(neighbs[t] in blockedChars for t in neighbs.keys()):
-                self._tileArray[x][y] = self._tileLoader.get_tile(TileType.WALL, TilePosition.CENTER)
+            # if all(neighbs[t] in blockedChars for t in neighbs.keys()):
+            #     self._tileArray[x][y] = self._tileLoader.get_tile(TileType.WALL, TilePosition.CENTER)
             
-            elif all(neighbs[t] not in blockedChars for t in neighbs.keys()):
-                self._tileArray[x][y] = self._tileLoader.get_tile(TileType.GROUND, TilePosition.CENTER)
+            # elif all(neighbs[t] not in blockedChars for t in neighbs.keys()):
+            #     self._tileArray[x][y] = 
             # else:
             #     self._tileArray[x][y] = self._tileLoader.get_tile(TileType., TilePosition.CENTER)
             # if neighbs[NeighborOffsets.CENTER_MIDDLE] != charSet["blocked"]:
