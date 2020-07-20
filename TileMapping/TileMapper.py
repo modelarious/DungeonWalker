@@ -1,43 +1,34 @@
 from models.MapModel import NeighborOffsets
 from settings import charSet
 from TileMapping.TileType import TileType
-from TileMapping.TilePosition import TilePosition
-
 from TileMapping.TileLoader import Same, Different
+
+def element_is_not_in(x, arr):
+    return x not in arr
+
+def element_is_in(x, arr):
+    return x in arr
 
 class TileMapper:
     def __init__(self, tileLoader):
         self._tileLoader = tileLoader # XXX could be changed to a TileLoaderFactory later -> subclass RandomTileSetLoaderFactory that gives a random tileset
-        self._tileArray = {} #pretends to be a 2d array that spans the entire map
+        self._pointToTileMap = {} # mapping of (x, y) to the tile that should be in that space XXX that's not true
     
-    # some class that takes in the neighbors and then spits out the two keys Type and Position
-	# then you just ask the TileLoader for the associated tile
-
-	# XXX NO!!! ASk the TileLoader to figure it out for you, it will ask each tile if that arrangement
-	# of blocks corresponds to them (so when the given tile is completely surrounded by blocked
-	# tiles, then the Center Wall tile will call dibs).
-
-	# XXX Tile mapper asks Map Model to get neighbors, then asks tileLoader what tile to use there and stores it
+	# Tile mapper asks Map Model to get neighbors, then builds a key up of 
+    # similar neighbors and neighbors that are different, then asks 
+    # tileLoader what tile to use there and stores it for later retrieval
     def process_board(self, mapModel):
         print("processing tileset")
-        self._tileArray = {}
+
+        self._pointToTileMap = {} 
         for point in mapModel:
             
             x, y = point
-            if x not in self._tileArray:
-                self._tileArray[x] = {}
             neighbs = mapModel.get_all_eight_surrounding_neighbors_and_self(point)
 
-            # print(neighbs)
-            # input()
-
-            def element_is_not_in(x, arr):
-                return x not in arr
-            
-            def element_is_in(x, arr):
-                return x in arr
-
             # based on the center tile, choose which tile type to use
+            # XXX begging for objects to encompass this config and the
+            # key building process
             blockedChars = [charSet["blocked"]]
             if neighbs[1][1] in blockedChars:
                 # if the middle tile is blocked, then SAME tiles will be in blockedChars
@@ -68,94 +59,15 @@ class TileMapper:
             
             tileLoaderKey = tuple(tileLoaderKey)
 
-            # input()
-            self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
-
-            # try:
-            #     self._tileArray[x][y] = self._tileLoader.get_tile(tileType, tileLoaderKey)
-            # except:
-            #     pass
+            self._pointToTileMap[(x,y)] = self._tileLoader.get_tile(tileType, tileLoaderKey)
 
         print("done processing tileset")
     
     def get_tile_mapping(self):
-        # XXX just for now, cause we don't have mappings for all the tiles
-        out = []
-        for x in self._tileArray:
-            for y in self._tileArray[x]:
-                out.append( ((x, y), self._tileArray[x][y]) )
-        return out
-
-
-
-
-
-# def crop(infile,height,width):
-#     im = Image.open(infile)
-#     imgwidth, imgheight = im.size
-#     for i in range(imgheight//height):
-#         for j in range(imgwidth//width):
-#             box = (j*width, i*height, (j+1)*width, (i+1)*height)
-#             yield im.crop(box)
-
-# def get_stairs_one(image):
-#     top = 387
-#     left = 13
-#     grid_size = 24
-#     return crop_and_resize_square_image(image, top, left, grid_size)
-
-# def get_stairs_two(image):
-#     top = 387
-#     left = 13
-#     grid_size = 24
-#     return crop_and_resize_square_image(image, top, left, grid_size)
-
-
-
-from TileMapping.TileType import TileType
-from TileMapping.TilePosition import TilePosition
-from PIL import Image
-import pygame
-from TileMapping.TileLoader import TileLoader
-
-
-if __name__ == "__main__":
-
-    infile2 = "assets/tilesets/world abyss.png"
-    with Image.open(infile2) as i:
-        tileTypeToColumnNumberAssignments = {
-            TileType.WALL: 1,
-            TileType.GROUND: 4
-        }
-        tileLoader = TileLoader(i, tileTypeToColumnNumberAssignments)
-
-        game_screen = pygame.display.set_mode((1024, 768))
-        while True:
-            for event in pygame.event.get():
-                tt = TileType.GROUND
-                x = 0
-                y = 0
-
-                for tp in TilePosition:
-                    t = tileLoader.get_tile(tt, tp)
-                    game_screen.blit(t, (x, y))
-                    if x == 64:
-                        x = 0
-                        y += 32
-                    else:
-                        x += 32
-
-                pygame.display.flip()
-
-
-# get tile should take a Type and a Position:
-# Type: GROUND, WALL, etc
-# Position: UPPER_LEFT_CORNER, CENTER, etc...
-# then these can be constants and you can dynamically populate the tile manager using them
-# to makes sure that the contents of the tile manager line up with the constants you'll use to access it
+        return self._pointToTileMap.items()
 
 # going to need two objects at least:
-# - object that handles loading all the tiles from a tileset file
+# - object that handles loading all the tiles from a tileset file -> TileLoader
 # - object that handles reading in the map, mapping the correct tiles to the 
-#   right positions and holding that result in a 2d array, of which a 2x2 
-#   box of tiles can be selected to be returned (step towards the camera feature)
+#   right positions and holding that result in a 2d array, of which a XXX 2x2 
+#   box of tiles can be selected to be returned (step towards the camera feature) -> TileMapper
