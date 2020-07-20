@@ -30,13 +30,13 @@ class MapControllerFactory(FactoryBaseClass):
 
 		# XXX this is a lot of baggage for one factory
 		# and a lot is related to tile mapping, so make that into a separate factory
-		infile2 = "assets/tilesets/world abyss.png"
+		infile2 = "assets/tilesets/test_dungeon.png"
 		with Image.open(infile2) as im:
 
 			# this could be changed to an array of objects that contain a tileType and a column number
 			tileTypeToColumnNumberAssignments = {
 				TileType.WALL: 1,
-				TileType.GROUND: 4
+				TileType.GROUND: 3
 			}
 			templateLoader = TemplateLoader(im, self._grid_size)
 			tileLoader = TileLoader(im, self._grid_size, tileTypeToColumnNumberAssignments, templateLoader)

@@ -71,15 +71,6 @@ class MapModel():
 		except IndexError:
 			return False
 	
-	# print the board to the screen (used to quickly verify the view)
-	# XXX can be removed if you don't want to see the board output on the terminal
-	def draw_board(self):
-		for row in self._board:
-			row = list(map(lambda a : a.get_char(), row))
-			print("".join(row).replace(charSet["pathTemp"].get_char(), charSet["passable"].get_char())
-				.replace(charSet["anchor"].get_char(), charSet["passable"].get_char()))
-		print()
-	
 	def get_width(self):
 		return copy(self.width)
 	
@@ -104,6 +95,10 @@ class MapModel():
 		s_x, s_y = start_pos
 		p_x, p_y = prospective_pos
 
+		# reject moves that put the player off the board
+		if not self.point_in_board(prospective_pos):
+			return False
+
 		# if the prospective move is more than one space away from current position, reject
 		if abs(s_x - p_x) > 1 or abs(s_y - p_y) > 1:
 			return False
@@ -119,37 +114,39 @@ class MapModel():
 			x, y = point
 			offsets = (NeighborOffsets.CENTER_LEFT, NeighborOffsets.CENTER_RIGHT, NeighborOffsets.UPPER_MIDDLE, NeighborOffsets.BOTTOM_MIDDLE)
 			offsets = [o.value for o in offsets]
-			candidates = [(x + offX, y + offY) for offX, offY in offsets]
-			candidates = list(filter(self.point_in_board, candidates))
-			return candidates
+			candidateNeighbors = [(x + offX, y + offY) for offX, offY in offsets]
+			neighborsWithinBoard = list(filter(self.point_in_board, candidateNeighbors))
+			return neighborsWithinBoard
 
 		return []
 	
 	def get_all_eight_surrounding_neighbors_and_self(self, point):
-	#   output = {
-	# 	    NeighborOffset.UPPER_LEFT_CORNER : charSet["blocked"],
-	#       NeighborOffset.UPPER_RIGHT_CORNER : charSet["blocked"]
-	#   }
+		# 3x3 matrix of tiles with `point` at the center
+		#neighbors = [
+		#	[charSet["blocked"], charSet["blocked"], charSet["blocked"]],
+		#	[charSet["blocked"], charSet["blocked"], charSet["blocked"]],
+		#	[charSet["blocked"], charSet["blocked"], charSet["blocked"]]
+		#]
 		neighbors = []
 		if self.point_in_board(point):
 			x, y = point
-			# offsets = (UPPER_LEFT_CORNER, UPPER_MIDDLE, UPPER_RIGHT_CORNER) # this should be using the TilePositions, and those should be made into individual classes
-			#candidates = [offset.applyOffset(x, y) for offset in NeighborOffsets]
 
 			# build a 3x3 array (so maxRowLength = 3)
 			row = []
 			maxRowLength = 3
 			for offset in NeighborOffsets:
+
+				# offset from center tile
 				offX, offY = offset.value
 				appliedOffset = (x + offX, y + offY)
 
-				# default is blocked, unless the space is on the board
-				tile = charSet["blocked"] # XXX anywhere you use charSet["blocked"] to indicate that a space should not be useable (or check for charSet[blocked]), you should instead call a function that determines if the space is blocked or not (that way you can add other types of blocked spaces in the future if you want to)
-
-				# if the point is on the board, update the tile value from default (blocked)
+				# default is blocked tile. This way tiles that are off the board are considered blocked.
+				# If the tile is on the board, get the actual tile instead
 				if self.point_in_board(appliedOffset):
 					tile = self.get_tile(appliedOffset)
-				
+				else:
+					tile = charSet["blocked"]
+
 				# track this tile
 				row.append(tile)
 
@@ -163,13 +160,7 @@ class MapModel():
 	def __iter__(self):
 		return MapModelIterator(self)
 
-
-
-
-#generates all points inside the map and returns a tuple each time it's called:
-#(point, tile) -> ((x, y), tile)
-# XXX clean this up, it currently does (x, y) until we prove it needs to do otherwise
-# XXX so rename some functions
+#generates all points inside the map and returns a point tuple each time it's called
 class MapModelIterator:
 	def __init__(self, mapModel):
 		self._mapModel = mapModel
@@ -177,32 +168,20 @@ class MapModelIterator:
 		# data store for tuples of form (x, y)
 		self._points = []
 
-		# data store for tuples of form ((x, y), tile)
-		# self._pointTilePairs = []
-
 		# index into the data store array
 		self._index = 0
 
-		self._populate_point_tile_pairs()
+		self._populate_points()
 	
-	def _populate_point_tile_pairs(self):
+	def _populate_points(self):
 		for x in range(self._mapModel.get_width()):
 			for y in range(self._mapModel.get_height()):
-				# point = (x, y)
-				# tile = self._mapModel.get_tile(point)
-				# self._pointTilePairs.append( (point, tile) )
 				self._points.append((x, y))
 
-	# returns the next (point, tile) tuple
+	# returns the next point tuple (x, y)
 	def __next__(self):
-		# if self._index >= len(self._pointTilePairs):
-		# 	raise StopIteration
 		if self._index >= len(self._points):
 			raise StopIteration
-
-		# pointTilePair = self._pointTilePairs[self._index]
-		# self._index += 1
-		# return pointTilePair
 
 		point = self._points[self._index]
 		self._index += 1

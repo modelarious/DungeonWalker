@@ -178,7 +178,7 @@ class TileLoader(Loader):
 		self._populate_data(tileTypeToColumnNumberAssignments)
 
 	def get_tile(self, tileType, tileNeighborSettings):
-		# there are 512 arrangement of 9 elements with 2 choices 
+		# there are 512 arrangement of 9 spaces with 2 choices for each space
 		# (512 arrangements of Same and Different into a 3x3 grid)
 		# but there are only ~40 tiles in the template. This means 
 		# we need to remap some keys that don't exist in our 
@@ -188,7 +188,7 @@ class TileLoader(Loader):
 		return self.tiles[arrayIndex]
 	
 	def _possibly_remap_incoming_key_to_actual_tile(self, tileType, tileNeighborSettings):
-		# there are 512 arrangement of 9 elements with 2 choices 
+		# there are 512 arrangement of 9 spaces with 2 choices for each space
 		# (512 arrangements of Same and Different into a 3x3 grid)
 		# but there are only ~40 tiles in the template. This means 
 		# we need to remap some keys that don't exist in our 
