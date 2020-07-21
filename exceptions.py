@@ -21,3 +21,7 @@ class BoardTooSmall(Exception):
 #thrown when a point is outside the board
 class PointOutsideBoard(Exception):
 	pass
+
+# thrown when the LegendLoader tries to load from a template tile that has no associated data
+class LegendTileEmpty(Exception):
+	pass

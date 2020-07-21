@@ -1,5 +1,6 @@
 from TileMapping.TileMapper import TileMapper
-from TileMapping.TileLoader import LegendLoader, TileLoader
+from TileMapping.TileLoading.LegendLoader import LegendLoader
+from TileMapping.TileLoading.TileLoader import TileLoader
 from TileMapping.TileType import TileType
 from views.TileMappedView import TileMappedView
 from PIL import Image

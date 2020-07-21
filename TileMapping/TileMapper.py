@@ -1,7 +1,7 @@
 from models.MapModel import NeighborOffsets
 from settings import charSet
 from TileMapping.TileType import TileType
-from TileMapping.TileLoader import Same, Different
+from TileMapping.TileLoading.TileSimilarity import Same, Different
 
 def element_is_not_in(x, arr):
     return x not in arr
