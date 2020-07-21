@@ -1,26 +1,8 @@
 from TileMapping.TileType import TileType
-from TileMapping.TilePosition import TilePosition
 import pygame
 from PIL import Image
 
-# XXX remove
-class TileContainer:
-	''' 
-	keep associated pieces of data together, and make it less brittle to 
-	change parts of the code that return this class 
-	'''
-	def __init__(self):
-		self.tiles = []
-		self.coords = []
-	
-	def add_tile(self, tile, coord):
-		self.tiles.append(tile)
-		self.coords.append(coord)
-	
-	def get_tiles_and_coords(self):
-		return self.tiles, self.coords
-
-class Loader:
+class LoaderBaseClass:
 	''' shared tools that can be used by any class that loads from a tileset image '''
 	def __init__(self, tilesetImage, gameGridSize):
 		# useful local constants
@@ -69,41 +51,42 @@ class Colors(Enum):
 	BLACK=(1, 1, 1)
 	WHITE=(254, 254, 254)
 
-class TemplateTileEmpty(Exception):
+class LegendTileEmpty(Exception):
 	pass
 
 Different = TileSimilarity.Different
 Same = TileSimilarity.Same
 
-class TemplateLoader(Loader):
+class LegendLoader(LoaderBaseClass):
+	
 	def __init__(self, tilesetImage, gameGridSize):
 		super().__init__(tilesetImage, gameGridSize)
 
-		#we don't want to resize the tiles to fit the grid when loading the template
+		#we don't want to resize the tiles to fit the grid when loading the legend
 		# XXX the fact that we have to blindly do this feels like bad design. Make 
 		# the _get_n_by_n_tile_matrix() function take a resize factor and then you 
 		# won't have to overwrite this here
 		self.gameGridSize = self.tileSetGridSize
 
-	def parse_template_column(self):
+	def parse_legend_column(self):
 		# XXX these could likely be member variables
 		top = 162
 		left = 8
 
 		positionKeyMap = {}
 
-		# get template column (3x24)
+		# get legend column (3x24)
 		tileCountInRow = 3
 		tileCountInColumn = 24
 		tiles, coords = self._get_n_by_m_tile_matrix(left, top, tileCountInRow, tileCountInColumn)
 		for tile, pos in zip(tiles, coords):
 			try:
-				threeByThreeMatrixKey = self._calculate_three_by_three_matrix_template_key(tile)
+				threeByThreeMatrixKey = self._calculate_three_by_three_matrix_legend_key(tile)
 				positionKeyMap[pos] = threeByThreeMatrixKey
 
-			except TemplateTileEmpty:
+			except LegendTileEmpty:
 				print("tile was empty!!")
-				# the template doesn't have any information for this tile (it's not in the tileset)
+				# the legend doesn't have any information for this tile (it's not in the tileset)
 
 		return positionKeyMap
 	'''
@@ -113,13 +96,13 @@ exampleKey = (
   (Same,      Same,      Different)
 )
 	'''
-	def _calculate_three_by_three_matrix_template_key(self, tile):
+	def _calculate_three_by_three_matrix_legend_key(self, tile):
 		tileColorMatrix = self._get_tile_color_three_by_three_matrix(tile)
 
-		# If center tile in 3x3 2d array is not white, raise TemplateTileEmpty.
-		# This is because this tile in the template is unused by the image file.
+		# If center tile in 3x3 2d array is not white, raise LegendTileEmpty.
+		# This is because this tile in the legend is unused by the image file.
 		if tileColorMatrix[1][1] != Colors.WHITE.value:
-			raise TemplateTileEmpty
+			raise LegendTileEmpty
 
 		threeByThreeMatrixKey = self._turn_color_matrix_into_key(tileColorMatrix)
 		return threeByThreeMatrixKey
@@ -129,7 +112,7 @@ exampleKey = (
 		for row in tileColorMatrix:
 			outRow = []
 			for color in row:
-				# if the space was different from the center space in the template, it will be teal
+				# if the space was different from the center space in the legend, it will be teal
 				if color == Colors.TEAL.value:
 					outRow.append(Different)
 				else:
@@ -139,15 +122,15 @@ exampleKey = (
 		return tuple(threeByThreeMatrixKey)
 
 	# works for any "n", but only used for three by three calculations
-	# processing a tile in the template to generate a key for fast fetching later
+	# processing a tile in the legend to generate a key for fast fetching later
 	def _get_tile_color_three_by_three_matrix(self, tile):
 		tileCountInRow=3
 
 		rgbTile = tile.convert('RGB')
 
-		innerTemplateTileSize = int(self.tileSetGridSize / tileCountInRow)
-		firstInnerTileCenter = int(innerTemplateTileSize - 0.5 * innerTemplateTileSize)
-		scaleFactor = innerTemplateTileSize # jump this many pixels to get to the center of the next tile
+		innerLegendTileSize = int(self.tileSetGridSize / tileCountInRow)
+		firstInnerTileCenter = int(innerLegendTileSize - 0.5 * innerLegendTileSize)
+		scaleFactor = innerLegendTileSize # jump this many pixels to get to the center of the next tile
 
 		tileColorMatrix = []
 		# example, get 3x3 -> range to startY + 3*scaleFactor because we are grabbing 3 squares starting from startY
@@ -165,14 +148,14 @@ exampleKey = (
 
 # images are not hashable because they are mutable, so this is my solution that allows a hashmap
 # to index an array of tiles instead
-class TileLoader(Loader):
-	def __init__(self, tilesetImage, gameGridSize, tileTypeToColumnNumberAssignments, templateLoader):
+class TileLoader(LoaderBaseClass):
+	def __init__(self, tilesetImage, gameGridSize, tileTypeToColumnNumberAssignments, legendLoader):
 		super().__init__(tilesetImage, gameGridSize)
 		# data structure
 		self.tiles = []
 		self.tileIndex = {} # string -> index_to_tiles_array
 
-		self.templateLoader = templateLoader
+		self.legendLoader = legendLoader
 
 		# perform load of the tileset into the data structures
 		self._populate_data(tileTypeToColumnNumberAssignments)
@@ -180,7 +163,7 @@ class TileLoader(Loader):
 	def get_tile(self, tileType, tileNeighborSettings):
 		# there are 512 arrangement of 9 spaces with 2 choices for each space
 		# (512 arrangements of Same and Different into a 3x3 grid)
-		# but there are only ~40 tiles in the template. This means 
+		# but there are only ~40 tiles in the legend. This means 
 		# we need to remap some keys that don't exist in our 
 		# tileset to ones that do.
 		processedTileNeighborSettings = self._possibly_remap_incoming_key_to_actual_tile(tileType, tileNeighborSettings)
@@ -190,7 +173,7 @@ class TileLoader(Loader):
 	def _possibly_remap_incoming_key_to_actual_tile(self, tileType, tileNeighborSettings):
 		# there are 512 arrangement of 9 spaces with 2 choices for each space
 		# (512 arrangements of Same and Different into a 3x3 grid)
-		# but there are only ~40 tiles in the template. This means 
+		# but there are only ~40 tiles in the legend. This means 
 		# we need to remap some keys that don't exist in our 
 		# tileset to ones that do.
 
@@ -207,12 +190,12 @@ class TileLoader(Loader):
 
 		# key: value mapping where the key is the arrangement of columns as discussed 
 		# here: https://github.com/modelarious/DungeonWalker/issues/64#issuecomment-660400003
-		templateColumn = self._parse_template_column()
+		legendColumn = self._parse_legend_column()
 		
 		# populate the requested tile types from the requested columns
 		for tileType, columnNumber in tileTypeToColumnNumberAssignments.items():
 			self.tileIndex[tileType] = {}
-			self._populate_from_column(tileType, columnNumber, templateColumn)
+			self._populate_from_column(tileType, columnNumber, legendColumn)
 		
 		# XXX just display the whole thing
 		# for tileType, tileDictionary in self.tileIndex.items():
@@ -232,21 +215,21 @@ class TileLoader(Loader):
 		pygameTile = pygame.image.fromstring(rawBytesTile, tile.size, strFormat)
 		return pygameTile
 	
-	def _parse_template_column(self):
-		return self.templateLoader.parse_template_column()
+	def _parse_legend_column(self):
+		return self.legendLoader.parse_legend_column()
 
 	# fetches the legend from the file
-	def _populate_from_column(self, tileType, columnNumber, templateColumn):
+	def _populate_from_column(self, tileType, columnNumber, legendColumn):
 
 		# move to the requested column. * 3 because the scaleFactor applies to 
 		# single tiles and we need to jump over 3 of them to get to the next column.
 		# therefore we need to jump over 3 * columnNumber to get to columnNumber
 		scaling = self.scaleFactor * 3 * columnNumber
 
-		# pull out all the tiles that we found in the template, but from the current column instead, 
-		# and use the key created when building the template in order to store them. For more 
+		# pull out all the tiles that we found in the legend, but from the current column instead, 
+		# and use the key created when building the legend in order to store them. For more 
 		# info, see here: https://github.com/modelarious/DungeonWalker/issues/64#issuecomment-660400003
-		for tileOffset, threeByThreeMatrixKey in templateColumn.items():
+		for tileOffset, threeByThreeMatrixKey in legendColumn.items():
 			x, y = tileOffset
 			thisColX = x + scaling
 			tile = self._crop_and_resize_square_image(thisColX, y)

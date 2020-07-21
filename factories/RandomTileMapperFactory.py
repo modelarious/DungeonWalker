@@ -1,5 +1,5 @@
 from TileMapping.TileMapper import TileMapper
-from TileMapping.TileLoader import TemplateLoader, TileLoader
+from TileMapping.TileLoader import LegendLoader, TileLoader
 from TileMapping.TileType import TileType
 from views.TileMappedView import TileMappedView
 from PIL import Image
@@ -41,8 +41,8 @@ class RandomTileMapperFactory:
 
 		# XXX might be nice to encapsulate the next three lines in another factory
 		with Image.open(infile) as im:
-			templateLoader = TemplateLoader(im, self.gridSize)
-			tileLoader = TileLoader(im, self.gridSize, tileTypeToColumnNumberAssignments, templateLoader)
+			legendLoader = LegendLoader(im, self.gridSize)
+			tileLoader = TileLoader(im, self.gridSize, tileTypeToColumnNumberAssignments, legendLoader)
 
 		tileMapper = TileMapper(tileLoader)
 		tileMapper.process_board(self.mapModel)
