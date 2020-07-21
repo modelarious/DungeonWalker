@@ -5,7 +5,7 @@ from random import randint, seed
 from exceptions import RoomCollision
 
 class RandomMapGenerationDriver(MapGenerationDriverBaseClass):
-    def __init__(self, width, height, mapGeneratorEngine, randomnessSeed=None):
+    def __init__(self, width, height, mapGeneratorEngine, randomnessSeed=None): # 11661
         super().__init__(width, height, mapGeneratorEngine)
         if randomnessSeed == None:
             self.randomnessSeed = randint(0, 100000)
