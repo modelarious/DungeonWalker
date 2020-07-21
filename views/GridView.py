@@ -11,5 +11,6 @@ class GridView(ViewBaseClass):
 			pygame.draw.line(game_screen, self.colors.BLACK, start_point, end_point)
 		
 	def updateView(self, game_screen, gridModel):
-		self._drawLines(game_screen, gridModel.horizontal_lines)
-		self._drawLines(game_screen, gridModel.vertical_lines)
+		# self._drawLines(game_screen, gridModel.horizontal_lines)
+		# self._drawLines(game_screen, gridModel.vertical_lines)
+		pass

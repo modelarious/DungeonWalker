@@ -12,7 +12,7 @@ class LoaderBaseClass:
 		self.border = 1 # there is a 1 pixel border around each of the individual square tiles in the image. This border is shared (so the right border of one tile is the left border of the adjacent tile)
 		self.scaleFactor = self.tileSetGridSize + self.border # so to jump to the next tile, you need to move the tile width (tileSetGridSize) + the size of the shared border (border)
 
-	def _get_n_by_m_tile_matrix(self, leftX, topY, tileCountInRow, tileCountInColumn):
+	def _get_n_by_m_tile_matrix(self, leftX, topY, tileCountInRow, tileCountInColumn, resizeFactor):
 
 		# ignores the border on the left and top
 		startX = leftX + self.border
@@ -23,13 +23,13 @@ class LoaderBaseClass:
 		# example, get 3x3 -> range to startY + 3*scaleFactor because we are grabbing 3 squares starting from startY
 		for yDim in range(startY, startY + tileCountInColumn*self.scaleFactor, self.scaleFactor):
 			for xDim in range(startX, startX + tileCountInRow*self.scaleFactor, self.scaleFactor):
-				tile = self._crop_and_resize_square_image(xDim, yDim)
+				tile = self._crop_and_resize_square_image(xDim, yDim, resizeFactor)
 				tiles.append(tile)
 				coordinates.append((xDim, yDim))
 
 		return tiles, coordinates
 
-	def _crop_and_resize_square_image(self, leftX, topY):
+	def _crop_and_resize_square_image(self, leftX, topY, resizeFactor):
 		# crop image
 		rightX = leftX + self.tileSetGridSize
 		bottomY = topY + self.tileSetGridSize
@@ -37,8 +37,7 @@ class LoaderBaseClass:
 		cropped = self.image.crop(box)
 
 		# resize cropped image
-		desiredSize = (self.gameGridSize, self.gameGridSize)
-		resized = cropped.resize(desiredSize)
+		resized = cropped.resize(resizeFactor)
 		return resized
 
 from enum import Enum
@@ -58,35 +57,39 @@ Different = TileSimilarity.Different
 Same = TileSimilarity.Same
 
 class LegendLoader(LoaderBaseClass):
-	
-	def __init__(self, tilesetImage, gameGridSize):
-		super().__init__(tilesetImage, gameGridSize)
-
-		#we don't want to resize the tiles to fit the grid when loading the legend
-		# XXX the fact that we have to blindly do this feels like bad design. Make 
-		# the _get_n_by_n_tile_matrix() function take a resize factor and then you 
-		# won't have to overwrite this here
-		self.gameGridSize = self.tileSetGridSize
-
 	def parse_legend_column(self):
-		# XXX these could likely be member variables
+		# Starting pixel of the tiles in the legend.
+		# Same for all pokemon tileset image files
 		top = 162
 		left = 8
-
-		positionKeyMap = {}
 
 		# get legend column (3x24)
 		tileCountInRow = 3
 		tileCountInColumn = 24
-		tiles, coords = self._get_n_by_m_tile_matrix(left, top, tileCountInRow, tileCountInColumn)
+
+		# data structure (x, y) -> 3x3 matrix of TileSimilarity
+		'''
+		exampleKey = (
+  			(Different, Different, Different),
+  			(Same,      Same,      Different),
+  			(Same,      Same,      Different)
+		)
+		'''
+		# you can add an offset to the (x, y) to grab a related tile from another column
+		# and the key will allow us to map the mapModel to the pokemon tiles
+		positionKeyMap = {}
+
+		# no resize.  This is the original gridsize of the image we are loading from
+		resizeFactor = (self.tileSetGridSize, self.tileSetGridSize)
+		tiles, coords = self._get_n_by_m_tile_matrix(left, top, tileCountInRow, tileCountInColumn, resizeFactor)
 		for tile, pos in zip(tiles, coords):
 			try:
 				threeByThreeMatrixKey = self._calculate_three_by_three_matrix_legend_key(tile)
 				positionKeyMap[pos] = threeByThreeMatrixKey
 
 			except LegendTileEmpty:
-				print("tile was empty!!")
-				# the legend doesn't have any information for this tile (it's not in the tileset)
+				pass
+				# the legend doesn't have any information for this tile (this position is not in the tileset)
 
 		return positionKeyMap
 	'''
@@ -107,6 +110,8 @@ exampleKey = (
 		threeByThreeMatrixKey = self._turn_color_matrix_into_key(tileColorMatrix)
 		return threeByThreeMatrixKey
 
+	# XXX consider doing the get_tile_color and this step all in one (ie get tileColor, map it to Different or Same)
+	# XXX raise an exception if tileColorMatrix[1][1] != Colors.WHITE.value
 	def _turn_color_matrix_into_key(self, tileColorMatrix):
 		threeByThreeMatrixKey = []
 		for row in tileColorMatrix:
@@ -196,12 +201,6 @@ class TileLoader(LoaderBaseClass):
 		for tileType, columnNumber in tileTypeToColumnNumberAssignments.items():
 			self.tileIndex[tileType] = {}
 			self._populate_from_column(tileType, columnNumber, legendColumn)
-		
-		# XXX just display the whole thing
-		# for tileType, tileDictionary in self.tileIndex.items():
-		# 	for tile in self.tileIndex[tileType].values():
-		# 		tile.show()
-		# 	input()
 	
 	def _add_tile(self, tileType, tile, tileNeighborSettings):
 		self.tileIndex[tileType][tileNeighborSettings] = len(self.tiles)
@@ -232,7 +231,9 @@ class TileLoader(LoaderBaseClass):
 		for tileOffset, threeByThreeMatrixKey in legendColumn.items():
 			x, y = tileOffset
 			thisColX = x + scaling
-			tile = self._crop_and_resize_square_image(thisColX, y)
+			# resize to fit the game grid
+			resizeFactor = (self.gameGridSize, self.gameGridSize)
+			tile = self._crop_and_resize_square_image(thisColX, y, resizeFactor)
 			self._add_tile(tileType, tile, threeByThreeMatrixKey)
 
 
