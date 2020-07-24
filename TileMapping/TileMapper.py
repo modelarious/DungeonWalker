@@ -10,9 +10,10 @@ def element_is_in(x, arr):
     return x in arr
 
 class TileMapper:
-    def __init__(self, tileLoader):
+    def __init__(self, tileLoader, stairLoader):
         self._tileLoader = tileLoader # XXX could be changed to a TileLoaderFactory later -> subclass RandomTileSetLoaderFactory that gives a random tileset
-        self._pointToTileMap = {} # mapping of (x, y) to the tile that should be in that space XXX that's not true
+        self._stairLoader = stairLoader 
+        self._pointToTileMap = {} # mapping of (x, y) to the tile that should be in that space
     
 	# Tile mapper asks Map Model to get neighbors, then builds a key up of 
     # similar neighbors and neighbors that are different, then asks 
@@ -61,6 +62,10 @@ class TileMapper:
 
             self._pointToTileMap[(x,y)] = self._tileLoader.get_tile(tileType, tileLoaderKey)
 
+
+        # add stairs on the goal space
+        pt = mapModel.get_goal_space_coords()
+        self._pointToTileMap[pt] = self._stairLoader.get_stairs()
         print("done processing tileset")
     
     def get_tile_mapping(self):
