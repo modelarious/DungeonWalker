@@ -2,6 +2,7 @@ from TileMapping.TileMapper import TileMapper
 from TileMapping.TileLoading.LegendLoader import LegendLoader
 from TileMapping.TileLoading.TileLoader import TileLoader
 from TileMapping.TileType import TileType
+from TileMapping.TileLoading.StairLoader import StairLoader
 from views.TileMappedView import TileMappedView
 from PIL import Image
 from random import choice
@@ -45,7 +46,13 @@ class RandomTileMapperFactory:
 			legendLoader = LegendLoader(im, self.gridSize)
 			tileLoader = TileLoader(im, self.gridSize, tileTypeToColumnNumberAssignments, legendLoader)
 
-		tileMapper = TileMapper(tileLoader)
+		stairsFile = "assets/tilesets/stairs.png"
+		with Image.open(stairsFile) as im:
+			stairLoader = StairLoader(im, self.gridSize)
+			stairLoader.process_stairs() # XXX should probably happen on init, because you need to load data while the image file is open 
+			#XXX maybe rethink how these classes use their image files.... not great that they can only use them when they're open here
+
+		tileMapper = TileMapper(tileLoader, stairLoader)
 		tileMapper.process_board(self.mapModel)
 		tileMapperView = TileMappedView(self.gridSize, tileMapper)
 		return tileMapper, tileMapperView
