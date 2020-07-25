@@ -11,7 +11,7 @@ class Colors():
 	def __init__(self):
 		self.BLACK = (255, 255, 255)
 
-grid_size = 32
+grid_size = 8
 # max_x_dim = 32
 # max_y_dim = 24
 

@@ -3,6 +3,7 @@ from controllers.mvc.CharacterController import CharacterController
 from helpers.Direction import Left, Right, Up, Down, NullMove
 
 from random import shuffle
+from helpers.ManhattenDistance import manhatten_distance
 
 # type hints
 from controllers.mvc.MapController import MapController
@@ -23,11 +24,21 @@ class EnemyController(CharacterController):
 		self.playerController = playerController
 
 	def update_position(self, preventedPositions):
-		directions = [Right(), Left(), Up(), Down()]#, NullMove()]
+		directions = [Right(), Left(), Up(), Down(), NullMove()]
 		shuffle(directions)
+
+		playerPosition = self.playerController.get_pos()
+		minDistToPlayer = 500
+		selectedMovement = None
 		for move in directions:
 			if self.movement_valid(move) and not self.movement_prevented(move, preventedPositions):
-				self._characterModel.move(move)
-				return True
+				distToPlayer = manhatten_distance(*playerPosition, *self._characterModel.get_speculative_position(move))
+				if distToPlayer < minDistToPlayer:
+					minDistToPlayer = distToPlayer
+					selectedMovement = move
+
+		if selectedMovement == None:
+			return False
 		
-		return False
+		self._characterModel.move(selectedMovement)
+		return True
