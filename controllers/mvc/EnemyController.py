@@ -11,13 +11,14 @@ from models.CharacterModel import CharacterModel
 from views.CharacterView import CharacterView
 from controllers.mvc.PlayerController import PlayerController
 
+infinity = 999999999
 
 # should be abstract class that defines an interface
 class AIState:
-	def __init__(self, playerController, enemyController, characterModel):
+	def __init__(self, playerController, enemyController, enemyModel):
 		self.playerController = playerController
 		self.enemyController = enemyController
-		self.enemyModel = characterModel
+		self.enemyModel = enemyModel
 		self.lookahead = 7
 
 	def decide_on_movement(self, directions, preventedPositions):
@@ -32,7 +33,7 @@ class AIState:
 	
 	def get_distance_to_player(self):
 		playerPosition = self.playerController.get_pos()
-		return manhatten_distance(*playerPosition, *self.enemyController.get_pos())
+		return manhatten_distance(*playerPosition, *self.enemyModel.get_pos())
 	
 	def get_speculative_distance_to_player(self, move):
 		playerPosition = self.playerController.get_pos()
@@ -53,6 +54,30 @@ class AIState:
 # it's brute forcing to find the directions that the enemy can walk that 
 # can put them closest to the player in N moves
 class NPlyLookaheadAIState(AIState):
+
+	# XXX what happens when you get back up to the top layer? You need to make a decision on what direction to choose
+	def depth_limited_recursive_move(self, directions, originalMove, preventedPositions, depth):
+		if depth == 0:
+			return self.get_distance_to_player()
+
+		# return the move that ends up 
+		# XXX You're going to need to exclude any search that happens from a node you visited with a shorter path to it already
+		for move in directions:
+			distancesFromPlayer = [infinity]
+			if self.movement_allowed(move, preventedPositions):
+				# print("play")
+				# print(self.enemyModel.get_pos())
+				self.enemyModel.move(move)
+				# print(self.enemyModel.get_pos())
+				
+				distanceFromPlayer = self.depth_limited_recursive_move(directions, originalMove, preventedPositions, depth-1)
+				distancesFromPlayer.append(distanceFromPlayer)
+			# print("undo")
+			# print(self.enemyModel.get_pos())
+			self.enemyModel.undo_move()
+			# print(self.enemyModel.get_pos())
+		return min(distancesFromPlayer)
+
 	def decide_on_movement(self, directions, preventedPositions):
 		# transition back to random moves if the player is now out of range
 		if not self.player_within_range():
@@ -60,19 +85,57 @@ class NPlyLookaheadAIState(AIState):
 			self.enemyController.update_state(newState)
 			return newState.decide_on_movement(directions, preventedPositions)
 
+		# make sure that the same position isn't checked twice when
+		# two moves lead to the same location 
+		# (like right -> up goes to the same place as up -> right, so only check one of them)
+		checkedPositions = {self.enemyModel.get_pos()}
+
+		# append moves to this, and take a copy of the first element when a path to the
+		# player is found or a new minimum is found.
+		moveStack = []
+
+		
+
 		# XXX perform lookahead by self.lookahead moves
 		# keep track of the minimum distance to the player
 		# pick the move that gets the enemy closest
-		checkedPositions = set()
-		infinity = 999999999
 		minDistToPlayer = infinity
 		selectedMovement = None
 		for move in directions:
 			if self.movement_allowed(move, preventedPositions):
-				distToPlayer = self.get_speculative_distance_to_player(move)
-				if distToPlayer < minDistToPlayer:
-					minDistToPlayer = distToPlayer
-					selectedMovement = move
+				# minDist = depth_limited_recursive_move(directions, move, preventedPositions, 20)
+				print("play")
+				print(self.enemyModel.get_pos())
+				self.enemyModel.move(move)
+				print(self.enemyModel.get_pos())
+
+
+
+	
+
+				for move2 in directions:
+					if self.movement_allowed(move2, preventedPositions):
+						print("play 2")
+						print(self.enemyModel.get_pos())
+						self.enemyModel.move(move2)
+						print(self.enemyModel.get_pos())
+
+						for move3 in directions:
+							if self.movement_allowed(move3, preventedPositions):
+								distToPlayer = self.get_speculative_distance_to_player(move3)
+								if distToPlayer < minDistToPlayer:
+									minDistToPlayer = distToPlayer
+									selectedMovement = move # XXX not a typo
+						print("undo 2")
+						print(self.enemyModel.get_pos())
+						self.enemyModel.undo_move()
+						print(self.enemyModel.get_pos())
+
+				print("undo")
+				print(self.enemyModel.get_pos())
+				self.enemyModel.undo_move()
+				print(self.enemyModel.get_pos())
+
 		return selectedMovement
 
 # at each level (except base case), call recursive function on all moves and collect results in hash 
@@ -87,7 +150,7 @@ class RandomAIState(AIState):
 		self.previousMove = None # XXX use this to make the random player walk in straight lines until they can't
 
 	def decide_on_movement(self, directions, preventedPositions):
-		# transition to attack state if in range of player
+		# transition to attack state if in range of player and let that state decide
 		if self.player_within_range():
 			newState = NPlyLookaheadAIState(self.playerController, self.enemyController, self.enemyModel)
 			self.enemyController.update_state(newState)
@@ -130,23 +193,3 @@ class EnemyController(CharacterController):
 	
 	def update_state(self, newState):
 		self.AIState = newState
-		
-			
-
-		# # keep track of the minimum distance to the player
-		# # pick the move that gets the enemy closest
-		# infinity = 999999999
-		# minDistToPlayer = infinity
-		# selectedMovement = None
-		# for move in directions:
-		# 	if self.movement_valid(move) and not self.movement_prevented(move, preventedPositions):
-		# 		distToPlayer = manhatten_distance(*playerPosition, *self._characterModel.get_speculative_position(move))
-		# 		if distToPlayer < minDistToPlayer:
-		# 			minDistToPlayer = distToPlayer
-		# 			selectedMovement = move
-
-		# if selectedMovement == None:
-		# 	return False
-		
-		# self._characterModel.move(selectedMovement)
-		# return True

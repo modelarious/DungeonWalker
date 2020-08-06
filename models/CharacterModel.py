@@ -17,9 +17,11 @@ class CharacterModel(MoveSetInterface):
     def __init__(self, x, y):
         self._x = x
         self._y = y
+        self._previousPositionStack = []
 
     def move(self, direction):
-        self._x, self._y = self.get_speculative_position(direction)
+        self._previousPositionStack.append(self.get_pos())
+        self.set_pos(*self.get_speculative_position(direction))
     
     def get_pos(self):
         return (self._x, self._y)
@@ -29,3 +31,6 @@ class CharacterModel(MoveSetInterface):
     
     def get_speculative_position(self, direction):
         return direction.move(self._x, self._y)
+
+    def undo_move(self):
+        self.set_pos(*self._previousPositionStack.pop())
