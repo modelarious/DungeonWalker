@@ -30,7 +30,6 @@ class PlayerController(CharacterController):
 		self._characterModel.move(direction)
 		return True
 
-	
 	def player_has_won(self):
 		if self._characterModel.get_pos() == self._mapController.get_goal_space_coords():
 			return True
