@@ -104,8 +104,8 @@ class NPlyLookaheadAIState(AIState):
 		# keep track of the minimum distance to the player
 		# pick the move that gets the enemy closest
 		minDistToPlayer = infinity
-		selectedMovement = None
-		depth = 4
+		selectedMovements = []
+		depth = 5
 		for move in directions:
 			if self.movement_allowed(move, preventedPositions):
 				print("\t"* depth, f" play {depth} {move}")
@@ -113,16 +113,31 @@ class NPlyLookaheadAIState(AIState):
 				self.enemyModel.move(move)
 				print("\t"* depth, self.enemyModel.get_pos())
 
-				minDist = self.depth_limited_recursive_move(directions, move, preventedPositions, 3)
+				minDist = self.depth_limited_recursive_move(directions, move, preventedPositions, depth-1)
 				if minDist < minDistToPlayer:
 					print(f"minDist for move {move} is {minDist}")
-					selectedMovement = move
+					selectedMovements = [move]
 					minDistToPlayer = minDist
-				
+				elif minDist == minDistToPlayer:
+					print(f"could also do {move}")
+					selectedMovements.append(move)
+
 				print("\t"* depth, f"undo {depth} {move}")
 				print("\t"* depth, self.enemyModel.get_pos())
 				self.enemyModel.undo_move()
 				print("\t"* depth, self.enemyModel.get_pos())
+
+		
+		selectedMovement = None
+		minDistToPlayer = infinity
+		for movement in selectedMovements:
+			proposedMovementDistance = self.get_speculative_distance_to_player(movement)
+			if proposedMovementDistance < minDistToPlayer:
+				print(f"chose {selectedMovement} cause it has distance {minDistToPlayer}")
+				selectedMovement = movement
+				minDistToPlayer = proposedMovementDistance
+
+			
 
 		print(f"minimum distance I can get to player is {minDistToPlayer} with a {selectedMovement}")
 		return selectedMovement
