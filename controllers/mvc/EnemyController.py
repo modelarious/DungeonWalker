@@ -58,25 +58,29 @@ class NPlyLookaheadAIState(AIState):
 	# XXX what happens when you get back up to the top layer? You need to make a decision on what direction to choose
 	def depth_limited_recursive_move(self, directions, originalMove, preventedPositions, depth):
 		if depth == 0:
+			print(f"evaluated distance to be {self.get_distance_to_player()}")
 			return self.get_distance_to_player()
 
 		# return the move that ends up 
 		# XXX You're going to need to exclude any search that happens from a node you visited with a shorter path to it already
+		distancesFromPlayer = [infinity]
 		for move in directions:
-			distancesFromPlayer = [infinity]
 			if self.movement_allowed(move, preventedPositions):
-				# print("play")
-				# print(self.enemyModel.get_pos())
+				print("\t"* depth, f" play {depth} {move}")
+				print("\t"* depth, self.enemyModel.get_pos())
 				self.enemyModel.move(move)
-				# print(self.enemyModel.get_pos())
+				print("\t"* depth, self.enemyModel.get_pos())
 				
 				distanceFromPlayer = self.depth_limited_recursive_move(directions, originalMove, preventedPositions, depth-1)
 				distancesFromPlayer.append(distanceFromPlayer)
-			# print("undo")
-			# print(self.enemyModel.get_pos())
-			self.enemyModel.undo_move()
-			# print(self.enemyModel.get_pos())
-		return min(distancesFromPlayer)
+				print("\t"* depth, f"undo {depth} {move}")
+				print("\t"* depth, self.enemyModel.get_pos())
+				self.enemyModel.undo_move()
+				print("\t"* depth, self.enemyModel.get_pos())
+		
+		minDist = min(distancesFromPlayer)
+		print("\t"* depth, f"{distancesFromPlayer} minDist={minDist}")
+		return minDist
 
 	def decide_on_movement(self, directions, preventedPositions):
 		# transition back to random moves if the player is now out of range
@@ -101,41 +105,26 @@ class NPlyLookaheadAIState(AIState):
 		# pick the move that gets the enemy closest
 		minDistToPlayer = infinity
 		selectedMovement = None
+		depth = 4
 		for move in directions:
 			if self.movement_allowed(move, preventedPositions):
-				# minDist = depth_limited_recursive_move(directions, move, preventedPositions, 20)
-				print("play")
-				print(self.enemyModel.get_pos())
+				print("\t"* depth, f" play {depth} {move}")
+				print("\t"* depth, self.enemyModel.get_pos())
 				self.enemyModel.move(move)
-				print(self.enemyModel.get_pos())
+				print("\t"* depth, self.enemyModel.get_pos())
 
-
-
-	
-
-				for move2 in directions:
-					if self.movement_allowed(move2, preventedPositions):
-						print("play 2")
-						print(self.enemyModel.get_pos())
-						self.enemyModel.move(move2)
-						print(self.enemyModel.get_pos())
-
-						for move3 in directions:
-							if self.movement_allowed(move3, preventedPositions):
-								distToPlayer = self.get_speculative_distance_to_player(move3)
-								if distToPlayer < minDistToPlayer:
-									minDistToPlayer = distToPlayer
-									selectedMovement = move # XXX not a typo
-						print("undo 2")
-						print(self.enemyModel.get_pos())
-						self.enemyModel.undo_move()
-						print(self.enemyModel.get_pos())
-
-				print("undo")
-				print(self.enemyModel.get_pos())
+				minDist = self.depth_limited_recursive_move(directions, move, preventedPositions, 3)
+				if minDist < minDistToPlayer:
+					print(f"minDist for move {move} is {minDist}")
+					selectedMovement = move
+					minDistToPlayer = minDist
+				
+				print("\t"* depth, f"undo {depth} {move}")
+				print("\t"* depth, self.enemyModel.get_pos())
 				self.enemyModel.undo_move()
-				print(self.enemyModel.get_pos())
+				print("\t"* depth, self.enemyModel.get_pos())
 
+		print(f"minimum distance I can get to player is {minDistToPlayer} with a {selectedMovement}")
 		return selectedMovement
 
 # at each level (except base case), call recursive function on all moves and collect results in hash 
