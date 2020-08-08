@@ -50,7 +50,7 @@ class AIState:
 		# XXX yeah, this is gross, so give this object the model then!
 		return self.playerController._characterModel.get_pos() == position
 
-# NOTE: this is not something like minimax, it's not even A*,
+# XXX NOTE: this is not something like minimax, it's not even A*,
 # it's brute forcing to find the directions that the enemy can walk that 
 # can put them closest to the player in N moves
 class NPlyLookaheadAIState(AIState):
@@ -63,6 +63,7 @@ class NPlyLookaheadAIState(AIState):
 
 		# return the move that ends up 
 		# XXX You're going to need to exclude any search that happens from a node you visited with a shorter path to it already
+		# XXX otherwise known as transposition tables
 		distancesFromPlayer = [infinity]
 		for move in directions:
 			if self.movement_allowed(move, preventedPositions):
@@ -99,6 +100,11 @@ class NPlyLookaheadAIState(AIState):
 		moveStack = []
 
 		
+
+		# XXX now you need 2 things:
+		# - the transposition table
+		# - move all the code into a single function (don't 
+		#   repeat yourself outside the depth_limited_recursive_move function)
 
 		# XXX perform lookahead by self.lookahead moves
 		# keep track of the minimum distance to the player
