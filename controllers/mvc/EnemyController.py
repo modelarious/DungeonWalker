@@ -61,9 +61,12 @@ class NPlyLookaheadAIState(AIState):
 			print(f"evaluated distance to be {self.get_distance_to_player()}")
 			return self.get_distance_to_player()
 
-		# return the move that ends up 
 		# XXX You're going to need to exclude any search that happens from a node you visited with a shorter path to it already
-		# XXX otherwise known as transposition tables
+		# XXX otherwise known as transposition tables -> This would be drastically improved as a bfs as then you
+		# XXX would always be filling in the shortest distance to a node when you reach it.  The current
+		# XXX dfs approach suffers because you could reach a node for the first time at depth 19, but the 
+		# XXX real shortest path is 3 from a different starting move.  Then you will go through the process
+		# XXX of updating the shortest distance several times.
 		distancesFromPlayer = [infinity]
 		for move in directions:
 			if self.movement_allowed(move, preventedPositions):
