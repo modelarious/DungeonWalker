@@ -3,6 +3,7 @@ from controllers.mvc.CharacterController import CharacterController
 from helpers.Direction import Left, Right, Up, Down, NullMove
 
 from random import shuffle
+from queue import Queue
 from helpers.ManhattenDistance import manhatten_distance
 
 # type hints
@@ -50,106 +51,121 @@ class AIState:
 		# XXX yeah, this is gross, so give this object the model then!
 		return self.playerController._characterModel.get_pos() == position
 
-# XXX NOTE: this is not something like minimax, it's not even A*,
-# it's brute forcing to find the directions that the enemy can walk that 
-# can put them closest to the player in N moves
+class BFSQueueEntry:
+	def __init__(self, initialMovementFromStartTile, positionBeforeApplyingMove, moveToApply, depth=0):
+		self.initialMove = initialMovementFromStartTile
+		self.currentPosition = positionBeforeApplyingMove
+		self.currentMove = moveToApply
+		self.depth = depth
+
+	def get_current_position(self):
+		return self.currentPosition
+
+	def get_current_move(self):
+		return self.currentMove
+	
+	def get_initial_move(self):
+		return self.initialMove
+	
+	def get_depth(self):
+		return self.depth
+
+# NOTE: this is not something like minimax, it's not even A*,
+# it's flood-filling to find the directions that the enemy can walk that 
+# can put them closest to the player in N moves -> also using Dynamic Programming
+# to ensure when a state is first seen, it's at it's MIN distance from the starting node
 class NPlyLookaheadAIState(AIState):
 
-	# XXX what happens when you get back up to the top layer? You need to make a decision on what direction to choose
-	def depth_limited_recursive_move(self, directions, originalMove, preventedPositions, depth):
-		if depth == 0:
-			print(f"evaluated distance to be {self.get_distance_to_player()}")
-			return self.get_distance_to_player()
+	def _create_initial_search_queue(self, directions, preventedPositions):
+		q = Queue()
 
-		# XXX You're going to need to exclude any search that happens from a node you visited with a shorter path to it already
-		# XXX otherwise known as transposition tables -> This would be drastically improved as a bfs as then you
-		# XXX would always be filling in the shortest distance to a node when you reach it.  The current
-		# XXX dfs approach suffers because you could reach a node for the first time at depth 19, but the 
-		# XXX real shortest path is 3 from a different starting move.  Then you will go through the process
-		# XXX of updating the shortest distance several times.
-		distancesFromPlayer = [infinity]
-		for move in directions:
-			if self.movement_allowed(move, preventedPositions):
-				print("\t"* depth, f" play {depth} {move}")
-				print("\t"* depth, self.enemyModel.get_pos())
-				self.enemyModel.move(move)
-				print("\t"* depth, self.enemyModel.get_pos())
-				
-				distanceFromPlayer = self.depth_limited_recursive_move(directions, originalMove, preventedPositions, depth-1)
-				distancesFromPlayer.append(distanceFromPlayer)
-				print("\t"* depth, f"undo {depth} {move}")
-				print("\t"* depth, self.enemyModel.get_pos())
-				self.enemyModel.undo_move()
-				print("\t"* depth, self.enemyModel.get_pos())
+		for initialMove in directions:
+			if self.movement_allowed(initialMove, preventedPositions):
+				# initialMove will stay constant throughout execution of this algo (basically saying
+				# that the current position was reached when the very first movement was initialMove)
+
+				# currentPosition will be the position before you apply the current move
+				currentPosition = self.enemyModel.get_pos()
+
+				# currentMove is the move that you want to apply next in the BFS search
+				# as this is the first move, the currentMove and initialMove are the same
+				currentMove = initialMove 
+				q.put(BFSQueueEntry(initialMove, currentPosition, currentMove))
 		
-		minDist = min(distancesFromPlayer)
-		print("\t"* depth, f"{distancesFromPlayer} minDist={minDist}")
-		return minDist
+		return q
+
+	# XXX should use a MockEnemy object to apply all the transformations... or at least a copy
+	# of the enemyModel, cause otherwise you'll be adding to the move queue and not undoing
+	
+	# The first time a position is reached on the board will automatically be the shortest distance
+	# as we're searching breadth first.  Because of this, we can prune search from spaces we've seen 
+	# before and we can return immediately when we find the player (two things we couldn't do when using
+	# depth limited dfs)
+	def breadth_first_search_depth_limited(self, directions, preventedPositions, depthLimit):
+		searchQueue = self._create_initial_search_queue(directions, preventedPositions)
+
+		bestMove = NullMove()
+		minDistToPlayer = infinity
+		seen = set()
+
+		originalPos = self.enemyModel.get_pos()# XXX
+
+		# XXX grab the initial position of the enemy and reset it after doing the search / or take a copy of the enemy model
+
+		# XXX What do you do if the queue is empty??
+		while not searchQueue.empty():
+			bFSQueueEntry = searchQueue.get()
+
+			# warp the enemy to the correct position to perform the next move
+			currentPosition = bFSQueueEntry.get_current_position()
+			self.enemyModel.set_pos(*currentPosition)
+
+			# perform the requested move
+			currentMove = bFSQueueEntry.get_current_move()
+			self.enemyModel.move(currentMove)
+
+			# if this position has been reached before, skip it
+			posAfterMove = self.enemyModel.get_pos()
+			if posAfterMove in seen:
+				continue
+
+			# now we've seen this position for the first time, track that fact so we don't duplicate work
+			# later on in the algo
+			seen.add(posAfterMove)
+
+			# if this is the closest we've been to the player, track the initial move that lead us here
+			updatedDistanceToPlayer = self.get_distance_to_player()
+			initialMove = bFSQueueEntry.get_initial_move()
+			if updatedDistanceToPlayer < minDistToPlayer:
+				bestMove = initialMove
+				minDistToPlayer = updatedDistanceToPlayer
+
+				# end evaluation early if we find the player 
+				if updatedDistanceToPlayer == 0:
+					break # XXX does this actually break out of the top level for loop? XXX are you fucking dumb??
+			
+			# add all valid next moves to the bfs queue if we haven't reached the depth limit yet
+			currDepth = bFSQueueEntry.get_depth()
+			if currDepth < depthLimit:
+				for nextMove in directions:
+					if self.movement_allowed(initialMove, preventedPositions):
+						nextPos = self.enemyModel.get_speculative_position(nextMove)
+						if nextPos not in seen:
+							newBFSQueueEntry = BFSQueueEntry(initialMove, posAfterMove, nextMove, currDepth+1)
+							searchQueue.put(newBFSQueueEntry)
+		self.enemyModel.set_pos(*originalPos)
+		return bestMove
 
 	def decide_on_movement(self, directions, preventedPositions):
 		# transition back to random moves if the player is now out of range
+		# XXX do the transition after... is there some way to enforce this?
 		if not self.player_within_range():
 			newState = RandomAIState(self.playerController, self.enemyController, self.enemyModel)
 			self.enemyController.update_state(newState)
 			return newState.decide_on_movement(directions, preventedPositions)
 
-		# make sure that the same position isn't checked twice when
-		# two moves lead to the same location 
-		# (like right -> up goes to the same place as up -> right, so only check one of them)
-		checkedPositions = {self.enemyModel.get_pos()}
-
-		# append moves to this, and take a copy of the first element when a path to the
-		# player is found or a new minimum is found.
-		moveStack = []
-
 		
-
-		# XXX now you need 2 things:
-		# - the transposition table
-		# - move all the code into a single function (don't 
-		#   repeat yourself outside the depth_limited_recursive_move function)
-
-		# XXX perform lookahead by self.lookahead moves
-		# keep track of the minimum distance to the player
-		# pick the move that gets the enemy closest
-		minDistToPlayer = infinity
-		selectedMovements = []
-		depth = 5
-		for move in directions:
-			if self.movement_allowed(move, preventedPositions):
-				print("\t"* depth, f" play {depth} {move}")
-				print("\t"* depth, self.enemyModel.get_pos())
-				self.enemyModel.move(move)
-				print("\t"* depth, self.enemyModel.get_pos())
-
-				minDist = self.depth_limited_recursive_move(directions, move, preventedPositions, depth-1)
-				if minDist < minDistToPlayer:
-					print(f"minDist for move {move} is {minDist}")
-					selectedMovements = [move]
-					minDistToPlayer = minDist
-				elif minDist == minDistToPlayer:
-					print(f"could also do {move}")
-					selectedMovements.append(move)
-
-				print("\t"* depth, f"undo {depth} {move}")
-				print("\t"* depth, self.enemyModel.get_pos())
-				self.enemyModel.undo_move()
-				print("\t"* depth, self.enemyModel.get_pos())
-
-		
-		selectedMovement = None
-		minDistToPlayer = infinity
-		for movement in selectedMovements:
-			proposedMovementDistance = self.get_speculative_distance_to_player(movement)
-			if proposedMovementDistance < minDistToPlayer:
-				print(f"chose {selectedMovement} cause it has distance {minDistToPlayer}")
-				selectedMovement = movement
-				minDistToPlayer = proposedMovementDistance
-
-			
-
-		print(f"minimum distance I can get to player is {minDistToPlayer} with a {selectedMovement}")
-		return selectedMovement
+		return self.breadth_first_search_depth_limited(directions, preventedPositions, 20)
 
 # at each level (except base case), call recursive function on all moves and collect results in hash 
 # then take minimum of the hash and return it
