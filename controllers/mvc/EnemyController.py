@@ -28,13 +28,13 @@ class AIState:
 	def player_within_range(self):
 		# consider transitioning to attack state if in range of player
 		N = self.lookahead
-		if self.get_distance_to_player() <= N:
+		if self.get_distance_to_player(self.enemyModel) <= N:
 			return True
 		return False
 	
-	def get_distance_to_player(self):
+	def get_distance_to_player(self, iEnemyModel):
 		playerPosition = self.playerController.get_pos()
-		return manhatten_distance(*playerPosition, *self.enemyModel.get_pos())
+		return manhatten_distance(*playerPosition, *iEnemyModel.get_pos())
 	
 	def get_speculative_distance_to_player(self, move):
 		playerPosition = self.playerController.get_pos()
@@ -110,23 +110,20 @@ class NPlyLookaheadAIState(AIState):
 		minDistToPlayer = infinity
 		seen = set()
 
-		originalPos = self.enemyModel.get_pos()# XXX we are adding to the undo stack on the enemy in this algo XXX
-
-		# XXX take a copy of the enemy model
-
+		enemyClone = self.enemyModel.get_copy()
 		while not searchQueue.empty():
 			bFSQueueEntry = searchQueue.get()
 
 			# warp the enemy to the correct position to perform the next move
 			currentPosition = bFSQueueEntry.get_current_position()
-			self.enemyModel.set_pos(*currentPosition)
+			enemyClone.set_pos(*currentPosition)
 
 			# perform the requested move
 			currentMove = bFSQueueEntry.get_current_move()
-			self.enemyModel.move(currentMove)
+			enemyClone.move(currentMove)
 
 			# if this position has been reached before, skip it
-			posAfterMove = self.enemyModel.get_pos()
+			posAfterMove = enemyClone.get_pos()
 			if posAfterMove in seen:
 				continue
 
@@ -135,7 +132,7 @@ class NPlyLookaheadAIState(AIState):
 			seen.add(posAfterMove)
 
 			# if this is the closest we've been to the player, track the initial move that lead us here
-			updatedDistanceToPlayer = self.get_distance_to_player()
+			updatedDistanceToPlayer = self.get_distance_to_player(enemyClone)
 			initialMove = bFSQueueEntry.get_initial_move()
 			if updatedDistanceToPlayer < minDistToPlayer:
 				bestMove = initialMove
@@ -150,11 +147,10 @@ class NPlyLookaheadAIState(AIState):
 			if currDepth < depthLimit:
 				for nextMove in directions:
 					if self.movement_allowed(nextMove, preventedPositions):
-						nextPos = self.enemyModel.get_speculative_position(nextMove)
+						nextPos = enemyClone.get_speculative_position(nextMove)
 						if nextPos not in seen:
 							newBFSQueueEntry = BFSQueueEntry(initialMove, posAfterMove, nextMove, currDepth+1)
 							searchQueue.put(newBFSQueueEntry)
-		self.enemyModel.set_pos(*originalPos)
 		return bestMove
 
 	def decide_on_movement(self, directions, preventedPositions):

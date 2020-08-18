@@ -34,3 +34,8 @@ class CharacterModel(MoveSetInterface):
 
     def undo_move(self):
         self.set_pos(*self._previousPositionStack.pop())
+    
+    def get_copy(self):
+        cp = CharacterModel(*self.get_pos())
+        cp._previousPositionStack = self._previousPositionStack[:]
+        return cp
