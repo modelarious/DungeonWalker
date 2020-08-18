@@ -37,15 +37,20 @@ class EnemyOrchestrator:
         for enemy in self.enemyControllerArray:
             preventedPositions.append(enemy.get_pos())
 
-        enemiesSortedByDistanceToPlayer = sorted(self.enemyControllerArray, key=lambda e : manhatten_distance(*e.get_pos(), *self.playerController.get_pos()))
+        # sort enemies by manhatten_distance to player to prevent them from blocking each other when moving
+        enemiesSortedByDistanceToPlayer = sorted(
+            self.enemyControllerArray, 
+            key=lambda e : manhatten_distance(*e.get_pos(), *self.playerController.get_pos())
+        )
 
-        # update the enemy positions. When the position updates, the new enemy position becomes blacklisted
-        # and the old position gets removed from the blacklist
+        # update the enemy positions. Make sure the current enemy's position isn't included in the blacklist.
+        # When the position updates, the new enemy position becomes blacklisted
         for enemyController in enemiesSortedByDistanceToPlayer:
             previousPosition = enemyController.get_pos()
+            preventedPositions.remove(previousPosition)
+
             enemyController.update_position(preventedPositions)
 
-            preventedPositions.remove(previousPosition)
             preventedPositions.append(enemyController.get_pos())
     
     def remove_enemy_from_player_position(self):
