@@ -1,3 +1,4 @@
+from helpers.ManhattenDistance import manhatten_distance
 class EnemyOrchestrator:
     def __init__(self, enemyControllerFactory, mapController, playerController):
         self.enemyControllerFactory = enemyControllerFactory
@@ -31,13 +32,16 @@ class EnemyOrchestrator:
     def react_to_player(self):
 
         # gather current enemy positions and prevent enemies from moving to an overlapping position
+        # XXX should probably be excluding the current position of the current enemy in each of these - this is because we currently prevent an enemy from staying on the space they are currently on
         preventedPositions = []
         for enemy in self.enemyControllerArray:
             preventedPositions.append(enemy.get_pos())
 
+        enemiesSortedByDistanceToPlayer = sorted(self.enemyControllerArray, key=lambda e : manhatten_distance(*e.get_pos(), *self.playerController.get_pos()))
+
         # update the enemy positions. When the position updates, the new enemy position becomes blacklisted
         # and the old position gets removed from the blacklist
-        for enemyController in self.enemyControllerArray:
+        for enemyController in enemiesSortedByDistanceToPlayer:
             previousPosition = enemyController.get_pos()
             enemyController.update_position(preventedPositions)
 
@@ -48,6 +52,7 @@ class EnemyOrchestrator:
         playerPos = self.playerController.get_pos()
         
         # XXX could replace this with some functional programming using filter()
+        # ..... or the pythonic approach of using list comprehension
         newEnemyArray = []
         for enemy in self.enemyControllerArray:
             enemyPos = enemy.get_pos()

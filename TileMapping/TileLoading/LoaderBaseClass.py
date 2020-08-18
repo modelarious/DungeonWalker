@@ -27,7 +27,6 @@ class LoaderBaseClass:
 		return tiles, coordinates
 
 	def _crop_and_resize_square_image(self, leftX, topY, resizeFactor):
-		print(f"got {leftX}, {topY}, {resizeFactor}, applying to {self.image}")
 		# crop image
 		rightX = leftX + self.tileSetGridSize
 		bottomY = topY + self.tileSetGridSize

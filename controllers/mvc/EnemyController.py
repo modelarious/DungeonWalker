@@ -52,11 +52,12 @@ class AIState:
 		return self.playerController._characterModel.get_pos() == position
 
 class BFSQueueEntry:
-	def __init__(self, initialMovementFromStartTile, positionBeforeApplyingMove, moveToApply, depth=0):
+	def __init__(self, initialMovementFromStartTile, positionBeforeApplyingMove, moveToApply, depth=0, debugStack=[]):
 		self.initialMove = initialMovementFromStartTile
 		self.currentPosition = positionBeforeApplyingMove
 		self.currentMove = moveToApply
 		self.depth = depth
+		self.debugStack = debugStack
 
 	def get_current_position(self):
 		return self.currentPosition
@@ -69,6 +70,9 @@ class BFSQueueEntry:
 	
 	def get_depth(self):
 		return self.depth
+	
+	def get_debug_stack(self):
+		return self.debugStack
 
 # NOTE: this is not something like minimax, it's not even A*,
 # it's flood-filling to find the directions that the enemy can walk that 
@@ -90,7 +94,7 @@ class NPlyLookaheadAIState(AIState):
 				# currentMove is the move that you want to apply next in the BFS search
 				# as this is the first move, the currentMove and initialMove are the same
 				currentMove = initialMove 
-				q.put(BFSQueueEntry(initialMove, currentPosition, currentMove))
+				q.put(BFSQueueEntry(initialMove, currentPosition, currentMove, 0, [initialMove])) # XXX remove 0 and debug stack
 		
 		return q
 
@@ -102,19 +106,50 @@ class NPlyLookaheadAIState(AIState):
 	# before and we can return immediately when we find the player (two things we couldn't do when using
 	# depth limited dfs)
 	def breadth_first_search_depth_limited(self, directions, preventedPositions, depthLimit):
-		searchQueue = self._create_initial_search_queue(directions, preventedPositions)
+
+
+		# XXX I figured out the problem -> the enemy will take the most efficient movement that it can
+		# XXX even if that means that it will take a step in a bad direction for one turn because the
+		# XXX way forward is currently blocked. To prevent this - scrap the preventedPositions system
+		# XXX and make a system where all the enemies propose a position they would like to go, then 
+		# XXX each is resolved in order - and if two enemies provide the same position, then first come
+		# XXX first serve. Basically pretend that the other enemies don't exist when you choose how
+		# XXX to move.......... but sometimes the best move is one that has to do with what to do if
+		# XXX another enemy is directly beside you - Could it be possible that you need a system that
+		# XXX tries all possible ways of resolving the movements and chooses the one that provides the
+		# XXX least overall preventions?
+
+		# XXX ACTUALLY YOU NEED TO ORDER THE MOVES BY HEIGHT AND BREAK TIES BY WIDTH..... NO THAT WON'T
+		# XXX WORK IN THE CASE THAT PURSUIT IS DOWNWARDS - fuck!!!
+
+		# XXX XXX XXX XXX XXX I GOT IT!!!! Decide move order based on distance to player!!!!!!!!!!!!
+		preventedPositions = [ p for p in preventedPositions if p != self.enemyModel.get_pos()]
+
+		
+
+		# XXX ??? does preventedPositions contain the position of the enemy we're currently inspecting???
+		# XXX if it does, then the enemy will NEVER use NullMove() because their current position is
+		# prevented
+
+		# XXX does preventedPositions update after an enemy moves?
+
+		# XXX could change this to a priority queue and it would be like A*
+		searchQueue = self._create_initial_search_queue(directions, preventedPositions) 
 
 		bestMove = NullMove()
 		minDistToPlayer = infinity
 		seen = set()
+		XXXFinalDebugStack = []
 
-		originalPos = self.enemyModel.get_pos()# XXX
+		originalPos = self.enemyModel.get_pos()# XXX this is adding to the undo stack on the enemy - 
 
 		# XXX grab the initial position of the enemy and reset it after doing the search / or take a copy of the enemy model
 
-		# XXX What do you do if the queue is empty??
+
 		while not searchQueue.empty():
+			
 			bFSQueueEntry = searchQueue.get()
+			# breakpoint()
 
 			# warp the enemy to the correct position to perform the next move
 			currentPosition = bFSQueueEntry.get_current_position()
@@ -137,23 +172,34 @@ class NPlyLookaheadAIState(AIState):
 			updatedDistanceToPlayer = self.get_distance_to_player()
 			initialMove = bFSQueueEntry.get_initial_move()
 			if updatedDistanceToPlayer < minDistToPlayer:
+				print("got to a lower disttance")
+				# breakpoint()
 				bestMove = initialMove
 				minDistToPlayer = updatedDistanceToPlayer
+				XXXFinalDebugStack = bFSQueueEntry.get_debug_stack()
 
 				# end evaluation early if we find the player 
 				if updatedDistanceToPlayer == 0:
+					print("FOUND YOU PLAYER!!!")
 					break # XXX does this actually break out of the top level for loop? XXX are you fucking dumb??
 			
 			# add all valid next moves to the bfs queue if we haven't reached the depth limit yet
 			currDepth = bFSQueueEntry.get_depth()
+
+			XXXDebugStack = bFSQueueEntry.get_debug_stack()
 			if currDepth < depthLimit:
 				for nextMove in directions:
-					if self.movement_allowed(initialMove, preventedPositions):
+					# breakpoint()
+					if self.movement_allowed(nextMove, preventedPositions):
 						nextPos = self.enemyModel.get_speculative_position(nextMove)
 						if nextPos not in seen:
-							newBFSQueueEntry = BFSQueueEntry(initialMove, posAfterMove, nextMove, currDepth+1)
+							nextLayerDebugStack = XXXDebugStack + [nextMove]
+							newBFSQueueEntry = BFSQueueEntry(initialMove, posAfterMove, nextMove, currDepth+1, nextLayerDebugStack)
 							searchQueue.put(newBFSQueueEntry)
 		self.enemyModel.set_pos(*originalPos)
+		print(XXXFinalDebugStack)
+		print("playing", bestMove)
+		# breakpoint()
 		return bestMove
 
 	def decide_on_movement(self, directions, preventedPositions):
