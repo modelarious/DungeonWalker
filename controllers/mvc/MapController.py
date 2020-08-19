@@ -26,8 +26,8 @@ class MapController(ControllerBaseClass):
 	def get_enemy_spawn_points(self):
 		return self._mapModel.get_spawn_points()
 	
-	def is_legal_move(self, start_pos, prospective_pos):
-		return self._mapModel.is_legal_move(start_pos, prospective_pos)
+	# def is_legal_move(self, start_pos, prospective_pos):
+	# 	return self._mapModel.is_legal_move(start_pos, prospective_pos)
 	
 	# XXX I'd say the below 3 functions are all that should make up the mapController
 	def updateView(self, game_screen):

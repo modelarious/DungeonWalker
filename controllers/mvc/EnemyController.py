@@ -36,16 +36,18 @@ class AIState:
 		playerPosition = self.playerController.get_pos()
 		return manhatten_distance(*playerPosition, *iEnemyModel.get_pos())
 	
-	def get_speculative_distance_to_player(self, move):
+	def get_speculative_distance_to_player(self, iEnemyModel, move):
 		playerPosition = self.playerController.get_pos()
-		return manhatten_distance(*playerPosition, *self.enemyModel.get_speculative_position(move))
+		return manhatten_distance(*playerPosition, *iEnemyModel.get_speculative_position(move))
 
 	# check if this is a legal move
 	# XXX this shouldn't be handled by the controller
 	def movement_allowed(self, move, preventedPositions):
+		# XXX yup, and now it's coming back to bite me :(
+		# XXX these should be questions to the board model, not the enemyController
 		return self.enemyController.movement_valid(move) and not self.enemyController.movement_prevented(move, preventedPositions)
 	
-	# this is a state in which the 
+	# this is a state in which the enemy has landed on the player
 	# XXX this shouldn't be handled by the controller
 	def is_winning_state(self, position):
 		# XXX yeah, this is gross, so give this object the model then!
@@ -110,7 +112,9 @@ class NPlyLookaheadAIState(AIState):
 		minDistToPlayer = infinity
 		seen = set()
 
-		enemyClone = self.enemyModel.get_copy()
+		enemyClone = self.enemyModel.get_copy() # XXX DEAR GOD NO, Some of the functions used in here ask the
+		# XXX enemyController for things, and that will not line up with the clone
+		# XXX Like damn, change those functions to take an enemy model as input
 		while not searchQueue.empty():
 			bFSQueueEntry = searchQueue.get()
 

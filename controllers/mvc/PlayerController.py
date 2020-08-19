@@ -13,7 +13,6 @@ playerInputToActionMap = {
 class PlayerController(CharacterController):
 	
 	# move the player if the input requests it
-	# XXX template method pattern could be useful here
 	def handleInputEvent(self, event: event):
 		# we only care about keys being pressed down
 		if event.type != KEYDOWN:
@@ -24,18 +23,17 @@ class PlayerController(CharacterController):
 		if direction == None:
 			return False
 		
-		if not self.movement_valid(direction):
+		if not self.movement_valid(direction): # XXX here's where execution stops - I think the 
 			return False
 		
 		self._characterModel.move(direction)
 		return True
 
+	# XXX this is not how a controller should be used... it should be asking the model
 	def player_has_won(self):
-		if self._characterModel.get_pos() == self._mapController.get_goal_space_coords():
-			return True
-		return False
+		return self._characterModel.get_pos() == self._mapModel.get_goal_space_coords()
 	
+	# XXX this is not how a controller should be used... it should be asking the model
 	def place_player_at_start(self):
-		# XXX this is not how a controller should be used... it should be asking the model
-		start_coords = self._mapController.get_starting_coordinates()
+		start_coords = self._mapModel.get_starting_coordinates()
 		self._characterModel.set_pos(*start_coords)

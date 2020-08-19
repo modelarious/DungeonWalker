@@ -1,6 +1,6 @@
 from factories.GridControllerFactory import GridControllerFactory
-from factories.MapControllerFactory import MapControllerFactory
-from factories.PlayerControllerFactory import PlayerControllerFactory
+from factories.MapControllerMapModelFactory import MapControllerMapModelFactory
+from factories.PlayerControllerPlayerModelFactory import PlayerControllerPlayerModelFactory
 from factories.EnemyOrchestratorFactory import EnemyOrchestratorFactory
 from factories.EnemyControllerFactory import EnemyControllerFactory
 from engines.GameEngine import GameEngine
@@ -26,23 +26,23 @@ gridController = GridControllerFactory(
 	max_x=max_x, max_y=max_y, grid_size=grid_size, colors=colors
 ).getController()
 
-mapController = MapControllerFactory(
+mapController, mapModel = MapControllerMapModelFactory(
 	max_x_tiles=max_x//grid_size,
 	max_y_tiles=max_y//grid_size,
 	grid_size=grid_size
 ).getController()
 
-playerController = PlayerControllerFactory(
+playerController, playerModel = PlayerControllerPlayerModelFactory(
 	grid_size=grid_size,
-	mapController=mapController
+	mapModel=mapModel
 ).getController()
 
-enemyControllerFactory = EnemyControllerFactory(mapController, playerController, grid_size)
+enemyControllerFactory = EnemyControllerFactory(mapModel, playerController, grid_size)
 
 enemyOrchestrator = EnemyOrchestratorFactory(
 	enemyControllerFactory=enemyControllerFactory,
 	mapController=mapController,
-	playerController=playerController
+	playerModel=playerModel
 ).getOrchestrator()
 
 # observer pattern used to generate enemy spawns when the map is regenerated
