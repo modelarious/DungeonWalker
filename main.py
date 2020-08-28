@@ -37,7 +37,7 @@ playerController, playerModel = PlayerControllerPlayerModelFactory(
 	mapModel=mapModel
 ).getController()
 
-enemyControllerFactory = EnemyControllerFactory(mapModel, playerController, grid_size)
+enemyControllerFactory = EnemyControllerFactory(mapModel, playerModel, grid_size)
 
 enemyOrchestrator = EnemyOrchestratorFactory(
 	enemyControllerFactory=enemyControllerFactory,

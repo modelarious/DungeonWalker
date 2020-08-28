@@ -14,12 +14,12 @@ from controllers.mvc.PlayerController import PlayerController
 
 infinity = 999999999
 
-# should be abstract class that defines an interface
 class AIState:
-	def __init__(self, playerController, enemyController, enemyModel):
-		self.playerController = playerController
-		self.enemyController = enemyController
+	def __init__(self, playerModel, enemyModel, mapModel, enemyController):
+		self.playerModel = playerModel
 		self.enemyModel = enemyModel
+		self.mapModel = mapModel
+		self.enemyController = enemyController # to update the AI state
 		self.lookahead = 7
 
 	def decide_on_movement(self, directions, preventedPositions):
@@ -33,25 +33,21 @@ class AIState:
 		return False
 	
 	def get_distance_to_player(self, iEnemyModel):
-		playerPosition = self.playerController.get_pos()
+		playerPosition = self.playerModel.get_pos()
 		return manhatten_distance(*playerPosition, *iEnemyModel.get_pos())
 	
 	def get_speculative_distance_to_player(self, iEnemyModel, move):
-		playerPosition = self.playerController.get_pos()
+		playerPosition = self.playerModel.get_pos()
 		return manhatten_distance(*playerPosition, *iEnemyModel.get_speculative_position(move))
 
 	# check if this is a legal move
-	# XXX this shouldn't be handled by the controller
-	def movement_allowed(self, move, preventedPositions):
-		# XXX yup, and now it's coming back to bite me :(
-		# XXX these should be questions to the board model, not the enemyController
-		return self.enemyController.movement_valid(move) and not self.enemyController.movement_prevented(move, preventedPositions)
+	def movement_allowed(self, move, preventedPositions, iEnemyModel):
+		return iEnemyModel.movement_valid(move, self.mapModel) and not iEnemyModel.movement_prevented(move, preventedPositions)
 	
 	# this is a state in which the enemy has landed on the player
-	# XXX this shouldn't be handled by the controller
+	# XXX either use it, or get rid of it
 	def is_winning_state(self, position):
-		# XXX yeah, this is gross, so give this object the model then!
-		return self.playerController._characterModel.get_pos() == position
+		return self.playerModel.get_pos() == position
 
 class BFSQueueEntry:
 	def __init__(self, initialMovementFromStartTile, positionBeforeApplyingMove, moveToApply, depth=0):
@@ -82,22 +78,23 @@ class NPlyLookaheadAIState(AIState):
 		q = Queue()
 
 		for initialMove in directions:
-			if self.movement_allowed(initialMove, preventedPositions):
+			if self.movement_allowed(initialMove, preventedPositions, self.enemyModel):
 				# initialMove will stay constant throughout execution of this algo (basically saying
-				# that the current position was reached when the very first movement was initialMove)
+				# that the current position was reached when the very first movement was initialMove).
+				# If we find the player then we want to attribute it to the correct initial move
 
 				# currentPosition will be the position before you apply the current move
 				currentPosition = self.enemyModel.get_pos()
 
-				# currentMove is the move that you want to apply next in the BFS search
-				# as this is the first move, the currentMove and initialMove are the same
+				# currentMove is the move that you want to apply next in the BFS search.
+				# As this is the first move, the currentMove and initialMove are the same
 				currentMove = initialMove 
 				q.put(BFSQueueEntry(initialMove, currentPosition, currentMove))
 		
 		return q
 
-	# XXX should use a MockEnemy object to apply all the transformations... or at least a copy
-	# of the enemyModel, cause otherwise you'll be adding to the move queue and not undoing
+	# Using a MockEnemy object to apply all the transformations, cause otherwise it'll be 
+	# adding to the move queue for the enemy model and not undoing
 	
 	# The first time a position is reached on the board will automatically be the shortest distance
 	# as we're searching breadth first.  Because of this, we can prune search from spaces we've seen 
@@ -112,9 +109,7 @@ class NPlyLookaheadAIState(AIState):
 		minDistToPlayer = infinity
 		seen = set()
 
-		enemyClone = self.enemyModel.get_copy() # XXX DEAR GOD NO, Some of the functions used in here ask the
-		# XXX enemyController for things, and that will not line up with the clone
-		# XXX Like damn, change those functions to take an enemy model as input
+		enemyClone = self.enemyModel.get_copy()
 		while not searchQueue.empty():
 			bFSQueueEntry = searchQueue.get()
 
@@ -150,7 +145,7 @@ class NPlyLookaheadAIState(AIState):
 			currDepth = bFSQueueEntry.get_depth()
 			if currDepth < depthLimit:
 				for nextMove in directions:
-					if self.movement_allowed(nextMove, preventedPositions):
+					if self.movement_allowed(nextMove, preventedPositions, enemyClone):
 						nextPos = enemyClone.get_speculative_position(nextMove)
 						if nextPos not in seen:
 							newBFSQueueEntry = BFSQueueEntry(initialMove, posAfterMove, nextMove, currDepth+1)
@@ -161,7 +156,7 @@ class NPlyLookaheadAIState(AIState):
 		# transition back to random moves if the player is now out of range
 		# XXX do the transition after... is there some way to enforce this?
 		if not self.player_within_range():
-			newState = RandomAIState(self.playerController, self.enemyController, self.enemyModel)
+			newState = RandomAIState(self.playerModel, self.enemyModel, self.mapModel, self.enemyController)
 			self.enemyController.update_state(newState)
 			return newState.decide_on_movement(directions, preventedPositions)
 
@@ -175,45 +170,49 @@ class NPlyLookaheadAIState(AIState):
 
 class RandomAIState(AIState):
 
-	def __init__(self, playerController, enemyController, enemyModel):
-		super().__init__(playerController, enemyController, enemyModel)
+	def __init__(self, playerModel, enemyModel, mapModel, enemyController):
+		super().__init__(playerModel, enemyModel, mapModel, enemyController)
 		self.previousMove = None # XXX use this to make the random player walk in straight lines until they can't
 
 	def decide_on_movement(self, directions, preventedPositions):
 		# transition to attack state if in range of player and let that state decide
 		if self.player_within_range():
-			newState = NPlyLookaheadAIState(self.playerController, self.enemyController, self.enemyModel)
+			newState = NPlyLookaheadAIState(self.playerModel, self.enemyModel, self.mapModel, self.enemyController)
 			self.enemyController.update_state(newState)
 			return newState.decide_on_movement(directions, preventedPositions)
 
 		# since the enemy is far away from the player, just move randomly
 		for move in directions:
-			if self.movement_allowed(move, preventedPositions):
+			if self.movement_allowed(move, preventedPositions, self.enemyModel):
 				return move
 
 		# didn't find a move that worked
-		return None
+		return NullMove()
 
 
 
-# XXX might be better not to give the enemy controller the player controller but instead an object that
-# wraps the player model and lets the enemy make queries about the player 
+# XXX type hints
+from models.CharacterModel import CharacterModel
+from models.MapModel import MapModel
+
 class EnemyController(CharacterController):
 	def __init__(self, 
 			characterView: CharacterView,
-			characterModel: CharacterModel,
-			mapController: MapController,
-			playerController: PlayerController ):
-		super().__init__(characterView, characterModel, mapController)
-		self.playerController = playerController
+			characterModel: CharacterModel, # enemy model
+			mapModel: MapModel,
+			playerModel: CharacterModel ):
 
-		beginningAIState = RandomAIState(self.playerController, self, self._characterModel) # XXX pass this in # XXX this needs a major refactor, the enemy controller should not be what is used here, instead it should be the characterModel 
-		self.AIState = beginningAIState
+		super().__init__(characterView, characterModel, mapModel)
+		self._playerModel = playerModel
+
+		#XXX should ai state should be a property of the characterModel? maybe I need an enemyModel
+		beginningAIState = RandomAIState(self._playerModel, self._characterModel, self._mapModel, self)
+		self._AIState = beginningAIState
 
 	def update_position(self, preventedPositions):
 		directions = [Right(), Left(), Up(), Down(), NullMove()]
 		shuffle(directions)
-		move = self.AIState.decide_on_movement(directions, preventedPositions)
+		move = self._AIState.decide_on_movement(directions, preventedPositions)
 
 		if move == None:
 			return False
@@ -221,5 +220,6 @@ class EnemyController(CharacterController):
 		self._characterModel.move(move)
 		return True
 	
+	# called by the AIState object to update what state the AI is in
 	def update_state(self, newState):
-		self.AIState = newState
+		self._AIState = newState
