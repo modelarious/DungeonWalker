@@ -6,10 +6,12 @@ from factories.EnemyControllerFactory import EnemyControllerFactory
 from engines.GameEngine import GameEngine
 
 
-# XXX Get rid of this nonsense
+# XXX Get rid of this nonsense, define all colors in one place and import them
 class Colors():
 	def __init__(self):
 		self.BLACK = (255, 255, 255)
+
+# XXX make sure that no controllers are being passed into other controllers
 
 grid_size = 24
 # max_x_dim = 32
