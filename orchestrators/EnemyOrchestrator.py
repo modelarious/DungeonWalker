@@ -1,7 +1,8 @@
+from helpers.ManhattenDistance import manhatten_distance
 class EnemyOrchestrator:
-    def __init__(self, enemyControllerFactory, mapController, playerController):
+    def __init__(self, enemyControllerFactory, mapController, playerModel):
         self.enemyControllerFactory = enemyControllerFactory
-        self.playerController = playerController
+        self.playerModel = playerModel
         self.mapController = mapController
 
         self.enemyControllerArray = None
@@ -11,7 +12,7 @@ class EnemyOrchestrator:
     # XXX so that you don't have these really dumb calls that ask the controller to ask the model something.
     # XXX you should really be passing the model into this class and not the controller
     def enemy_hit_player(self):
-        playerPos = self.playerController.get_pos()
+        playerPos = self.playerModel.get_pos()
         for enemy in self.enemyControllerArray:
             enemyPos = enemy.get_pos()
             if enemyPos == playerPos:
@@ -35,19 +36,27 @@ class EnemyOrchestrator:
         for enemy in self.enemyControllerArray:
             preventedPositions.append(enemy.get_pos())
 
-        # update the enemy positions. When the position updates, the new enemy position becomes blacklisted
-        # and the old position gets removed from the blacklist
-        for enemyController in self.enemyControllerArray:
+        # sort enemies by manhatten_distance to player to prevent them from blocking each other when moving in a row
+        enemiesSortedByDistanceToPlayer = sorted(
+            self.enemyControllerArray, 
+            key=lambda e : manhatten_distance(*e.get_pos(), *self.playerModel.get_pos())
+        )
+
+        # update the enemy positions. Make sure the current enemy's position isn't included in the blacklist.
+        # When the position updates, the new enemy position becomes blacklisted
+        for enemyController in enemiesSortedByDistanceToPlayer:
             previousPosition = enemyController.get_pos()
+            preventedPositions.remove(previousPosition)
+
             enemyController.update_position(preventedPositions)
 
-            preventedPositions.remove(previousPosition)
             preventedPositions.append(enemyController.get_pos())
     
     def remove_enemy_from_player_position(self):
-        playerPos = self.playerController.get_pos()
+        playerPos = self.playerModel.get_pos()
         
         # XXX could replace this with some functional programming using filter()
+        # ..... or the pythonic approach of using list comprehension
         newEnemyArray = []
         for enemy in self.enemyControllerArray:
             enemyPos = enemy.get_pos()

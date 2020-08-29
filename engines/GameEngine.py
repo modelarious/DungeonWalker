@@ -43,11 +43,14 @@ class GameEngine(object):
 					pygame.quit()
 					sys.exit()
 				
+				# if the input event is something the player responds to
 				if self.playerController.handleInputEvent(event):
 
+					# first check if the player landed on an enemy, if so then remove the enemy
 					if self.enemyOrchestrator.player_hit_enemy():
 						self.enemyOrchestrator.remove_enemy_from_player_position()
 					
+					# now checks if the player has won
 					if self.playerController.player_has_won():
 						self.mapController.generate_new_map()
 						self.playerController.place_player_at_start()
