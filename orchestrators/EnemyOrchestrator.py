@@ -36,7 +36,7 @@ class EnemyOrchestrator:
         for enemy in self.enemyControllerArray:
             preventedPositions.append(enemy.get_pos())
 
-        # sort enemies by manhatten_distance to player to prevent them from blocking each other when moving
+        # sort enemies by manhatten_distance to player to prevent them from blocking each other when moving in a row
         enemiesSortedByDistanceToPlayer = sorted(
             self.enemyControllerArray, 
             key=lambda e : manhatten_distance(*e.get_pos(), *self.playerModel.get_pos())
