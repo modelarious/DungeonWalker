@@ -13,7 +13,7 @@ class Colors():
 
 # XXX make sure that no controllers are being passed into other controllers
 
-grid_size = 24
+grid_size = 16
 # max_x_dim = 32
 # max_y_dim = 24
 

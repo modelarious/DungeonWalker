@@ -53,6 +53,7 @@ class GameEngine(object):
 					# now checks if the player has won
 					if self.playerController.player_has_won():
 						self.mapController.generate_new_map()
+
 						self.playerController.place_player_at_start()
 					
 					else:

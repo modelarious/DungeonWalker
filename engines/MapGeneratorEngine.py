@@ -24,7 +24,7 @@ class MapGeneratorEngine():
         self.additionController.add_room(room)
 
         # track this room in the graph
-        self.autoconnect.add_anchors(room)
+        self.autoconnect.add_room(room)
 
         # track this room for collision checks
         self.rooms.append(room)
@@ -38,7 +38,6 @@ class MapGeneratorEngine():
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
         if self.autoconnect.have_edge(p1, p2):
-            # print("returning early as we've already done this shit!")
             return True
 
         # Discover a path that connects the rooms using depth limited bfs... if you
@@ -46,13 +45,11 @@ class MapGeneratorEngine():
         # then return false
         path = self._depth_limited_search(p1, p2)
         if not path:
-            # print("didn't work")
             return False
-        else:
-            self.autoconnect.add_edge(p1, p2)
-            self.additionController.add_path(path)
-            # print("connected up the path and all that")
-            return True
+        
+        # self.autoconnect._add_edge(p1, p2)
+        self.additionController.add_path(path)
+        return True
 
     def _acceptable_char(self, pt):
         _acceptable_chars = [charSet[s] for s in ["anchor", "blocked", "pathTemp"]] #XXX this is bad!! these should be constants if you reference them like this

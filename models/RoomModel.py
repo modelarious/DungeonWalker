@@ -85,7 +85,7 @@ class RoomModel(object):
 			self.bottomY + self.boundarySize > otherRoom.topY]
 		return all(conds)
 
-	def getAnchors(self):
+	def get_anchors(self):
 		return self.anchors
 	
 	def get_left_anchor(self):
@@ -104,7 +104,7 @@ class RoomModel(object):
 		spawnPoints = []
 		for ptX in range(self.width):
 			for ptY in range(self.height):
-				if random() > 0.95:
+				if random() > 0.999:
 					coords = (ptX + self.leftX, ptY + self.topY)
 					spawnPoints.append(coords)
 

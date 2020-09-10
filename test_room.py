@@ -65,7 +65,7 @@ class TestRoomCreation(unittest.TestCase):
 	])
 	def test_anchors_in_correct_locations(self, name, roomParams, expectedAnchors):
 		r = Room(*roomParams)
-		self.assertEqual(r.getAnchors(), expectedAnchors)
+		self.assertEqual(r.get_anchors(), expectedAnchors)
 
 	@parameterized.expand([
 		["Room 2 equals Room 1", Room(5, 5, 1, 1), Room(5, 5, 1, 1)],
