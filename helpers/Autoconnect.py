@@ -4,6 +4,40 @@ from queue import Queue, PriorityQueue
 from helpers.ManhattenDistance import manhatten_distance
 from uuid import uuid4
 
+class FasterPriorityQueue(object):
+
+    def __init__(self, nodeList, autoconnect):
+        self.edgeDict = dict()
+        self._populate_edge_dict(nodeList, autoconnect)
+
+    def _populate_edge_dict(self, nodes, autoconnect):
+        for a1 in nodes:
+            for a2 in nodes:
+                currEdge = (a1, a2)
+                if autoconnect.points_already_have_path(*currEdge):
+                    continue
+
+                distanceKey = manhatten_distance(*a1, *a2)
+                self.put(currEdge, distanceKey)
+
+        print("finished generating queue")
+    
+    def put(self, val, prio):
+        if prio not in self.edgeDict:
+            self.edgeDict[prio] = set()
+        self.edgeDict[prio].add(val)
+
+    def get(self):
+        minPrio = min(self.edgeDict.keys())
+        returnVal = self.edgeDict[minPrio].pop()
+        if self.edgeDict[minPrio] == set():
+            del self.edgeDict[minPrio]
+        return returnVal
+    
+    def empty(self):
+        return self.edgeDict == dict()
+
+
 class Autoconnect(object):
     def __init__(self):
         self._edges = dict()
@@ -150,10 +184,7 @@ class Autoconnect(object):
         q = PriorityQueue()
         for a1 in self._anchors:
             for a2 in self._anchors:
-                if a1 == a2:
-                    continue
-
-                if self.have_edge(a1, a2):
+                if self.points_already_have_path(a1, a2):
                     continue
                 
                 # something like ( 5 , ((1, 1), (6, 1)) )
@@ -162,7 +193,26 @@ class Autoconnect(object):
                     (a1, a2)
                 )
                 q.put(distance_edge_tuple)
+        print("finished generating queue")
         return q
+    
+    def _compute_all_unused_possible_edges_dict(self):
+        d = dict()
+        for a1 in self._anchors:
+            for a2 in self._anchors:
+                currEdge = (a1, a2)
+                if self.points_already_have_path(*currEdge):
+                    continue
+            
+                distanceKey = manhatten_distance(*a1, *a2)
+                if distanceKey not in d:
+                    d[distanceKey] = set()
+                d[distanceKey].add(currEdge)
+        print("finished generating queue")
+        return d
+    
+    def _compute_using_new_class(self):
+        return FasterPriorityQueue(self._anchors, self)
 
     def connect_graph(self, mapGenerationEngine):
         # from pprint import pprint
@@ -174,9 +224,12 @@ class Autoconnect(object):
 
         # returns a priority queue where we consider smallest edges first
         consideredEdges = self._compute_all_unused_possible_edges()
+        conputedhoo = self._compute_all_unused_possible_edges_dict()
+        consideredEdges = self._compute_using_new_class()
 
         while not consideredEdges.empty():
-            dist, edge = consideredEdges.get()
+            edge = consideredEdges.get()
+
 
             # print(f"DIST='{dist}' edge='{edge}'")
 
@@ -232,7 +285,7 @@ class Autoconnect(object):
                 return True
             
             # if there already exists a path between these two points, then continue
-            if self._points_already_have_path(*edge):
+            if self.points_already_have_path(*edge):
                 continue
 
             # if we succeeded in connecting the two nodes, then update connected components
@@ -251,7 +304,7 @@ class Autoconnect(object):
         toComponent = self._point_to_component_map[toPoint]
         return fromComponent, toComponent
     
-    def _points_already_have_path(self, fromPoint, toPoint):
+    def points_already_have_path(self, fromPoint, toPoint):
         fromComponent, toComponent = self._get_components(fromPoint, toPoint)
         return fromComponent == toComponent
 

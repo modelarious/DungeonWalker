@@ -47,7 +47,6 @@ class MapGeneratorEngine():
         if not path:
             return False
         
-        # self.autoconnect._add_edge(p1, p2)
         self.additionController.add_path(path)
         return True
 
