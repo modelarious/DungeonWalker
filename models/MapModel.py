@@ -31,6 +31,14 @@ class MapModel():
 
 		self.enemySpawnPoints = []
 	
+	def update(self, otherMapModel):
+		self.width = otherMapModel.width
+		self.height = otherMapModel.height
+		self._board = otherMapModel._board
+		self.starting_point = otherMapModel.starting_point
+		self.goal_point = otherMapModel.goal_point
+		self.enemySpawnPoints = otherMapModel.enemySpawnPoints
+
 	def _create_empty_board(self):
 		board = []
 		for y in range(self.height):
