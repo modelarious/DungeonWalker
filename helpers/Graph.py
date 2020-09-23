@@ -1,5 +1,6 @@
 from itertools import combinations
 from queue import Queue
+from helpers.ManhattenDistance import manhatten_distance
 
 #Separating the data structure (Graph) from the algorithm that uses it (Autoconnect)
 class Graph(object):
