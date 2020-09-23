@@ -59,7 +59,7 @@ class AdditionController():
                 self.board.change_tile(point, charSet["passable"])
 
         # add the anchors to the board
-        for anchor in room.getAnchors():
+        for anchor in room.get_anchors():
             self.board.change_tile(anchor, charSet["anchor"])
     
     # draw every node in the path
