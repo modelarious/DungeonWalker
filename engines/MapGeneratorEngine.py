@@ -37,7 +37,7 @@ class MapGeneratorEngine():
     # XXX anything that handles rooms should be in this engine, everything else should go in the AdditionController?
     def connect_path_nodes(self, p1, p2):
         # no need to recompute this if we've already done it
-        if self.autoconnect.have_edge(p1, p2):
+        if self.autoconnect.points_already_have_path(p1, p2):
             return True
 
         # Discover a path that connects the rooms using depth limited bfs... if you
