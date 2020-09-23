@@ -33,7 +33,7 @@ class MapController(ControllerBaseClass):
 		self._mapView.updateView(game_screen, self._mapModel)
 	
 	def generate_new_map(self):
-		self._mapModel = self._mapModelFactory.generate_new_map()
+		self._mapModel.update(self._mapModelFactory.generate_new_map())
 		if self.enemyOrchestrator:
 			print("generate new enemies")
 			self.enemyOrchestrator.generate_new_enemies()
