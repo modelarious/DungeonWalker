@@ -41,5 +41,4 @@ class PlayerController(CharacterController):
 	# XXX this is not how a controller should be used... it should be asking the model
 	def place_player_at_start(self):
 		start_coords = self._mapModel.get_starting_coordinates()
-		# XXX MAP IS NOT BEING UPDATED HERE!!
 		self._characterModel.set_pos(*start_coords)

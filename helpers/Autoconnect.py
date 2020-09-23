@@ -223,8 +223,8 @@ class Autoconnect(object):
         # pprint(f"self._anchor_to_room_map {self._anchor_to_room_map}")
 
         # returns a priority queue where we consider smallest edges first
-        consideredEdges = self._compute_all_unused_possible_edges()
-        conputedhoo = self._compute_all_unused_possible_edges_dict()
+        # consideredEdges = self._compute_all_unused_possible_edges()
+        # conputedhoo = self._compute_all_unused_possible_edges_dict()
         consideredEdges = self._compute_using_new_class()
 
         while not consideredEdges.empty():
