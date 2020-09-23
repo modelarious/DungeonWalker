@@ -3,74 +3,72 @@ from itertools import combinations
 from queue import Queue, PriorityQueue
 from helpers.ManhattenDistance import manhatten_distance
 from uuid import uuid4
+from helpers.FasterPriorityQueue import FasterPriorityQueue
 
-class FasterPriorityQueue(object):
+# This code exists to track a graph of nodes and their edges.  It is able to efficiently check
+# if the current graph is connected and to connect the nodes on the graph with a minimum spanning
+# tree.
+# I keep track of all the connected components and update that knowledge every
+# time an edge is added. This way we know when the graph is completely connected because 
+# there will only be a single component on the graph (and therefore it will contain all the nodes).
+# something like: 
+#   [ (p1), (p2), (p3) ]
+#    then p1 and p2 get connected
+#   [ (p1, p2), (p3)]
+#    then p3 is connected
+#   [ (p1, p2, p3) ]
+# you are done
+#
+# so the way to tackle this would be set of sets { {p1}, {p2, p3}, {p4} }
+# then you can check if p2 and p3 are in the same set.
+#
+# but there's a way to improve on this.
+# if you model the above as
+# point_to_component_map = { 
+#   p1 : 1,
+#   p2 : 2,
+#   p3 : 2,
+#   p4 : 3
+# }
+# then you can just check if the graph component number is the same and you have
+# O(1) access to this check
 
-    def __init__(self, nodeList, autoconnect):
-        self.edgeDict = dict()
-        self._populate_edge_dict(nodeList, autoconnect)
+# also going in reverse so that we can find all nodes that belong to a component when we connect two components
+# component_to_point_map = {
+#    1 : { p1 },
+#    2 : { p2, p3 },
+#    3 : { p4 }
+# }
 
-    def _populate_edge_dict(self, nodes, autoconnect):
-        for a1 in nodes:
-            for a2 in nodes:
-                currEdge = (a1, a2)
-                if autoconnect.points_already_have_path(*currEdge):
-                    continue
+# then when you connect two components, you just have to add their sets together and change the component number.
+# using the above data to start, this example is the state after connecting up p2 to p1:
+# { 
+#   p1 : 1,
+#   p2 : 1,
+#   p3 : 1,
+#   p4 : 3
+# }
+# {
+#    1 : { p1 , p2, p3},
+#    3 : { p4 }
+# }
 
-                distanceKey = manhatten_distance(*a1, *a2)
-                self.put(currEdge, distanceKey)
-
-        print("finished generating queue")
-    
-    def put(self, val, prio):
-        if prio not in self.edgeDict:
-            self.edgeDict[prio] = set()
-        self.edgeDict[prio].add(val)
-
-    def get(self):
-        minPrio = min(self.edgeDict.keys())
-        returnVal = self.edgeDict[minPrio].pop()
-        if self.edgeDict[minPrio] == set():
-            del self.edgeDict[minPrio]
-        return returnVal
-    
-    def empty(self):
-        return self.edgeDict == dict()
-
-
+# - to calculate if all nodes are reachable, check that there is only one key in component_to_point_map
+# - to check if the rooms already have a path to each other, check if their component number is the same
+# - initialize to : no points on graph
+# - when add_room is used: each room is added as a component, and all 4 points in the room are added
 class Autoconnect(object):
     def __init__(self):
         self._edges = dict()
         self._anchors = []
         self._anchor_to_room_map = dict()
-
-        # The best way to do this would have a map -> set number.
-        # so the way to tackle this would be set of sets { {p1}, {p2, p3}, {p4}}
-        # then you can check if p2 and p3 are in the same set.
-        #
-        # but there's a way to improve on this
-        # if you model the above as
-        # self._point_to_component_map = { 
-        #   p1 : 1,
-        #   p2 : 2,
-        #   p3 : 2,
-        #   p4 : 3
-        # }
-        # then you can just check if the set number is the same and you have
-        # O(1) access to the values
-
-        # also going to need the reverse:
-        # self._component_to_point_map = {
-        #    1 : { p1 },
-        #    2 : { p2, p3 },
-        #    3 : { p4 }
-        # }
-        # so that we can find all nodes that belong to a set when we connect two sets
         self._point_to_component_map = dict()
         self._component_to_point_map = dict()
 
+
+    # XXX what do we use this for??
     def __cross_connect(self, p1, p2, d):
-        # partner function with __check_with_keyerror, we store True at d[p1][p2]
+        # partner function with __check_with_keyerror, we store True at d[p1][p2] so that we can check
         if p1 not in d:
             d[p1] = dict()
         if p2 not in d:
@@ -90,12 +88,11 @@ class Autoconnect(object):
     # add an edge between two nodes
     def _add_edge(self, p1, p2):
         self.__cross_connect(p1, p2, self._edges)
-        # from pprint import pprint
-        # print(f"cross connected the edge {p1}, {p2}, now edges is")
-        # pprint(self._edges)
 
     # test if an edge exists between two nodes
     def have_edge(self, p1, p2):
+        # XXX WE CAN CALCULATE THIS DIFFERENTLY!!!
+        # XXX points_already_have_path
         return self.__check_with_keyerror(p1, p2, self._edges)
 
     # get all points that have an edge with this point
@@ -119,6 +116,8 @@ class Autoconnect(object):
     def _add_nodes(self, room):
         # connect the anchors in the edge list to make the room a strongly connected component
         anchors = room.get_anchors()
+
+        # XXX what do we use this for?? it's a collection of all nodes, but do we need this?
         self._anchors.extend(anchors)
         for anchor1, anchor2 in combinations(anchors, 2):
             anchor1x, anchor1y = anchor1
@@ -180,105 +179,48 @@ class Autoconnect(object):
         # guaranteed there will be a best pair, as the best pair will at least be two anchors in the same room
         return self._anchor_to_room_map[farthest_point], farthest_point, corresponding_givenRoom_anchor
 
-    def _compute_all_unused_possible_edges(self):
-        q = PriorityQueue()
-        for a1 in self._anchors:
-            for a2 in self._anchors:
-                if self.points_already_have_path(a1, a2):
-                    continue
+    # def _compute_all_unused_possible_edges_slow(self):
+    #     q = PriorityQueue()
+    #     for a1 in self._anchors:
+    #         for a2 in self._anchors:
+    #             if self.points_already_have_path(a1, a2):
+    #                 continue
                 
-                # something like ( 5 , ((1, 1), (6, 1)) )
-                distance_edge_tuple = (
-                    manhatten_distance(*a1, *a2),
-                    (a1, a2)
-                )
-                q.put(distance_edge_tuple)
-        print("finished generating queue")
-        return q
+    #             # something like ( 5 , ((1, 1), (6, 1)) )
+    #             distance_edge_tuple = (
+    #                 manhatten_distance(*a1, *a2),
+    #                 (a1, a2)
+    #             )
+    #             q.put(distance_edge_tuple)
+    #     print("finished generating queue")
+    #     return q
     
-    def _compute_all_unused_possible_edges_dict(self):
-        d = dict()
-        for a1 in self._anchors:
-            for a2 in self._anchors:
-                currEdge = (a1, a2)
-                if self.points_already_have_path(*currEdge):
-                    continue
+    # fastest of the 3 methods, but less intuitive than using FasterPriorityQueue
+    # def _compute_all_unused_possible_edges_dict(self):
+    #     d = dict()
+    #     for a1 in self._anchors:
+    #         for a2 in self._anchors:
+    #             currEdge = (a1, a2)
+    #             if self.points_already_have_path(*currEdge):
+    #                 continue
             
-                distanceKey = manhatten_distance(*a1, *a2)
-                if distanceKey not in d:
-                    d[distanceKey] = set()
-                d[distanceKey].add(currEdge)
-        print("finished generating queue")
-        return d
+    #             distanceKey = manhatten_distance(*a1, *a2)
+    #             if distanceKey not in d:
+    #                 d[distanceKey] = set()
+    #             d[distanceKey].add(currEdge)
+    #     print("finished generating queue")
+    #     return d
     
-    def _compute_using_new_class(self):
+    def _compute_all_unused_possible_edges(self):
         return FasterPriorityQueue(self._anchors, self)
 
     def connect_graph(self, mapGenerationEngine):
-        # from pprint import pprint
-        # print("connect_graph was called")
-        # pprint("self.edges: ")
-        # pprint(self._edges)
-        # pprint(f"self._anchors {self._anchors}")
-        # pprint(f"self._anchor_to_room_map {self._anchor_to_room_map}")
-
         # returns a priority queue where we consider smallest edges first
-        # consideredEdges = self._compute_all_unused_possible_edges()
-        # conputedhoo = self._compute_all_unused_possible_edges_dict()
-        consideredEdges = self._compute_using_new_class()
+        consideredEdges = self._compute_all_unused_possible_edges()
 
+        # XXX in the case of two rooms, you will never get to check if the graph is already connected
         while not consideredEdges.empty():
             edge = consideredEdges.get()
-
-
-            # print(f"DIST='{dist}' edge='{edge}'")
-
-            # # if we don't want to connect these two points for any reason
-            # XXX in the case of two rooms, you will never get to check if the graph is already connected
-            # you need to refine your approach here. get_reachable_nodes is returning a list that contains the same values multiple times,
-            # there has got to be a better way to traverse this graph, or at least keep track of which rooms
-            # are already connected instead of doing it by point, so that the get_reachable_nodes call
-            # isn't so expensive.  If you keep track of all the connected components and update that knowledge every
-            # time an edge is added, you will know when the graph is completely connected because there will only
-            # be a single component on the graph (and therefore it will contain all the nodes).
-            # something like: 
-            #   [ (r1), (r2), (r3) ]
-            #    then r1 and r2 get connected
-            #   [ (r1, r2), (r3)]
-            #    then r3 is connected
-            #   [ (r1, r2, r3) ]
-            # you are done
-
-            # The best way to do this would have a map -> set number.
-            # so the way to tackle this would be set of sets { {p1}, {p2, p3}, {p4}}
-            # then you can check if p2 and p3 are in the same set.
-            #
-            # but there's a way to improve on this
-            # if you model the above as
-            # { 
-            #   p1 : 1,
-            #   p2 : 2,
-            #   p3 : 2,
-            #   p4 : 3
-            # }
-            # then you can just check if the set number is the same and you have
-            # O(1) access to the values
-
-            # also going to need the reverse:
-            # {
-            #    1 : { p1 },
-            #    2 : { p2, p3 },
-            #    3 : { p4 }
-            # }
-            # so that we can find all nodes that belong to a set when we connect two sets
-
-            # to calculate if all nodes are reachable, check that there is only one key in the reverse
-
-            # to check if the rooms already have a path to each other, check if their set number is the same
-
-            # initialize to : each room is its own set of points
-
-            # anyways....
 
             # first, if all nodes in the graph are reachable, then we've finished
             if self._graph_is_connected():
@@ -293,6 +235,10 @@ class Autoconnect(object):
                 self._connect_components(*edge)
                 self._add_edge(*edge)
 
+        # if the graph is now connected, then return true.
+        if self._graph_is_connected():
+            return True
+        
         return False
 
     def _graph_is_connected(self):
