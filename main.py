@@ -14,7 +14,7 @@ class Colors():
 
 # XXX make sure that no controllers are being passed into other controllers
 
-grid_size = 24
+grid_size = 32
 max_x_dim = 32
 max_y_dim = 24
 
@@ -31,8 +31,8 @@ gridController = GridControllerFactory(
 ).getController()
 
 mapController, mapModel = MapControllerMapModelFactory(
-	max_x_tiles=max_x//grid_size,
-	max_y_tiles=max_y//grid_size,
+	max_x_tiles=(max_x//grid_size)*4,
+	max_y_tiles=(max_y//grid_size)*4,
 	grid_size=grid_size,
 	camera=camera
 ).getController()
@@ -43,7 +43,7 @@ playerController, playerModel = PlayerControllerPlayerModelFactory(
 	camera=camera
 ).getController()
 
-enemyControllerFactory = EnemyControllerFactory(mapModel, playerModel, grid_size)
+enemyControllerFactory = EnemyControllerFactory(mapModel, playerModel, grid_size, camera)
 
 enemyOrchestrator = EnemyOrchestratorFactory(
 	enemyControllerFactory=enemyControllerFactory,

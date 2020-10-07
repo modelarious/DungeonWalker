@@ -45,15 +45,10 @@ class Camera(object):
 
         return cameraBox
     
-    def get_player_draw_position(self):
-        # if this is the character that we are tracking with the camera
-        # if characterModel == self.playerModel:
-        playerX, playerY = self.playerModel.get_pos()
+    def get_character_draw_position(self, characterModel):
+        playerX, playerY = characterModel.get_pos()
         (minX, _, minY, _) = self.get_camera_box()
         return playerX - minX, playerY - minY
-        
-        # if this is one of the characters we aren't tracking with the camera
-
 
         
 

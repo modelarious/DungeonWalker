@@ -11,7 +11,7 @@ class CharacterView(ViewBaseClass):
 		
 	def updateView(self, game_screen, character_model):
 		if self.camera:
-			x, y = self.camera.get_player_draw_position()
+			x, y = self.camera.get_character_draw_position(character_model)
 		else:
 			x, y = character_model.get_pos()
 		x, y = x * self.grid_size, y * self.grid_size
