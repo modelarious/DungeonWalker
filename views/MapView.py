@@ -12,10 +12,11 @@ class MapView(ViewBaseClass):
 		self._camera = camera
 		
 	def updateView(self, game_screen, mapModel):
-		self._tileMapperView.updateView(game_screen)
 		grid_size = self._grid_size
 		cameraBox = self._camera.get_camera_box(mapModel)
-		print(cameraBox)
+
+		self._tileMapperView.updateView(game_screen, *cameraBox)
+		
 		y = 0
 		for row in mapModel.get_part_of_board(*cameraBox):
 			x = 0
@@ -24,7 +25,6 @@ class MapView(ViewBaseClass):
 				x += grid_size
 			y += grid_size
 			
-
 			# print the board to the terminal
 			char_row = list(map(lambda a : a.get_char(), row))
 			

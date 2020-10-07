@@ -7,9 +7,12 @@ class TileMappedView(ViewBaseClass):
 		self._tileMapper = tileMapper
 		self.grid_size = grid_size
 		
-	def updateView(self, game_screen):
+	def updateView(self, game_screen, minX, maxX, minY, maxY):
+
 		for point, tile in self._tileMapper.get_tile_mapping():
 			x, y = point
+			if x < minX or x >= maxX or y < minY or y >= maxY:
+				continue
 			scaled_x, scaled_y = x*self.grid_size, y*self.grid_size
 			scaledPoint = (scaled_x, scaled_y)
 			game_screen.blit(tile, scaledPoint)
