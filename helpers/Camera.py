@@ -8,9 +8,12 @@ class Camera(object):
     def watch_character(self, characterModel):
         self.playerModel = characterModel
     
-    def get_camera_box(self, mapModel):
+    def watch_map(self, mapModel):
+        self.mapModel = mapModel
+    
+    def get_camera_box(self):
         playerX, playerY = self.playerModel.get_pos()
-        mapWidth, mapHeight = mapModel.get_width(), mapModel.get_height()
+        mapWidth, mapHeight = self.mapModel.get_width(), self.mapModel.get_height()
         halfCameraWidth = (self.cameraWidth // 2)
         halfCameraHeight = (self.cameraHeight // 2)
 
@@ -41,3 +44,16 @@ class Camera(object):
             raise CameraGivenBadBounds(f"a value in the camera box was less than 0: {cameraBox}")
 
         return cameraBox
+    
+    def get_player_draw_position(self):
+        # if this is the character that we are tracking with the camera
+        # if characterModel == self.playerModel:
+        playerX, playerY = self.playerModel.get_pos()
+        (minX, _, minY, _) = self.get_camera_box()
+        return playerX - minX, playerY - minY
+        
+        # if this is one of the characters we aren't tracking with the camera
+
+
+        
+

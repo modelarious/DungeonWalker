@@ -16,6 +16,6 @@ class TileMappedView(ViewBaseClass):
 			if x < minX or x >= maxX or y < minY or y >= maxY:
 				continue
 
-			scaled_x, scaled_y = (x - minX) * 32, (y - minY) * 24
+			scaled_x, scaled_y = (x - minX) * self.grid_size, (y - minY) * self.grid_size
 			scaledPoint = (scaled_x, scaled_y)
 			game_screen.blit(tile, scaledPoint)

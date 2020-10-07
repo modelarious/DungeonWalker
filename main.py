@@ -14,7 +14,7 @@ class Colors():
 
 # XXX make sure that no controllers are being passed into other controllers
 
-grid_size = 8
+grid_size = 24
 max_x_dim = 32
 max_y_dim = 24
 
@@ -22,8 +22,8 @@ camera = Camera(max_x_dim, max_y_dim)
 max_x = 24 * max_x_dim #1024 32*32
 max_y = 24 * max_y_dim #768 32*24
 
-# max_x = 1248
-# max_y = 768
+max_x = 1248
+max_y = 768
 
 colors = Colors()
 gridController = GridControllerFactory(
@@ -39,7 +39,8 @@ mapController, mapModel = MapControllerMapModelFactory(
 
 playerController, playerModel = PlayerControllerPlayerModelFactory(
 	grid_size=grid_size,
-	mapModel=mapModel
+	mapModel=mapModel,
+	camera=camera
 ).getController()
 
 enemyControllerFactory = EnemyControllerFactory(mapModel, playerModel, grid_size)
@@ -55,6 +56,8 @@ mapController.register_enemy_orchestrator(enemyOrchestrator)
 
 # state that we want to watch the player (though we could attach this to an enemy if desired)
 camera.watch_character(playerModel)
+# we want to watch the current board (and not the minimap, for example)
+camera.watch_map(mapModel)
 
 gameEngine = GameEngine(gridController, mapController, playerController, enemyOrchestrator)
 

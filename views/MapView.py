@@ -13,9 +13,7 @@ class MapView(ViewBaseClass):
 		
 	def updateView(self, game_screen, mapModel):
 		grid_size = self._grid_size
-		cameraBox = self._camera.get_camera_box(mapModel)
-
-		
+		cameraBox = self._camera.get_camera_box()
 
 		y = 0
 		for row in mapModel.get_part_of_board(*cameraBox):
