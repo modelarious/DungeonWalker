@@ -14,9 +14,9 @@ class Colors():
 
 # XXX make sure that no controllers are being passed into other controllers
 
-grid_size = 32
-max_x_dim = 32
-max_y_dim = 24
+grid_size = 48
+max_x_dim = 24
+max_y_dim = 15
 
 camera = Camera(max_x_dim, max_y_dim)
 max_x = grid_size * max_x_dim #1024 32*32
