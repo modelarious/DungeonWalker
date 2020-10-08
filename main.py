@@ -19,11 +19,11 @@ max_x_dim = 32
 max_y_dim = 24
 
 camera = Camera(max_x_dim, max_y_dim)
-max_x = 24 * max_x_dim #1024 32*32
-max_y = 24 * max_y_dim #768 32*24
+max_x = grid_size * max_x_dim #1024 32*32
+max_y = grid_size * max_y_dim #768 32*24
 
-max_x = 1248
-max_y = 768
+# max_x = 1248
+# max_y = 768
 
 colors = Colors()
 gridController = GridControllerFactory(
@@ -31,7 +31,7 @@ gridController = GridControllerFactory(
 ).getController()
 
 mapController, mapModel = MapControllerMapModelFactory(
-	max_x_tiles=(max_x//grid_size)*4,
+	max_x_tiles=(max_x//grid_size)*2,
 	max_y_tiles=(max_y//grid_size)*4,
 	grid_size=grid_size,
 	camera=camera

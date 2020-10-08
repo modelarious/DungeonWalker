@@ -104,7 +104,7 @@ class RoomModel(object):
 		spawnPoints = []
 		for ptX in range(self.width):
 			for ptY in range(self.height):
-				if random() > 0.999:
+				if random() > 0.95:
 					coords = (ptX + self.leftX, ptY + self.topY)
 					spawnPoints.append(coords)
 
