@@ -25,3 +25,7 @@ class PointOutsideBoard(Exception):
 # thrown when the LegendLoader tries to load from a template tile that has no associated data
 class LegendTileEmpty(Exception):
 	pass
+
+# thrown when the Camera can't calculate the display area of the map to show the player
+class CameraGivenBadBounds(Exception):
+        pass

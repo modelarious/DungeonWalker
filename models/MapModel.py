@@ -1,6 +1,7 @@
 from settings import MIN_BOARD_WIDTH, MIN_BOARD_HEIGHT, charSet
 from exceptions import PointOutsideBoard, BoardTooSmall
 from copy import copy
+import numpy as np
 
 
 from enum import Enum
@@ -48,6 +49,10 @@ class MapModel():
 	
 	def get_board(self):
 		return self._board
+	
+	def get_part_of_board(self, minX, maxX, minY, maxY):
+		board = np.array(self._board)
+		return board[minY:maxY,minX:maxX]
 	
 	def get_spawn_points(self):
 		return self.enemySpawnPoints

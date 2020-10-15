@@ -6,10 +6,11 @@ from factories.MapModelFactory import MapModelFactory
 from factories.RandomTileMapperFactory import RandomTileMapperFactory
 
 class MapControllerMapModelFactory(FactoryBaseClass):
-	def __init__(self, max_x_tiles, max_y_tiles, grid_size, tileMapperFactoryClass=RandomTileMapperFactory):
+	def __init__(self, max_x_tiles, max_y_tiles, grid_size, camera, tileMapperFactoryClass=RandomTileMapperFactory):
 		self.max_x_tiles = max_x_tiles
 		self.max_y_tiles = max_y_tiles
 		self._grid_size = grid_size # XXX why is this hidden... be consistent
+		self.camera = camera
 		self.tileMapperFactoryClass = tileMapperFactoryClass
 	
 	def getController(self):
@@ -30,6 +31,6 @@ class MapControllerMapModelFactory(FactoryBaseClass):
 			mapModel
 		).get_tile_mapper_and_view()
 		
-		mapView = MapView(self._grid_size, tileMapperView)
+		mapView = MapView(self._grid_size, tileMapperView, self.camera)
 
 		return MapController(mapModel, mapView, mapModelFactory, tileMapper), mapModel
