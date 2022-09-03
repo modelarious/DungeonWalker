@@ -57,10 +57,9 @@ class TileMapper:
                     else:
                         tileLoaderRow.append(Different)
                 tileLoaderKey.append(tuple(tileLoaderRow))
-            
-            tileLoaderKey = tuple(tileLoaderKey)
 
-            self._pointToTileMap[(x,y)] = self._tileLoader.get_tile(tileType, tileLoaderKey)
+            tileLoaderKey = self._fix_weird_corners(tileLoaderKey)
+            self._pointToTileMap[(x,y)] = self._tileLoader.get_tile(tileType, tuple(tileLoaderKey))
 
 
         # add stairs on the goal space
@@ -71,8 +70,42 @@ class TileMapper:
     def get_tile_mapping(self):
         return self._pointToTileMap.items()
 
+    def _fix_weird_corners(self, tileLoaderKey):
+        # some corners don't appear in the tileset, 
+        # so we have to modify the map slightly to get a similar tile 
+        checkForWeirdCornerKey = [
+            (Same,      Same,      Same),
+            (Same,      Same,      Different),
+            (Different, Same,      Different)
+        ]
+        translateToKey = [
+            (Same,      Same,      Different),
+            (Same,      Same,      Different),
+            (Different, Same,      Different)
+        ]
+        
+        checkForWeirdCornerKeys = []
+        for iters in range(4):
+            weirdKey = checkForWeirdCornerKey
+            translateKey = translateToKey
+            for _ in range(iters):
+                # rotate 2d list around center
+                weirdKey = list(zip(*weirdKey[::-1]))
+                translateKey = list(zip(*translateKey[::-1]))
+            checkForWeirdCornerKeys.append((weirdKey, translateKey))
+
+            # transpose key to reverse the orientation
+            weirdKeyTranspose = list(zip(*weirdKey))
+            translateKeyTranspose = list(zip(*translateKey))
+            checkForWeirdCornerKeys.append((weirdKeyTranspose, translateKeyTranspose))
+
+        for weirdKey, translateKey in checkForWeirdCornerKeys:
+            if weirdKey == tileLoaderKey:
+                return translateKey
+        return tileLoaderKey
+
 # going to need two objects at least:
-# - object that handles loading all the tiles from a tileset file -> TileLoader
+# - object that handles loading all the tiles from a tileset file - TileLoader
 # - object that handles reading in the map, mapping the correct tiles to the 
 #   right positions and holding that result in a 2d array, of which a XXX 2x2 
-#   box of tiles can be selected to be returned (step towards the camera feature) -> TileMapper
+#   box of tiles can be selected to be returned (step towards the camera feature) - TileMapper
